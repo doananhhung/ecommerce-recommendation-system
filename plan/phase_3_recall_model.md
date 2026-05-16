@@ -1,14 +1,14 @@
-# Phase 3: Mô hình Truy xuất (Recall Model - Candidate Generation)
+# Phase 3: Giai đoạn Triệu hồi (Recall Model)
 
-## Stage 3.1: Thử nghiệm Mô hình (Model Prototyping - `03_Model_Exp.ipynb`)
-- [x] Xây dựng PyTorch `Dataset` và `DataLoader` cho dữ liệu tương tác User-Item.
-- [x] Thiết kế kiến trúc Deep Learning (Matrix Factorization hoặc Two-Tower) bằng PyTorch (>=2.7).
-- [x] Xác định hàm Loss Function phù hợp (VD: BPR Loss hoặc Contrastive Loss).
-- [x] Train thử nghiệm mô hình trên GPU và trích xuất vector nhúng (Embeddings).
+Mục tiêu: Sàng lọc nhanh từ hàng triệu sản phẩm xuống hàng trăm ứng viên tiềm năng bằng cách sử dụng Deep Learning/Matrix Factorization.
 
-## Stage 3.2: Đưa vào Mã nguồn Chính (Productionizing Code)
-- [x] Triển khai `src/recall_model/dataset.py`.
-- [x] Triển khai `src/recall_model/model.py`.
-- [x] Triển khai `src/recall_model/trainer.py` (chứa vòng lặp huấn luyện, optimizer).
-- [x] Lưu trữ trọng số mô hình vào `models_store/recall_weights.pth`.
-- [x] Lưu trữ vector nhúng của toàn bộ sản phẩm (Item Embeddings) ra file numpy `data/feature_store/item_embeddings.npy`.
+- [ ] **1. Xây dựng Data Loader với Negative Sampling**
+  - [ ] Trong `dataset.py`, triển khai cơ chế Negative Sampling ngẫu nhiên (ví dụ: lấy 4 view cho mỗi 1 purchase/cart) để cân bằng tỷ lệ mẫu.
+- [ ] **2. Cải tiến Cấu trúc Mạng Neural (PyTorch)**
+  - [ ] Khởi tạo mô hình Matrix Factorization (hoặc Two-Tower) với lớp User/Item Embeddings.
+  - [ ] Tích hợp **Focal Loss** vào `trainer.py` thay cho `BCELoss` cơ bản để ép mô hình tập trung vào các mẫu thiểu số (cart, purchase).
+  - [ ] (Tuỳ chọn nâng cao) Tích hợp hàm **BPR Loss (Bayesian Personalized Ranking)** để học xếp hạng theo cặp, giúp giải quyết bài toán ma trận thưa thớt 99.99%.
+- [ ] **3. Huấn luyện và Đánh giá Recall**
+  - [ ] Huấn luyện mô hình trên tập Train (được chia theo thời gian ở Phase 2).
+  - [ ] Đánh giá độ phủ (Hit Rate / Recall@K) trên tập Validation/Test.
+  - [ ] Trích xuất và lưu trọng số Embeddings của User và Item để phục vụ cho Ranking và Serving (`recall_weights.pth`).

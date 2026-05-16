@@ -1,17 +1,17 @@
-# Phase 5: Phục vụ Hệ thống & Đánh giá (Serving Pipeline)
+# Phase 5: Phục vụ mô hình & Đánh giá (Serving Pipeline)
 
-## Stage 5.1: Tích hợp Tìm kiếm Vector (FAISS Integration)
-- [x] Triển khai `src/serving/faiss_index.py`.
-- [x] Khởi tạo FAISS Index (ưu tiên `faiss-gpu`) và nạp `item_embeddings.npy` vào Index.
-- [x] Viết hàm truy vấn ANN để lấy Top-200 ứng viên từ 1 vector User bất kỳ.
-- [x] Kiểm tra thời gian truy xuất đảm bảo tốc độ cực nhanh (< 50ms).
+Mục tiêu: Xây dựng hệ thống suy luận (Inference API) tốc độ cao, kết hợp Vector Search và Ranking thời gian thực.
 
-## Stage 5.2: Kết nối Luồng End-to-End (End-to-End Pipeline)
-- [x] Triển khai `src/serving/ranker.py` để nạp mô hình LightGBM từ đĩa lên bộ nhớ.
-- [x] Triển khai `src/serving/pipeline.py`. Quy trình: Nhận User ID -> Lấy Vector User -> Truy vấn FAISS (200 items) -> Tra cứu Đặc trưng (Feature Lookup) -> LightGBM Ranker -> Trả về Top 20.
-- [x] Viết logic Fallback (Cold-start) cho trường hợp User mới hoàn toàn.
-
-## Stage 5.3: Entrypoints & API
-- [x] Hoàn thiện `main_train.py` để tự động hóa toàn bộ luồng Train từ Phase 2 đến Phase 4 chỉ bằng 1 câu lệnh.
-- [x] Hoàn thiện `main_serve.py` sử dụng FastAPI để bọc Pipeline thành một RESTful API (VD: `/recommend/{user_id}`).
-- [x] Gửi Request giả lập (Load Testing) để kiểm tra độ trễ (Latency) toàn hệ thống và đảm bảo < 100ms.
+- [ ] **1. Khởi tạo FAISS Index (Vector Search)**
+  - [ ] Trong `faiss_index.py`, load Item Embeddings thu được từ kết quả huấn luyện Phase 3.
+  - [ ] Xây dựng index (ví dụ: `IndexFlatIP` cho tích vô hướng hoặc `IndexIVFFlat` cho ANN) để thực hiện quét vector siêu tốc (mili-giây).
+- [ ] **2. Cập nhật Lớp Pipeline**
+  - [ ] Viết lại hàm `recommend` trong `pipeline.py`.
+  - [ ] **Bước 1 (Recall):** Lấy User Embedding tương ứng -> Query vào FAISS để lấy Top-200 Items ứng viên.
+  - [ ] **Bước 2 (Feature Fetching):** Trích xuất các Point-in-time features mới nhất của User và 200 Items ứng viên đó.
+  - [ ] **Bước 3 (Ranking):** Đưa danh sách Features vào LightGBM (từ Phase 4) để tính điểm (Score).
+  - [ ] **Bước 4:** Sort theo Score từ cao xuống thấp và trả về Top-10.
+- [ ] **3. Tích hợp API (FastAPI)**
+  - [ ] Viết các endpoint trong `main_serve.py` (ví dụ: `POST /recommend`).
+  - [ ] Load các mô hình (FAISS, LightGBM) vào bộ nhớ một lần duy nhất lúc khởi động ứng dụng (startup events) để giảm độ trễ.
+  - [ ] Test API bằng cURL hoặc Postman để đảm bảo Response Time < 100ms.

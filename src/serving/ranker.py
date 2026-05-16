@@ -1,6 +1,8 @@
 import lightgbm as lgb
 import pandas as pd
+import numpy as np
 import time
+from typing import Tuple, Any
 
 class LightGBMRanker:
     """
@@ -20,7 +22,7 @@ class LightGBMRanker:
         elapsed = time.time() - start_time
         print(f"LightGBM model loaded in {elapsed:.3f}s")
         
-    def predict(self, features_df: pd.DataFrame) -> np.ndarray:
+    def predict(self, features_df: pd.DataFrame) -> Tuple[Any, float]:
         """
         Dự đoán điểm số (CTR) cho các ứng viên.
         """

@@ -1,12 +1,16 @@
-# Phase 4: Mô hình Xếp hạng (Ranking Model - Precision Scoring)
+# Phase 4: Giai đoạn Xếp hạng (Ranking Model)
 
-## Stage 4.1: Chuẩn bị Dữ liệu Huấn luyện (Feature Joining)
-- [x] Chạy luồng Recall để sinh ra ~200 ứng viên (candidates) cho mỗi User trong tập Train.
-- [x] Nối (Join) các đặc trưng của User và Item từ `data/feature_store/` vào danh sách ứng viên này.
-- [x] Xử lý Missing values và mã hóa các biến phân loại (Categorical Encoding) sẵn sàng cho Tree-model.
+Mục tiêu: Sử dụng cây quyết định Gradient Boosting (LightGBM) để chấm điểm và xếp hạng lại Top-K ứng viên từ mô hình Recall.
 
-## Stage 4.2: Huấn luyện Mô hình (Model Training)
-- [x] Cấu hình LightGBM / XGBoost với chế độ chạy GPU (`device="gpu"`).
-- [x] Thực hiện train mô hình để dự đoán xác suất CTR (Click-Through Rate).
-- [x] Đánh giá mô hình trên tập validation bằng các hàm đo lường `NDCG@K` và `MRR` (`src/ranking_model/metrics.py`).
-- [x] Lưu file mô hình đã train thành công vào `models_store/ranker_model.txt`.
+- [ ] **1. Cấu hình LightGBM cho mất cân bằng dữ liệu**
+  - [ ] Trong `lgbm_train.py`, bổ sung tham số `is_unbalance=True` hoặc tự tính toán cấu hình `scale_pos_weight` vào `params` huấn luyện.
+- [ ] **2. Tích hợp Trọng số Mẫu (Sample Weights)**
+  - [ ] Truyền trọng số (view=0.1, cart=0.5, purchase=1.0) từ Data Pipeline vào cấu trúc `lgb.Dataset(..., weight=sample_weights)` để mô hình hiểu mức độ quan trọng của từng tương tác.
+- [ ] **3. Huấn luyện Mô hình Xếp hạng**
+  - [ ] Tải các đặc trưng Point-in-time đã sinh ra từ Phase 2.
+  - [ ] Đảm bảo sử dụng Time-based Splitting (trong `run_ranking.py`) để tạo `X_train`, `X_test`. Tuyệt đối không xáo trộn dữ liệu tương lai.
+  - [ ] Huấn luyện LightGBM (`num_boost_round=100` hoặc Early Stopping).
+- [ ] **4. Đánh giá Mô hình**
+  - [ ] Cập nhật và sử dụng độ đo `NDCG@K` và `MRR@K` trong file `metrics.py`.
+  - [ ] Đo lường hiệu suất mô hình trên tập Test.
+  - [ ] Lưu mô hình xuống đĩa cứng (`ranker_model.txt`).

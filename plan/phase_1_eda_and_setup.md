@@ -1,13 +1,14 @@
-# Phase 1: Cài đặt Hệ thống & Khám phá Dữ liệu (EDA)
+# Phase 1: Phân tích Dữ liệu (EDA) & Thiết lập
 
-## Stage 1.1: Khởi tạo Cấu trúc Dự án (Project Scaffolding)
-- [x] Tạo cấu trúc thư mục chuẩn (`src/`, `notebooks/`, `data/`, `models_store/`, v.v.).
-- [x] Khởi tạo tài liệu kiến thức cốt lõi trong `.ai-knowledge/`.
-- [x] Cấu hình môi trường Python, `pyproject.toml`.
+Mục tiêu: Thiết lập môi trường và nhận diện các đặc trưng, vấn đề cốt lõi của tập dữ liệu hành vi thương mại điện tử.
 
-## Stage 1.2: Phân tích Khám phá Dữ liệu (EDA - `01_EDA.ipynb`)
-- [x] Load một phần tập dữ liệu (subset).
-- [x] Kiểm tra cấu trúc cột và Missing Values.
-- [x] Tính toán và kiểm chứng độ thưa thớt (Sparsity) của ma trận User-Item.
-- [x] Phân tích tần suất phân bổ các loại hành vi (`event_type`).
-- [x] Phân tích phân bố mức giá (Price distribution).
+- [x] **1. Thiết lập môi trường dự án**
+  - [x] Tạo `uv.lock` hoặc `requirements.txt` (nếu có).
+  - [x] Cài đặt thư viện: `pandas`, `numpy`, `lightgbm`, `torch`, `faiss`, `fastapi`.
+- [x] **2. Tải và đọc dữ liệu thô**
+  - [x] Đọc một phần dữ liệu `2019-Oct.csv` để tránh tràn RAM.
+- [x] **3. Phân tích Dữ liệu Khám phá (EDA)**
+  - [x] Kiểm tra phân phối `event_type` (view, cart, purchase). Phát hiện mất cân bằng dữ liệu cực đoan (~96.8% view).
+  - [x] Tính toán độ thưa thớt (Sparsity) của ma trận User-Item (~99.99%).
+  - [x] Nhận diện giá trị khuyết thiếu ở `category_code` và `brand`.
+  - [x] Vẽ đồ thị phân phối giá (`price`) và phát hiện phân phối lệch phải (skewed).
