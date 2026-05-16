@@ -1,0 +1,67 @@
+# Python bytecode/cache
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+
+# Build/package output
+build/
+dist/
+wheels/
+*.egg-info/
+*.egg
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.env
+.env.*
+!.env.example
+
+# Test/coverage/tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyre/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# Jupyter
+.ipynb_checkpoints/
+*.nbconvert.ipynb
+
+# Project data and generated ML artifacts
+data/
+models_store/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.joblib
+*.pkl
+*.parquet
+*.npy
+*.npz
+
+# Logs and runtime files
+logs/
+*.log
+*.sqlite
+*.db
+
+# IDE/editor/OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Local AI/tooling notes
+.ai-knowledge/

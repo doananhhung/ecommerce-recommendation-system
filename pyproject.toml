@@ -1,0 +1,39 @@
+[project]
+name = "test"
+version = "0.1.0"
+description = "Project for RTX 5060 (CC 12.0) with PyTorch and TensorFlow"
+readme = "README.md"
+requires-python = ">=3.12.3"
+dependencies = [
+    "fastapi",
+    "matplotlib",
+    "numpy",
+    "opencv-python",
+    "pandas",
+    "scikit-learn",
+    "seaborn",
+    "torch>=2.7",
+    "torchvision",
+    "torchaudio",
+    "nbconvert>=7.17.1",
+    "ipykernel>=7.2.0",
+    "pyarrow>=24.0.0",
+    "lightgbm>=4.6.0",
+    "faiss-cpu>=1.13.2",
+    "uvicorn>=0.47.0",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cuda"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cuda" }
+torchvision = { index = "pytorch-cuda" }
+torchaudio = { index = "pytorch-cuda" }
+
+[dependency-groups]
+dev = [
+    "ipykernel>=7.2.0",
+]
