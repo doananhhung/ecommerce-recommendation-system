@@ -62,6 +62,3 @@ logs/
 *.swo
 .DS_Store
 Thumbs.db
-
-# Local AI/tooling notes
-.ai-knowledge/

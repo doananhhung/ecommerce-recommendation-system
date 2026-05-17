@@ -21,6 +21,7 @@ dependencies = [
     "lightgbm>=4.6.0",
     "faiss-cpu>=1.13.2",
     "uvicorn>=0.47.0",
+    "joblib>=1.5.3",
 ]
 
 [[tool.uv.index]]
