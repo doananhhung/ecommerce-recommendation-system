@@ -1,5 +1,5 @@
 [project]
-name = "test"
+name = "EDA_project"
 version = "0.1.0"
 description = "Project for RTX 5060 (CC 12.0) with PyTorch and TensorFlow"
 readme = "README.md"

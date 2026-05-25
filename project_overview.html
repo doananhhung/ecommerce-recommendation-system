@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Two-Stage Recommender System - Project Overview</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Mermaid.js for architectural diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            theme: 'base',
+            startOnLoad: true,
+            securityLevel: 'loose',
+            fontFamily: "'Segoe UI', 'Inter', 'Segoe UI Historic', 'Arial', sans-serif",
+            themeVariables: {
+                fontFamily: "'Segoe UI', 'Inter', 'Segoe UI Historic', 'Arial', sans-serif",
+                fontSize: '13px',
+                // Theme colors (Clean white/soft pastel blocks for high legibility)
+                background: '#ffffff',
+                primaryColor: '#e0f2fe',      // Soft sky blue for processes
+                primaryBorderColor: '#0284c7', // Sky blue borders
+                primaryTextColor: '#0f172a',   // Dark gray text
+                lineColor: '#475569',          // Slate gray lines
+                secondaryColor: '#f0fdf4',    // Soft green for serving nodes
+                secondaryBorderColor: '#16a34a',
+                secondaryTextColor: '#064e3b',
+                tertiaryColor: '#fffbeb',      // Soft yellow for auxiliary nodes
+                tertiaryBorderColor: '#d97706',
+                tertiaryTextColor: '#78350f',
+                nodeBorder: '#0284c7',
+                mainBkg: '#ffffff',
+                actorBkg: '#ffffff'
+            }
+        });
+    </script>
+
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-card: rgba(17, 24, 39, 0.7);
+            --bg-card-hover: rgba(31, 41, 55, 0.8);
+            --border-color: rgba(255, 255, 255, 0.08);
+            
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            
+            --color-primary: #00d2ff;
+            --color-primary-rgb: 0, 210, 255;
+            --color-secondary: #00f5d4;
+            --color-accent: #9b5de5;
+            --color-accent-rgb: 155, 93, 229;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            
+            --font-sans: 'Inter', sans-serif;
+            --font-title: 'Outfit', sans-serif;
+            --font-mono: 'Fira Code', monospace;
+            
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --transition-fast: 0.2s ease;
+            --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(var(--color-primary-rgb), 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(var(--color-accent-rgb), 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+            padding-bottom: 80px;
+        }
+
+        /* Container Layout */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* Header Navigation */
+        header {
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(11, 15, 25, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: var(--bg-main);
+            font-family: var(--font-title);
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(0, 210, 255, 0.4);
+        }
+
+        .logo-text h1 {
+            font-family: var(--font-title);
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #fff, var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 0.75rem;
+            color: var(--color-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .tech-tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tech-badge {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .tech-badge.pytorch {
+            color: #ff6f61;
+            border-color: rgba(255, 111, 97, 0.2);
+            background: rgba(255, 111, 97, 0.05);
+        }
+
+        .tech-badge.lightgbm {
+            color: #3b82f6;
+            border-color: rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .tech-badge.fastapi {
+            color: #059669;
+            border-color: rgba(5, 150, 105, 0.2);
+            background: rgba(5, 150, 105, 0.05);
+        }
+
+        /* Hero Banner */
+        .hero {
+            padding: 60px 0 40px 0;
+            text-align: center;
+        }
+
+        .hero h2 {
+            font-family: var(--font-title);
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            line-height: 1.1;
+            background: linear-gradient(135deg, #fff 30%, var(--color-primary) 70%, var(--color-accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 750px;
+            margin: 0 auto 30px auto;
+        }
+
+        /* Quick Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            transition: var(--transition-normal);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(var(--color-primary-rgb), 0.3);
+            background: var(--bg-card-hover);
+        }
+
+        .stat-val {
+            font-family: var(--font-title);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+        }
+
+        .stat-val.latency {
+            color: var(--color-secondary);
+        }
+
+        .stat-val.items {
+            color: var(--color-accent);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Interactive Tabs */
+        .tab-navigation {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 1px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-title);
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition-fast);
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+            background: rgba(var(--color-primary-rgb), 0.05);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Glassmorphism Section Styling */
+        section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-md);
+        }
+
+        h3 {
+            font-family: var(--font-title);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid var(--color-primary);
+            padding-left: 16px;
+        }
+
+        h4 {
+            font-family: var(--font-title);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 24px 0 12px 0;
+            color: var(--color-primary);
+        }
+
+        p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-size: 0.98rem;
+        }
+
+        strong {
+            color: var(--text-primary);
+        }
+
+        /* Feature List Styling */
+        ul, ol {
+            padding-left: 20px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        li strong {
+            color: #fff;
+        }
+
+        /* Alerts & Callouts */
+        .callout {
+            background: rgba(0, 210, 255, 0.05);
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            border-left: 4px solid var(--color-primary);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        .callout.warning {
+            background: rgba(245, 158, 11, 0.05);
+            border-color: rgba(245, 158, 11, 0.2);
+            border-left-color: var(--color-warning);
+        }
+
+        .callout.success {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: rgba(16, 185, 129, 0.2);
+            border-left-color: var(--color-success);
+        }
+
+        .callout-title {
+            font-family: var(--font-title);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Code Block Design */
+        pre {
+            background: #07090e;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            margin: 20px 0;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            color: #f1f5f9;
+        }
+
+        :not(pre) > code {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.85rem;
+            color: var(--color-primary);
+        }
+
+        /* Custom Tables */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 24px 0;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.92rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.02);
+            color: #fff;
+            font-weight: 600;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            font-family: var(--font-title);
+        }
+
+        td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.01);
+            color: var(--text-primary);
+        }
+
+        /* Architecture Map & Flow Elements */
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+        .mermaid svg {
+            width: 100% !important;
+            max-width: 900px !important;
+            height: auto !important;
+        }
+        .mermaid text {
+            font-family: 'Segoe UI', 'Inter', 'Segoe UI Historic', 'Arial', sans-serif !important;
+        }
+        .diagram-container {
+            background: #ffffff; /* Clean white canvas for maximum contrast and legibility */
+            padding: 36px 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+            margin: 24px 0;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+        }
+
+        /* Directories View */
+        .dir-tree {
+            font-family: var(--font-mono);
+            font-size: 0.88rem;
+            background: #07090e;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .dir-folder {
+            color: var(--color-primary);
+            font-weight: 500;
+        }
+
+        .dir-comment {
+            color: var(--text-muted);
+            margin-left: 16px;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-container">
+            <div class="logo-area">
+                <div class="logo-icon">2S</div>
+                <div class="logo-text">
+                    <h1>Two-Stage Recommender System</h1>
+                    <p>Cổng thông tin tổng hợp dự án</p>
+                </div>
+            </div>
+            <div class="tech-tags">
+                <span class="tech-badge pytorch">PyTorch 2.7</span>
+                <span class="tech-badge lightgbm">LightGBM 4.6</span>
+                <span class="tech-badge fastapi">FastAPI</span>
+                <span class="tech-badge">FAISS ANN</span>
+                <span class="tech-badge">Python 3.12</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        
+        <!-- Hero Title -->
+        <div class="hero">
+            <h2>Hệ Thống Gợi Ý Sản Phẩm 2 Giai Đoạn</h2>
+            <p>Tài liệu kỹ thuật tổng hợp toàn diện giúp lập trình viên nắm bắt kiến trúc, mô hình dữ liệu, cơ chế huấn luyện và đường dẫn phục vụ thực tế (Serving Pipeline) của dự án.</p>
+        </div>
+
+        <!-- Quick Stats Dashboard -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-val latency">~21.2 ms</div>
+                <div class="stat-label">Độ trễ phản hồi API</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val items">63,322</div>
+                <div class="stat-label">Sản phẩm lập chỉ mục FAISS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val">1 : 4</div>
+                <div class="stat-label">Tỷ lệ Lấy mẫu âm (Recall)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-val" style="color: var(--color-success)">Point-In-Time</div>
+                <div class="stat-label">Phòng chống rò rỉ dữ liệu</div>
+            </div>
+        </div>
+
+        <!-- Tabbed Interface -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="openTab(event, 'tab-tongquan')">Tổng quan & Luồng đi</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-data')">Data Pipeline</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-recall')">Stage 1: Recall (PyTorch)</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-ranking')">Stage 2: Ranking (LightGBM)</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-serving')">Serving Pipeline & Performance</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-structure')">Cấu trúc Code & Vận hành</button>
+        </div>
+
+        <!-- Tab 1: Tổng quan -->
+        <div id="tab-tongquan" class="tab-content active">
+            <section>
+                <h3>Giới thiệu mô hình Two-Stage</h3>
+                <p>Đối với các nền tảng thương mại điện tử lớn, việc chấm điểm hàng trăm ngàn hoặc hàng triệu sản phẩm bằng một mô hình học máy phức tạp cho mỗi lượt người dùng truy cập là bất khả thi về mặt tài nguyên và độ trễ. Do đó, hệ thống được thiết kế theo mô hình <strong>Two-Stage Recommender (Gợi ý hai giai đoạn)</strong>:</p>
+                
+                <ol>
+                    <li><strong>Giai đoạn Recall (Truy xuất ứng viên):</strong> Sử dụng phép phân tách ma trận (Matrix Factorization) đơn giản được xây dựng bằng mạng Neural PyTorch để chuyển người dùng và sản phẩm sang cùng không gian Vector Embedding (64 chiều). Với sự hỗ trợ của thư viện tìm kiếm không gian <strong>FAISS</strong>, bước này sàng lọc ra <strong>Top 200 ứng viên</strong> có độ tương đồng cao nhất với người dùng trong vòng 1-2 mili giây.</li>
+                    <li><strong>Giai đoạn Ranking (Xếp hạng chi tiết):</strong> 200 ứng viên này được chuyển sang mô hình xếp hạng <strong>LightGBM Ranker</strong>. Tại đây, mô hình kết hợp các đặc trưng chuyên sâu (hành vi quá khứ của User, độ nóng của Item, giá cả, thời gian hiện tại) để tính điểm xác thực chuyển đổi chi tiết, sau đó xuất ra <strong>Top 20 sản phẩm tối ưu nhất</strong> để hiển thị cho người dùng.</li>
+                </ol>
+
+                <div class="callout">
+                    <div class="callout-title">Tại sao lại dùng kiến trúc này?</div>
+                    <p>Kiến trúc này cân bằng hoàn hảo giữa <strong>Tốc độ xử lý (Speed)</strong> và <strong>Độ chính xác xếp hạng (Accuracy)</strong>. Giai đoạn 1 ưu tiên tốc độ để lọc thô, giai đoạn 2 ưu tiên tính chính xác để xếp hạng tinh chỉnh.</p>
+                </div>
+
+                <h4>Sơ đồ quy trình hoạt động của hệ thống</h4>
+                <div class="diagram-container">
+                    <pre class="mermaid">
+graph TD
+    %% Offline Training Subgraph
+    subgraph Offline_Training ["1. Chu trình huấn luyện Offline (Huấn luyện ngoại tuyến)"]
+        Raw["Dữ liệu thô CSV &lt;br&gt; (data/raw/2019-Oct.csv)"] --> DP["Data Pipeline &lt;br&gt; (Tiền xử lý &amp; Trích xuất đặc trưng)"]
+        DP --> |Ghi nhận phiên &amp; gán nhãn giả| Labeled["Dữ liệu gán nhãn &lt;br&gt; (labeled_sessions.parquet)"]
+        DP --> |Lưu trữ đặc trưng tĩnh| FS["Feature Store Parquet &lt;br&gt; (user_features.parquet &amp; item_features.parquet)"]
+        
+        Labeled --> |Huấn luyện Matrix Factorization| Pytorch["PyTorch Model &lt;br&gt; (Mạng Nơ-ron Phân rã ma trận)"]
+        Pytorch --> |Lưu trữ trọng số mô hình| RecWeights["Trọng số Recall PyTorch &lt;br&gt; (recall_weights.pth)"]
+        Pytorch --> |Trích xuất Vector sản phẩm| Emb["Vector Nhúng Item &lt;br&gt; (item_embeddings.npy)"]
+        
+        Labeled --> |Ghép đặc trưng tĩnh| RankTrain["Dữ liệu Train LightGBM"]
+        FS --> |Đọc đặc trưng User/Item| RankTrain
+        RankTrain --> |Huấn luyện Cây quyết định| LGBM["Mô hình Xếp hạng LightGBM"]
+        LGBM --> |Lưu trữ tệp mô hình| RankModel["LightGBM Ranker Model &lt;br&gt; (ranker_model.txt)"]
+    end
+
+    %% Online Serving Subgraph
+    subgraph Online_Serving ["2. Đường ống phục vụ API thực tế (Real-time Serving)"]
+        UserRequest(["Yêu cầu gợi ý từ Client &lt;br&gt; (GET /recommend/{user_id})"]) --> ServeAPI["FastAPI Server &lt;br&gt; (main_serve.py)"]
+        ServeAPI --> |1. Ánh xạ ID &amp; lấy User Embedding| PytorchWeights["Trọng số PyTorch &lt;br&gt; (Nạp sẵn trong RAM)"]
+        PytorchWeights --> |2. Tìm kiếm Vector người dùng| FaissIdx["FAISS Searcher &lt;br&gt; (IndexFlatIP)"]
+        FaissIdx --> |3. Trả về Top 200 sản phẩm tiềm năng nhất| CandidateList["200 Ứng viên &lt;br&gt; (Recall Stage)"]
+        
+        CandidateList --> |4. Kết hợp đặc trưng tĩnh để xếp hạng| DynamicMerge["Ghép đặc trưng tĩnh &lt;br&gt; (DataFrame)"]
+        FS --> |Truy cập đặc trưng tĩnh trong RAM| DynamicMerge
+        
+        DynamicMerge --> |5. Chấm điểm khả năng chuyển đổi| LGBMRAM["LightGBM Booster &lt;br&gt; (Nạp sẵn trong RAM)"]
+        LGBMRAM --> |6. Điểm số tương tác cụ thể| SortList["Sắp xếp &amp; lọc Top N"]
+        SortList --> |7. Danh sách sản phẩm tối ưu nhất| ClientResponse(["Phản hồi JSON của Client &lt;br&gt; (recommendations: product_id + score)"])
+    end
+
+    %% Connections between Offline and Online
+    RecWeights -.-> |Nạp mô hình lúc khởi động| PytorchWeights
+    Emb -.-> |Xây dựng chỉ mục tìm kiếm KNN| FaissIdx
+    RankModel -.-> |Nạp mô hình lúc khởi động| LGBMRAM
+                    </pre>
+                </div>
+            </section>
+        </div>
+
+        <!-- Tab 2: Data Pipeline -->
+        <div id="tab-data" class="tab-content">
+            <section>
+                <h3>Quy trình Xử lý Dữ liệu & Tính năng Đặc trưng</h3>
+                <p>Data Pipeline được điều phối bởi tệp <code>src/data_pipeline/run_pipeline.py</code>, nhận đầu vào là tệp tin CSV hành vi lớn và xử lý qua 5 bước chính:</p>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Thành phần</th>
+                                <th>Mô tả hoạt động</th>
+                                <th>Chi tiết kỹ thuật</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Log Transform Price</strong></td>
+                                <td>Phép biến đổi Log lên phân phối giá sản phẩm.</td>
+                                <td><code>price = ln(price + 1)</code> tránh bùng nổ Gradient khi huấn luyện vì giá trị phân phối lệch phải (skewed) rất nặng.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sessionization</strong></td>
+                                <td>Gom nhóm các hành vi rời rạc của User thành các phiên (Sessions) làm việc liên tiếp.</td>
+                                <td>Sử dụng khoảng thời gian trống 30 phút giữa hai hành động làm mốc phân tách một <code>custom_session_id</code> mới.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Point-in-Time Features</strong></td>
+                                <td>Xây dựng đặc trưng tương tác lũy kế để phục vụ việc huấn luyện.</td>
+                                <td>Chỉ sử dụng dữ liệu xảy ra <strong>trước thời điểm (timestamp) của tương tác hiện tại</strong> để tính toán đặc trưng. Đảm bảo triệt tiêu lỗi rò rỉ dữ liệu (Data Leakage).</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Serving Snapshot</strong></td>
+                                <td>Xuất các file snapshot đặc trưng tĩnh mới nhất của User/Item.</td>
+                                <td>Dùng để nạp trực tiếp vào RAM lúc phục vụ API, giúp tra cứu đặc trưng cực nhanh mà không cần tính toán lại.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Pseudo-Labeling</strong></td>
+                                <td>Gán nhãn giả dựa trên các hành vi gián tiếp (Implicit Feedback).</td>
+                                <td>Hành vi <code>view</code> được gán nhãn <code>0</code>, hành vi mua sắm hoặc thêm giỏ hàng (<code>cart</code>/<code>purchase</code>) được gán nhãn <code>1</code>.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Cơ chế Phòng chống Rò rỉ Dữ liệu (Point-In-Time Features)</h4>
+                <p>Khi huấn luyện mô hình xếp hạng, nếu ta tính tổng số lần tương tác của user trên toàn bộ tập dữ liệu, mô hình ở thời điểm quá khứ sẽ vô tình nhìn thấy trước các tương tác ở tương lai. Điều này khiến điểm đánh giá khi Train/Val cực kỳ cao, nhưng khi đưa ra môi trường chạy thực tế mô hình sẽ hoạt động cực kỳ kém.</p>
+                <p>Trong <code>src/data_pipeline/featurizer.py</code>, việc này được khắc phục bằng cách sử dụng các hàm gom nhóm lũy kế theo thời gian:</p>
+                <pre><code class="language-python"># Tính tổng số tương tác của user chỉ dựa trên các hành vi đã diễn ra trước đó
+result["user_total_interactions"] = result.groupby("user_id").cumcount()
+result["item_total_interactions"] = result.groupby("product_id").cumcount()
+
+# Tính số lượng user độc nhất tương tác với item lũy kế
+first_user_item_event = ~result.duplicated(["product_id", "user_id"])
+result["item_unique_users"] = (
+    first_user_item_event.groupby(result["product_id"]).cumsum()
+    - first_user_item_event.astype(int)
+)</code></pre>
+            </section>
+        </div>
+
+        <!-- Tab 3: Recall Model -->
+        <div id="tab-recall" class="tab-content">
+            <section>
+                <h3>Giai đoạn 1: Matrix Factorization PyTorch</h3>
+                <p>Giai đoạn Recall được triển khai dựa trên thuật toán phân tách ma trận (Matrix Factorization) bằng mạng Nơ-ron PyTorch.</p>
+                
+                <h4>Kiến trúc Mạng (`src/recall_model/model.py`)</h4>
+                <p>Mô hình khởi tạo hai ma trận nhúng (Embedding Matrix): một cho Người dùng (User Embedding) và một cho Sản phẩm (Item Embedding) với chiều kích thước (Embedding Dimension) cố định là <strong>64</strong>.</p>
+                <pre><code class="language-python">class MatrixFactorization(nn.Module):
+    def __init__(self, num_users: int, num_items: int, embedding_dim: int = 64):
+        super().__init__()
+        self.user_embedding = nn.Embedding(num_users, embedding_dim)
+        self.item_embedding = nn.Embedding(num_items, embedding_dim)
+        
+        # Khởi tạo trọng số nhỏ để tăng tốc độ hội tụ ban đầu
+        nn.init.normal_(self.user_embedding.weight, std=0.01)
+        nn.init.normal_(self.item_embedding.weight, std=0.01)
+
+    def forward(self, user_idx: torch.Tensor, item_idx: torch.Tensor) -> torch.Tensor:
+        user_emb = self.user_embedding(user_idx)  # Shape: [batch, dim]
+        item_emb = self.item_embedding(item_idx)  # Shape: [batch, dim]
+        
+        # Tính tích vô hướng (Dot Product) biểu diễn độ tương đồng
+        dot_product = (user_emb * item_emb).sum(dim=-1)
+        return torch.sigmoid(dot_product)</code></pre>
+
+                <h4>Cơ chế Lấy mẫu âm (Controlled Negative Sampling)</h4>
+                <p>Do người dùng chỉ tương tác trực tiếp với một phần rất nhỏ sản phẩm, tập dữ liệu thực tế chứa hầu hết các phản hồi ẩn cực kỳ lệch. Để mô hình học được ranh giới quyết định tốt, hệ thống triển khai cơ chế <strong>Negative Sampling</strong> với tỷ lệ <strong>1 positive : 4 negatives</strong> trong quá trình chuẩn bị dữ liệu huấn luyện.</p>
+                <p>Với mỗi tương tác tích cực (Cart, Purchase), hệ thống sẽ chọn ngẫu nhiên 4 sản phẩm mà người dùng chưa từng tương tác trong lịch sử để làm nhãn âm, giúp mô hình phân biệt rõ ràng sở thích của người dùng.</p>
+
+                <h4>Các Artifacts Đầu ra sau khi Huấn luyện:</h4>
+                <ul>
+                    <li><code>recall_weights.pth</code>: Trọng số của mô hình PyTorch (các ma trận nhúng đã huấn luyện).</li>
+                    <li><code>item_embeddings.npy</code>: Ma trận chứa toàn bộ vector nhúng của sản phẩm (kích thước: <code>[Số lượng sản phẩm, 64]</code>), được sử dụng trực tiếp để đưa vào chỉ mục tìm kiếm FAISS.</li>
+                    <li><code>user_encoder.joblib</code> & <code>item_encoder.joblib</code>: Các file lưu trữ ánh xạ (LabelEncoder) chuyển đổi ID thực tế dạng chuỗi/số lớn sang chỉ mục (Index) tuyến tính bắt đầu từ 0 của PyTorch.</li>
+                </ul>
+            </section>
+        </div>
+
+        <!-- Tab 4: Ranking Model -->
+        <div id="tab-ranking" class="tab-content">
+            <section>
+                <h3>Giai đoạn 2: Xếp hạng chuyên sâu LightGBM</h3>
+                <p>Sau khi giai đoạn Recall đưa ra danh sách các ứng viên thô, giai đoạn Ranking sẽ tiến hành xếp hạng chi tiết bằng thuật toán Cây quyết định tăng cường Gradient (Gradient Boosted Decision Trees - GBDT) thông qua thư viện <strong>LightGBM</strong>.</p>
+
+                <h4>Tập dữ liệu huấn luyện</h4>
+                <p>Tập dữ liệu huấn luyện Ranking được kết hợp giữa dữ liệu nhãn giả (Implicit Feedback) cùng các đặc trưng lịch sử của User và Item tại thời điểm xảy ra sự kiện. Các đặc trưng chính đưa vào LightGBM bao gồm:</p>
+                <ul>
+                    <li><code>user_total_interactions</code>: Tổng tương tác trong quá khứ của người dùng.</li>
+                    <li><code>user_total_sessions</code>: Tổng số phiên mua sắm trong quá khứ của người dùng.</li>
+                    <li><code>item_total_interactions</code>: Tổng lượt tương tác nhận được trong quá khứ của sản phẩm (thể hiện độ hot).</li>
+                    <li><code>item_unique_users</code>: Số lượng người dùng độc nhất từng tương tác với sản phẩm.</li>
+                    <li><code>item_avg_price</code>: Giá trung bình lịch sử của sản phẩm (sau khi biến đổi log).</li>
+                </ul>
+
+                <h4>Giải quyết Mất cân bằng và Tối ưu hóa Thứ hạng</h4>
+                <p>Do số lượng lượt xem (nhãn 0) áp đảo hoàn toàn số lượng lượt mua sắm/thêm giỏ hàng (nhãn 1), mô hình xếp hạng dễ bị thiên lệch. Dự án xử lý vấn đề này bằng cách:</p>
+                <ol>
+                    <li>Sử dụng tham số cấu hình LightGBM: <code>is_unbalance: True</code> để tự động bù trừ trọng số cho nhóm thiểu số (class 1).</li>
+                    <li>Bổ sung <strong>Sample Weights</strong>: View được gán trọng số <code>0.1</code>, Cart gán <code>0.5</code>, và Purchase gán trọng số <code>1.0</code> giúp mô hình ưu tiên cực kỳ cao cho các tương tác mang tính chuyển đổi cao.</li>
+                </ol>
+
+                <h4>Đo lường Chất lượng Xếp hạng chuyên biệt</h4>
+                <p>Thay vì sử dụng các chỉ số phân loại nhị phân đơn giản như F1-Score hay Accuracy vốn không phù hợp cho bài toán gợi ý, hệ thống đo lường hiệu năng bằng hai độ đo xếp hạng công nghiệp trong <code>src/ranking_model/metrics.py</code>:</p>
+                <ul>
+                    <li><strong>NDCG@K (Normalized Discounted Cumulative Gain):</strong> Đo lường chất lượng xếp hạng sản phẩm, xem xét liệu sản phẩm người dùng thực sự thích có được xếp ở vị trí đầu tiên hay không.</li>
+                    <li><strong>MRR@K (Mean Reciprocal Rank):</strong> Đánh giá vị trí xuất hiện của sản phẩm phù hợp đầu tiên trong danh sách gợi ý.</li>
+                </ul>
+                <p>Các chỉ số này được tính toán độc lập cho từng người dùng/phiên cụ thể rồi mới lấy trung bình toàn hệ thống, phản ánh chính xác nhất trải nghiệm của người dùng cuối.</p>
+            </section>
+        </div>
+
+        <!-- Tab 5: Serving Pipeline -->
+        <div id="tab-serving" class="tab-content">
+            <section>
+                <h3>Quy trình Phục vụ API thời gian thực (Serving Pipeline)</h3>
+                <p>Mã nguồn phục vụ thời gian thực nằm trong <code>src/serving/pipeline.py</code>. Đây là trái tim kết nối toàn bộ hệ thống để phục vụ các yêu cầu HTTP từ FastAPI trong <code>main_serve.py</code>.</p>
+
+                <h4>Quy trình xử lý một yêu cầu thời gian thực</h4>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Bước</th>
+                                <th>Chi tiết hoạt động</th>
+                                <th>Độ trễ tiêu chuẩn</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>1. Nhận ID & Ánh xạ</strong></td>
+                                <td>Nhận <code>user_id</code> từ client, sử dụng mapping đã lưu để chuyển đổi sang <code>user_idx</code> nội bộ của PyTorch.</td>
+                                <td>&lt; 0.1 ms</td>
+                            </tr>
+                            <tr>
+                                <td><strong>2. Lấy Vector Nhúng</strong></td>
+                                <td>Truy cập ma trận nhúng của PyTorch để lấy Vector đại diện của người dùng (kích thước 64).</td>
+                                <td>~0.72 ms</td>
+                            </tr>
+                            <tr>
+                                <td><strong>3. Quét FAISS KNN</strong></td>
+                                <td>Truy vấn Vector người dùng trên chỉ mục <strong>FAISS IndexFlatIP</strong> chứa 63,322 sản phẩm để tìm ra Top 200 ứng viên có độ tương đồng tích vô hướng cao nhất.</td>
+                                <td><strong>~1.25 ms</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>4. Ghép Đặc trưng</strong></td>
+                                <td>Từ 200 ứng viên nhận được, tra cứu các đặc trưng tĩnh của User và Item trong Feature Store nạp sẵn trên bộ nhớ RAM để ghép thành DataFrame dữ liệu đầu vào.</td>
+                                <td>~14.80 ms</td>
+                            </tr>
+                            <tr>
+                                <td><strong>5. Chấm điểm LightGBM</strong></td>
+                                <td>Truyền DataFrame đặc trưng vào mô hình LightGBM Ranker đã nạp sẵn để chấm điểm xác suất tương tác.</td>
+                                <td><strong>~1.55 ms</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>6. Sắp xếp & Trả về</strong></td>
+                                <td>Sắp xếp 200 ứng viên theo điểm số LightGBM giảm dần, lấy Top 20 sản phẩm hàng đầu, giải mã ngược chỉ mục sản phẩm thành <code>product_id</code> gốc và trả về JSON phản hồi.</td>
+                                <td>~0.10 ms</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="callout success">
+                    <div class="callout-title">Hiệu năng tối ưu</div>
+                    <p>Tổng thời gian phản hồi trung bình (Total Inference Latency) cực kỳ ấn tượng: **chỉ khoảng 21.2 mili giây**. Đây là tốc độ cực kỳ lý tưởng để tích hợp trực tiếp vào trang chủ hoặc trang chi tiết sản phẩm của bất kỳ ứng dụng thương mại điện tử nào mà không lo ngại về vấn đề nghẽn cổ chai (bottleneck).</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Tab 6: Structure & Dev Guide -->
+        <div id="tab-structure" class="tab-content">
+            <section>
+                <h3>Cấu trúc Thư mục Dự án & Hướng dẫn Vận hành</h3>
+                
+                <h4>Cấu trúc tệp tin chi tiết của dự án</h4>
+                <div class="dir-tree">
+                    .ai-knowledge/ <span class="dir-comment"># Chứa tài liệu thiết kế và nhật ký lỗi phát triển</span><br>
+                    data/<br>
+                    &nbsp;&nbsp;├── raw/ <span class="dir-comment"># Chứa dữ liệu hành vi thô gốc (CSV)</span><br>
+                    &nbsp;&nbsp;├── sessions/ <span class="dir-comment"># Chứa kết quả gắn nhãn giả (labeled_sessions.parquet)</span><br>
+                    &nbsp;&nbsp;└── feature_store/ <span class="dir-comment"># Snapshot đặc trưng tĩnh và vector sản phẩm (.parquet, .npy)</span><br>
+                    models_store/ <span class="dir-comment"># Nơi lưu trữ trọng số mô hình PyTorch, LightGBM và Encoders (.pth, .txt, .joblib)</span><br>
+                    notebooks/ <span class="dir-comment"># Jupyter notebooks nghiên cứu và phân tích EDA ban đầu</span><br>
+                    src/ <span class="dir-comment"># Mã nguồn cốt lõi</span><br>
+                    &nbsp;&nbsp;├── data_pipeline/ <span class="dir-comment"># Trích xuất đặc trưng và chuẩn bị nhãn</span><br>
+                    &nbsp;&nbsp;├── recall_model/ <span class="dir-comment"># Thiết kế và huấn luyện mô hình PyTorch</span><br>
+                    &nbsp;&nbsp;├── ranking_model/ <span class="dir-comment"># Thiết kế và huấn luyện mô hình LightGBM</span><br>
+                    &nbsp;&nbsp;└── serving/ <span class="dir-comment"># Logic phục vụ API qua FAISS và LightGBM</span><br>
+                    tests/ <span class="dir-comment"># Bộ kiểm thử tích hợp (smoke_test.py)</span><br>
+                    main_train.py <span class="dir-comment"># Tập lệnh chạy chu trình huấn luyện tự động End-to-End</span><br>
+                    main_serve.py <span class="dir-comment"># Khởi chạy API Server với FastAPI</span><br>
+                    pyproject.toml <span class="dir-comment"># Khai báo môi trường và gói phụ thuộc bằng UV</span>
+                </div>
+
+                <h4>Hướng dẫn quy trình chạy dự án cho lập trình viên mới</h4>
+                
+                <p>Dự án sử dụng trình quản lý package tốc độ cao <strong>uv</strong> để quản lý thư viện và môi trường ảo Python.</p>
+
+                <ol>
+                    <li>
+                        <strong>Cài đặt môi trường và các gói phụ thuộc:</strong>
+                        <pre><code>uv sync</code></pre>
+                    </li>
+                    <li>
+                        <strong>Chuẩn bị dữ liệu thô:</strong>
+                        <p>Tải tập dữ liệu hành vi khách hàng thương mại điện tử (ví dụ: tập dữ liệu <code>2019-Oct.csv</code> từ REES46) và lưu vào đường dẫn <code>data/raw/2019-Oct.csv</code>.</p>
+                    </li>
+                    <li>
+                        <strong>Huấn luyện toàn bộ chuỗi mô hình (End-to-End Training):</strong>
+                        <p>Chạy tập lệnh tự động hóa để thực hiện lần lượt: Xử lý dữ liệu -> Huấn luyện PyTorch Recall -> Lưu nhúng & index sản phẩm -> Huấn luyện LightGBM Ranker.</p>
+                        <pre><code>uv run python main_train.py</code></pre>
+                    </li>
+                    <li>
+                        <strong>Kiểm thử hệ thống (Smoke Test):</strong>
+                        <p>Xác nhận toàn bộ các tệp tin mô hình đã được xuất chính xác và hệ thống có thể chạy suy luận thành công.</p>
+                        <pre><code>uv run python tests/smoke_test.py</code></pre>
+                    </li>
+                    <li>
+                        <strong>Khởi động API Server phục vụ dịch vụ:</strong>
+                        <p>Chạy server FastAPI trên cổng cục bộ.</p>
+                        <pre><code>uv run python main_serve.py</code></pre>
+                        <p>Server sẽ khởi chạy tại đường dẫn: <code>http://127.0.0.1:8000</code>.</p>
+                    </li>
+                    <li>
+                        <strong>Thử nghiệm API qua cURL:</strong>
+                        <pre><code>curl -X GET "http://127.0.0.1:8000/recommend/244951053?top_n=10"</code></pre>
+                    </li>
+                </ol>
+            </section>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>© 2026 E-Commerce Two-Stage Recommender System. Được biên soạn đầy đủ cho các nhà phát triển dự án.</p>
+    </footer>
+
+    <!-- Tab navigation JavaScript -->
+    <script>
+        function openTab(evt, tabId) {
+            // Hide all tab contents
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+
+            // Remove active class from all tab buttons
+            const tabButtons = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+
+            // Show current tab content, add active class to button
+            document.getElementById(tabId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+
+            // Re-render Mermaid if necessary
+            if (tabId === 'tab-tongquan') {
+                mermaid.run();
+            }
+        }
+    </script>
+</body>
+</html>

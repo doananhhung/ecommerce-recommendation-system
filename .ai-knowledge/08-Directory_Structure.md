@@ -46,17 +46,17 @@ EDA_project/
 │
 ├── models_store/           # (Đưa vào .gitignore) Thư mục lưu các artifacts (Cân nặng) của mô hình.
 │   ├── recall_weights.pth  # Trọng số PyTorch mô hình Two-Tower/MF.
-│   ├── faiss_items.index   # File chỉ mục đã nén của FAISS.
-│   └── ranker_model.txt    # File model serialize của LightGBM/XGBoost.
+│   └── ranker_model.txt    # File model serialize của LightGBM.
 │
 ├── main_train.py           # Entrypoint kích hoạt luồng tự động Train lại toàn bộ hệ thống từ dữ liệu mới.
-├── main_serve.py           # Entrypoint chạy API (FastAPI/Flask) hoặc function phục vụ truy vấn Online.
-├── requirements.txt        # Danh sách thư viện (pandas, numpy, torch, faiss-gpu, lightgbm...).
+├── main_serve.py           # Entrypoint chạy API (FastAPI) phục vụ gợi ý thời gian thực.
+├── pyproject.toml          # Danh sách dependency và cấu hình gói phụ thuộc của dự án (sử dụng uv).
+├── uv.lock                 # File khóa môi trường đồng nhất và bảo mật (sinh bởi uv).
 └── README.md               # Giới thiệu sơ bộ dự án, cách setup, cách chạy lệnh train/serve.
 ```
 
 ## Giải thích chức năng thư mục quan trọng
 
 1. **`notebooks/` vs `src/`:** `notebooks/` chỉ dùng để mò mẫm vẽ biểu đồ tìm hiểu dữ liệu ban đầu. Khi code chạy đúng, ngay lập tức chuyển logic thành các hàm chuẩn (functions/classes) đặt tại `src/` để tái sử dụng xuyên suốt hệ thống.
-2. **`models_store/`:** Rất quan trọng khi chạy Offline Pipeline. Mô hình Train xong ở `.py` scripts sẽ lưu các trạng thái, bộ nén vector vào đây, sau đó luồng API ở `main_serve` sẽ load file từ thư mục này lên RAM/GPU để dự đoán tại thời gian thực.
-3. **`data/feature_store/`:** Khi làm Batch processing, chúng ta không dùng dịch vụ quản lý Feature Store xịn (như Feast), mà sẽ đóng gói các bảng tính toán xong dưới dạng file Parquet nằm ở đây, lúc nào train hay predict thì Load vào.
+2. **`models_store/`:** Rất quan trọng khi chạy Offline Pipeline. Mô hình Train xong ở `.py` scripts sẽ lưu các trạng thái, bộ nén vector vào đây, sau đó luồng API ở `main_serve` sẽ load file từ thư mục này lên RAM để phục vụ.
+3. **`data/feature_store/`:** Đóng gói các bảng tính toán xong dưới dạng file Parquet và tệp `item_embeddings.npy` của mô hình Recall. Khi chạy server API, chỉ mục FAISS sẽ được dựng trực tiếp trên RAM từ tệp `.npy` này giúp tối ưu hóa I/O và tránh lỗi xung đột hệ điều hành đối với tệp `.index` nhị phân.

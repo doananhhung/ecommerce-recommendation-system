@@ -1,0 +1,1112 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Two-Stage Recommender System - Developer Onboarding</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #596579;
+      --line: #d9dee7;
+      --accent: #1f6feb;
+      --accent-2: #16835f;
+      --warn: #a15c00;
+      --danger: #b42318;
+      --code-bg: #0f172a;
+      --code-ink: #dbeafe;
+      --shadow: 0 1px 3px rgba(20, 28, 40, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--ink);
+      background: var(--bg);
+    }
+
+    header {
+      background: #111827;
+      color: #fff;
+      padding: 42px 24px 36px;
+      border-bottom: 4px solid var(--accent);
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 900px;
+      color: #d1d5db;
+      font-size: 17px;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+
+    nav .wrap {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+
+    nav a {
+      flex: 0 0 auto;
+      color: var(--ink);
+      text-decoration: none;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    nav a:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    main {
+      padding: 24px 0 64px;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 24px;
+      margin: 18px 0;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 26px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    h4 {
+      margin: 18px 0 8px;
+      font-size: 16px;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+
+    ul,
+    ol {
+      margin: 10px 0 0 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    code {
+      font-family: "Cascadia Code", Consolas, monospace;
+      background: #eef2f7;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 0.92em;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-ink);
+      padding: 14px 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      line-height: 1.45;
+      border: 1px solid #1e293b;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 0;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f1f5f9;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .card h3,
+    .card h4 {
+      margin-top: 0;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e7f0ff;
+      color: #0b4aa2;
+      border: 1px solid #c7dcff;
+      white-space: nowrap;
+    }
+
+    .ok {
+      background: #e8f7f0;
+      color: var(--accent-2);
+      border-color: #b9e5d0;
+    }
+
+    .warn {
+      background: #fff4df;
+      color: var(--warn);
+      border-color: #f5d49c;
+    }
+
+    .danger {
+      background: #fff0ee;
+      color: var(--danger);
+      border-color: #fac5bd;
+    }
+
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #eef6ff;
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+
+    .warning {
+      border-left: 4px solid var(--warn);
+      background: #fff8eb;
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .flow-step {
+      min-height: 108px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fbfcfe;
+      position: relative;
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--accent);
+    }
+
+    .toc-columns {
+      columns: 2;
+      column-gap: 36px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .path {
+      color: #0b4aa2;
+      font-weight: 650;
+    }
+
+    @media (max-width: 760px) {
+      section {
+        padding: 18px;
+      }
+
+      .toc-columns {
+        columns: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Two-Stage Recommender System</h1>
+      <p>
+        Tài liệu onboarding cho lập trình viên mới: mục tiêu bài toán, dữ liệu,
+        kiến trúc, luồng huấn luyện, luồng serving, các file quan trọng,
+        cách chạy, cách kiểm thử và các điểm cần cải thiện của dự án.
+      </p>
+    </div>
+  </header>
+
+  <nav aria-label="Mục lục nhanh">
+    <div class="wrap">
+      <a href="#overview">Tổng quan</a>
+      <a href="#quickstart">Chạy dự án</a>
+      <a href="#architecture">Kiến trúc</a>
+      <a href="#data">Dữ liệu</a>
+      <a href="#pipeline">Data pipeline</a>
+      <a href="#recall">Recall</a>
+      <a href="#ranking">Ranking</a>
+      <a href="#serving">Serving</a>
+      <a href="#code-map">Code map</a>
+      <a href="#artifacts">Artifacts</a>
+      <a href="#testing">Testing</a>
+      <a href="#risks">Rủi ro</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section id="overview">
+      <h2>1. Tổng Quan Dự Án</h2>
+      <p>
+        Dự án xây dựng hệ thống gợi ý sản phẩm thương mại điện tử theo mô hình
+        <strong>two-stage recommender</strong>. Ý tưởng chính là không xếp hạng
+        toàn bộ sản phẩm ngay từ đầu, vì số lượng item lớn và ma trận user-item
+        cực kỳ thưa. Thay vào đó hệ thống chạy hai bước:
+      </p>
+      <ol>
+        <li><strong>Recall stage</strong>: lọc nhanh từ hàng chục nghìn hoặc hàng triệu item xuống khoảng vài trăm ứng viên.</li>
+        <li><strong>Ranking stage</strong>: chấm điểm chi tiết các ứng viên và trả về top-N sản phẩm tốt nhất.</li>
+      </ol>
+
+      <div class="grid">
+        <div class="card">
+          <h3>Bài toán</h3>
+          <p>Nhận <code>user_id</code>, trả về danh sách <code>product_id</code> nên gợi ý.</p>
+        </div>
+        <div class="card">
+          <h3>Dữ liệu</h3>
+          <p>Log hành vi e-commerce gồm <code>view</code>, <code>cart</code>, <code>purchase</code>.</p>
+        </div>
+        <div class="card">
+          <h3>Model</h3>
+          <p>PyTorch Matrix Factorization cho recall, LightGBM binary scorer cho ranking.</p>
+        </div>
+        <div class="card">
+          <h3>Serving</h3>
+          <p>FastAPI nạp feature store, model weights, FAISS index và ranker vào bộ nhớ lúc startup.</p>
+        </div>
+      </div>
+
+      <h3>Các vấn đề dữ liệu cốt lõi</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Vấn đề</th>
+            <th>Ý nghĩa</th>
+            <th>Cách dự án xử lý</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Mất cân bằng lớp</td>
+            <td><code>view</code> áp đảo <code>cart</code> và <code>purchase</code>, model dễ học cách dự đoán toàn negative.</td>
+            <td>Negative sampling ở recall, Focal Loss trong PyTorch, <code>is_unbalance=True</code> và sample weight truyền vào LightGBM.</td>
+          </tr>
+          <tr>
+            <td>Ma trận user-item thưa</td>
+            <td>Rất ít user tương tác với rất ít item so với toàn bộ không gian khả dụng.</td>
+            <td>Dùng embedding user/item và vector search thay vì duyệt toàn bộ item.</td>
+          </tr>
+          <tr>
+            <td>Thiếu dữ liệu categorical</td>
+            <td><code>brand</code>, <code>category_code</code> có nhiều null, không nên thay bằng số 0 nếu dùng làm categorical.</td>
+            <td>Code đã gán nhãn <code>&lt;UNKNOWN&gt;</code> và sử dụng kiểu dữ liệu <code>category</code> cho mô hình LightGBM tự động tối ưu.</td>
+          </tr>
+          <tr>
+            <td>Data leakage theo thời gian</td>
+            <td>Feature hoặc split dùng thông tin tương lai sẽ làm offline metric ảo.</td>
+            <td><code>featurizer.py</code> tính point-in-time cumulative features. <code>run_ranking.py</code> đã áp dụng <strong>Time-based Split</strong> (sắp xếp theo thời gian rồi cắt) thay cho random split.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="quickstart">
+      <h2>2. Chạy Dự Án Từ Đầu</h2>
+      <p>
+        Dự án dùng <code>uv</code> để quản lý môi trường. Trong máy hiện tại,
+        gọi Python qua <code>uv run python</code> là cách ổn định nhất.
+      </p>
+
+      <h3>Cài dependency</h3>
+      <pre><code>uv sync</code></pre>
+
+      <h3>Chuẩn bị dữ liệu raw</h3>
+      <p>
+        Code cấu hình mặc định đọc file:
+        <code>data/raw/2019-Oct.csv</code>.
+        Thư mục hiện có cả <code>2019-Oct.csv</code> và <code>2019-Nov.csv</code>.
+      </p>
+
+      <h3>Huấn luyện end-to-end</h3>
+      <pre><code>uv run python main_train.py</code></pre>
+      <p>Lệnh này chạy lần lượt:</p>
+      <pre><code>uv run python -m src.data_pipeline.run_pipeline
+uv run python -m src.recall_model.run_recall
+uv run python -m src.ranking_model.run_ranking</code></pre>
+
+      <h3>Chạy API</h3>
+      <pre><code>uv run python main_serve.py</code></pre>
+      <p>Server chạy tại <code>http://127.0.0.1:8000</code>.</p>
+
+      <h3>Gọi thử API</h3>
+      <pre><code>curl "http://127.0.0.1:8000/recommend/244951053?top_n=5"</code></pre>
+
+      <div class="note">
+        <strong>Ghi nhớ:</strong> nếu mới clone repo và chưa có artifacts trong
+        <code>data/feature_store</code>, <code>data/sessions</code> và
+        <code>models_store</code>, phải chạy training trước khi chạy API.
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>3. Kiến Trúc Tổng Thể</h2>
+      <p>
+        Kiến trúc hiện tại là offline training kết hợp online serving. Offline
+        sinh ra feature store và model artifacts. Online API chỉ nạp artifacts
+        đã có, không train lại.
+      </p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <strong>Raw Events</strong>
+          <span>CSV hành vi: user, product, event type, thời gian, category, brand, price.</span>
+        </div>
+        <div class="flow-step">
+          <strong>Data Pipeline</strong>
+          <span>Sessionization, point-in-time features, pseudo labels, parquet stores.</span>
+        </div>
+        <div class="flow-step">
+          <strong>Recall Training</strong>
+          <span>Encode user/item, negative sampling, Matrix Factorization, item embeddings.</span>
+        </div>
+        <div class="flow-step">
+          <strong>Ranking Training</strong>
+          <span>Join interaction labels với user/item features, train LightGBM.</span>
+        </div>
+        <div class="flow-step">
+          <strong>Serving</strong>
+          <span>FastAPI: user embedding -> FAISS top-K -> feature lookup -> LightGBM -> top-N.</span>
+        </div>
+      </div>
+
+      <h3>Luồng training</h3>
+      <pre><code>main_train.py
+  -> src.data_pipeline.run_pipeline
+      -> sessionizer.create_sessions
+      -> featurizer.extract_user_features
+      -> featurizer.extract_item_features
+      -> featurizer.add_point_in_time_features
+      -> pseudo_label.apply_pseudo_labels
+  -> src.recall_model.run_recall
+      -> LabelEncoder user_id/product_id
+      -> ImplicitFeedbackDataset
+      -> MatrixFactorization
+      -> RecallTrainer with FocalLoss
+      -> save recall_weights.pth, item_embeddings.npy, encoders
+  -> src.ranking_model.run_ranking
+      -> join labeled interactions + feature snapshots
+      -> train LightGBM
+      -> save ranker_model.txt</code></pre>
+
+      <h3>Luồng inference</h3>
+      <pre><code>HTTP GET /recommend/{user_id}
+  -> RecommendationPipeline.recommend(user_id)
+  -> map user_id to user_idx
+  -> get user embedding from recall model
+  -> FAISS IndexFlatIP retrieves top-K item_idx
+  -> map item_idx to product_id
+  -> reindex item features and attach user features
+  -> LightGBM predicts scores
+  -> sort descending and return top_n recommendations</code></pre>
+    </section>
+
+    <section id="data">
+      <h2>4. Dữ Liệu Và Schema</h2>
+
+      <h3>Raw data</h3>
+      <p>
+        Cấu hình mặc định dùng <code>ProjectConfig.RAW_DATA_PATH</code> là
+        <code>data/raw/2019-Oct.csv</code>. Dataset thường có các cột:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Cột</th>
+            <th>Vai trò</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>event_time</code></td><td>Timestamp của hành vi, cực kỳ quan trọng để chống leakage.</td></tr>
+          <tr><td><code>event_type</code></td><td>Loại hành vi: <code>view</code>, <code>cart</code>, <code>purchase</code>.</td></tr>
+          <tr><td><code>product_id</code></td><td>ID sản phẩm, sau này encode thành <code>item_idx</code>.</td></tr>
+          <tr><td><code>category_id</code>, <code>category_code</code></td><td>Thông tin danh mục sản phẩm.</td></tr>
+          <tr><td><code>brand</code></td><td>Thương hiệu, có thể thiếu.</td></tr>
+          <tr><td><code>price</code></td><td>Giá sản phẩm, phân phối lệch phải.</td></tr>
+          <tr><td><code>user_id</code></td><td>ID người dùng, sau này encode thành <code>user_idx</code>.</td></tr>
+          <tr><td><code>user_session</code></td><td>Session gốc nếu dataset có cung cấp. Dự án tự tạo thêm <code>custom_session_id</code>.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Generated data stores hiện có</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Shape hiện tại</th>
+            <th>Cột hiện tại</th>
+            <th>Vai trò</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>data/sessions/labeled_sessions.parquet</code></td>
+            <td>653,794 rows x 4 cols</td>
+            <td><code>custom_session_id</code>, <code>product_id</code>, <code>user_id</code>, <code>label</code></td>
+            <td>Interaction labels cho recall/ranking. Hiện có 634,529 label 0 và 19,265 label 1.</td>
+          </tr>
+          <tr>
+            <td><code>data/feature_store/user_features.parquet</code></td>
+            <td>163,024 rows x 3 cols</td>
+            <td><code>user_id</code>, <code>user_total_interactions</code>, <code>user_total_sessions</code></td>
+            <td>Snapshot feature của user dùng lúc training và serving.</td>
+          </tr>
+          <tr>
+            <td><code>data/feature_store/item_features.parquet</code></td>
+            <td>63,322 rows x 4 cols</td>
+            <td><code>product_id</code>, <code>item_total_interactions</code>, <code>item_unique_users</code>, <code>item_avg_price</code></td>
+            <td>Snapshot feature của item dùng lúc training và serving.</td>
+          </tr>
+          <tr>
+            <td><code>data/feature_store/item_embeddings.npy</code></td>
+            <td>63,322 x 64, dtype <code>float32</code></td>
+            <td>Vector embedding</td>
+            <td>FAISS dùng để tìm top-K item ứng viên.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning">
+        <strong>Lưu ý schema:</strong> code hiện tại của <code>apply_pseudo_labels</code>
+        có thể xuất thêm <code>event_time</code>, <code>event_type</code>,
+        các feature point-in-time và <code>sample_weight</code> nếu chạy lại pipeline
+        từ raw data. File parquet hiện có trong workspace là artifact đã sinh trước đó
+        và chỉ có 4 cột.
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <h2>5. Data Pipeline</h2>
+      <p>
+        Pipeline nằm trong <code>src/data_pipeline</code>. Nhiệm vụ là biến CSV
+        raw thành các bảng parquet phục vụ training và serving.
+      </p>
+
+      <h3><code>sessionizer.py</code></h3>
+      <p>
+        Hàm <code>create_sessions(df, threshold_minutes=30)</code> sort dữ liệu
+        theo <code>user_id</code> và <code>event_time</code>, tính khoảng cách
+        thời gian giữa hai event liên tiếp của cùng user, rồi tạo
+        <code>custom_session_id</code>. Nếu event đầu tiên hoặc cách event trước
+        hơn 30 phút, đó là session mới.
+      </p>
+
+      <h3><code>featurizer.py</code></h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Hàm</th>
+            <th>Đầu ra</th>
+            <th>Điểm quan trọng</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>add_point_in_time_features</code></td>
+            <td><code>user_total_interactions</code>, <code>user_total_sessions</code>, <code>item_total_interactions</code>, <code>item_unique_users</code>, <code>item_avg_price</code></td>
+            <td>Tính cumulative features chỉ dựa trên event trước dòng hiện tại, giúp giảm leakage.</td>
+          </tr>
+          <tr>
+            <td><code>extract_user_features</code></td>
+            <td>Snapshot tổng số tương tác và số session theo user.</td>
+            <td>Dùng cho feature lookup lúc serving.</td>
+          </tr>
+          <tr>
+            <td><code>extract_item_features</code></td>
+            <td>Snapshot tổng tương tác, số user unique, giá trung bình theo item.</td>
+            <td>Dùng cho LightGBM ranker.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3><code>pseudo_label.py</code></h3>
+      <p>
+        Gán nhãn huấn luyện từ implicit feedback:
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th><code>event_type</code></th>
+            <th><code>label</code></th>
+            <th><code>sample_weight</code></th>
+            <th><code>event_strength</code></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>view</code></td><td>0</td><td>0.1</td><td>0</td></tr>
+          <tr><td><code>cart</code></td><td>1</td><td>0.5</td><td>1</td></tr>
+          <tr><td><code>purchase</code></td><td>1</td><td>1.0</td><td>2</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Với mỗi nhóm <code>custom_session_id</code>, <code>product_id</code>,
+        <code>user_id</code>, pipeline giữ lại event mạnh nhất và mới nhất để
+        tạo một training row duy nhất.
+      </p>
+
+      <h3><code>run_pipeline.py</code></h3>
+      <p>
+        Entry point gọi lần lượt sessionization, snapshot feature extraction,
+        point-in-time feature generation, pseudo labeling, rồi lưu parquet.
+        Số dòng raw đọc vào được điều khiển bởi
+        <code>config.PIPELINE_NROWS</code>, hiện là <code>1_000_000</code>.
+      </p>
+    </section>
+
+    <section id="recall">
+      <h2>6. Recall Model</h2>
+      <p>
+        Recall stage dùng Matrix Factorization trong PyTorch để học embedding
+        cho user và item. Mục tiêu là tìm nhanh các item có dot product cao với
+        user embedding.
+      </p>
+
+      <h3>Thành phần code</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Vai trò</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>src/recall_model/dataset.py</code></td>
+            <td><code>ImplicitFeedbackDataset</code> chuyển user idx, item idx, label thành tensor.</td>
+          </tr>
+          <tr>
+            <td><code>src/recall_model/model.py</code></td>
+            <td><code>MatrixFactorization</code> gồm <code>nn.Embedding</code> cho user và item, score bằng dot product qua sigmoid.</td>
+          </tr>
+          <tr>
+            <td><code>src/recall_model/trainer.py</code></td>
+            <td><code>FocalLoss</code> và <code>RecallTrainer</code>, tự chọn CUDA nếu có.</td>
+          </tr>
+          <tr>
+            <td><code>src/recall_model/run_recall.py</code></td>
+            <td>Đọc labeled parquet, negative sampling, label encoding, train, save artifacts.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Negative sampling</h3>
+      <p>
+        Code lấy toàn bộ positive rows (<code>label &gt; 0</code>) và sample
+        negative rows theo tỷ lệ <code>config.RECALL_NEG_SAMPLE_RATIO</code>.
+        Giá trị hiện tại là <code>4</code>, nghĩa là 1 positive : 4 negatives.
+      </p>
+
+      <h3>Loss function</h3>
+      <p>
+        <code>FocalLoss(alpha=0.25, gamma=2.0)</code> giảm ảnh hưởng của các
+        mẫu dễ và tập trung hơn vào mẫu khó, phù hợp với dữ liệu implicit
+        feedback mất cân bằng mạnh.
+      </p>
+
+      <h3>Artifacts sinh ra</h3>
+      <ul>
+        <li><code>models_store/recall_weights.pth</code>: trọng số PyTorch.</li>
+        <li><code>data/feature_store/item_embeddings.npy</code>: item embedding để build FAISS.</li>
+        <li><code>models_store/user_encoder.joblib</code> và <code>models_store/item_encoder.joblib</code>: mapping ID thật sang index.</li>
+        <li><code>models_store/recall_metadata.json</code>: số user, số item, embedding dimension.</li>
+      </ul>
+    </section>
+
+    <section id="ranking">
+      <h2>7. Ranking Model</h2>
+      <p>
+        Ranking stage dùng LightGBM để chấm điểm ứng viên. Nó không tìm ứng viên
+        từ toàn bộ item catalog, mà nhận danh sách candidate từ recall stage.
+      </p>
+
+      <h3>Feature set hiện tại</h3>
+      <pre><code>user_total_interactions
+user_total_sessions
+item_total_interactions
+item_unique_users
+item_avg_price
+hour_of_day
+day_of_week</code></pre>
+
+      <h3>Training flow</h3>
+      <ol>
+        <li>Đọc <code>labeled_sessions.parquet</code>, <code>user_features.parquet</code>, <code>item_features.parquet</code>.</li>
+        <li>Join theo <code>user_id</code> và <code>product_id</code>.</li>
+        <li>Fill missing numeric features bằng 0.</li>
+        <li>Chia train/test bằng <code>train_test_split(..., random_state=42)</code>.</li>
+        <li>Train <code>lgb.train</code> với objective <code>binary</code>, metric <code>binary_logloss</code> và <code>auc</code>.</li>
+        <li>Đánh giá thêm <code>NDCG@10</code> và <code>MRR</code> theo <code>user_id</code>.</li>
+        <li>Lưu model vào <code>models_store/ranker_model.txt</code>.</li>
+      </ol>
+
+      <h3>Code chính</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Vai trò</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>src/ranking_model/lgbm_train.py</code></td><td><code>RankingTrainer</code>, train/evaluate/save LightGBM. Đã cấu hình chống mất cân bằng nhãn.</td></tr>
+          <tr><td><code>src/ranking_model/metrics.py</code></td><td>Tính <code>NDCG@K</code> và <code>MRR</code>, có hỗ trợ group theo query/user.</td></tr>
+          <tr><td><code>src/ranking_model/run_ranking.py</code></td><td>Entry point training ranking model. Đã cấu hình Time-based split và Imputation tự động.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="serving">
+      <h2>8. Serving Và API</h2>
+      <p>
+        Serving nằm trong <code>src/serving</code> và <code>main_serve.py</code>.
+        Toàn bộ model và feature store được nạp một lần trong FastAPI startup.
+      </p>
+
+      <h3>Startup</h3>
+      <pre><code>pipeline = RecommendationPipeline(
+    models_dir=config.MODELS_DIR,
+    feature_store_dir=config.FEATURE_STORE_DIR,
+)
+pipeline.initialize()</code></pre>
+
+      <h3><code>RecommendationPipeline.initialize()</code> làm gì?</h3>
+      <ol>
+        <li>Đọc <code>user_features.parquet</code> và <code>item_features.parquet</code> vào memory.</li>
+        <li>Nạp encoder artifacts nếu có, nếu không thì rebuild mapping từ feature store.</li>
+        <li>Build FAISS <code>IndexFlatIP</code> từ <code>item_embeddings.npy</code>.</li>
+        <li>Nạp <code>recall_weights.pth</code> vào <code>MatrixFactorization</code>.</li>
+        <li>Validate số user/item giữa mapping, FAISS và PyTorch weights.</li>
+        <li>Nạp LightGBM model từ <code>ranker_model.txt</code>.</li>
+      </ol>
+
+      <h3>API endpoints</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Ý nghĩa</th>
+            <th>Response</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>GET /</code></td>
+            <td>Health/info đơn giản.</td>
+            <td>Message hướng dẫn dùng <code>/recommend/{user_id}</code>.</td>
+          </tr>
+          <tr>
+            <td><code>GET /recommend/{user_id}?top_n=20</code></td>
+            <td>Recommend theo user ID thật.</td>
+            <td><code>user_id</code>, <code>user_idx</code>, <code>recommendations</code>, <code>latency_metrics</code>.</td>
+          </tr>
+          <tr>
+            <td><code>GET /recommend-by-index/{user_idx}?top_n=20</code></td>
+            <td>Recommend theo index nội bộ, hữu ích cho debug.</td>
+            <td>Tương tự endpoint theo <code>user_id</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Response mẫu</h3>
+      <pre><code>{
+  "user_id": 244951053,
+  "user_idx": 0,
+  "recommendations": [
+    {"product_id": 26022915, "item_idx": 47288, "score": 0.2332}
+  ],
+  "latency_metrics": {
+    "user_emb_time_ms": 0.70,
+    "faiss_search_time_ms": 1.24,
+    "feature_lookup_time_ms": 15.05,
+    "ranking_time_ms": 1.30,
+    "sort_time_ms": 0.09,
+    "total_latency_ms": 20.84
+  }
+}</code></pre>
+
+      <h3>Cold-start behavior</h3>
+      <p>
+        Nếu user chưa có trong mapping hoặc <code>user_idx</code> ngoài biên,
+        pipeline trả lỗi cold-start với danh sách recommendation rỗng. Fallback
+        phổ biến như popular items, category trending hoặc session-based recall
+        chưa được triển khai.
+      </p>
+    </section>
+
+    <section id="code-map">
+      <h2>9. Bản Đồ Codebase</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Đường dẫn</th>
+            <th>Vai trò</th>
+            <th>Khi nào cần sửa?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="path"><code>src/config.py</code></td>
+            <td>Dataclass chứa path và hyperparameters.</td>
+            <td>Đổi raw file, batch size, embedding dim, số epoch, LightGBM params, top-K serving.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>main_train.py</code></td>
+            <td>Orchestrator chạy training end-to-end bằng subprocess.</td>
+            <td>Thay thứ tự phase, thêm phase mới, hoặc tách training từng phần.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>main_serve.py</code></td>
+            <td>FastAPI app và endpoints.</td>
+            <td>Thêm endpoint, đổi contract API, thêm health check chi tiết.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>src/data_pipeline</code></td>
+            <td>Sessionization, feature engineering, pseudo labels.</td>
+            <td>Thêm feature, chống leakage, xử lý categorical, time split.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>src/recall_model</code></td>
+            <td>Dataset, Matrix Factorization, trainer, recall training script.</td>
+            <td>Đổi kiến trúc sang two-tower, BPR loss, hard negative sampling.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>src/ranking_model</code></td>
+            <td>LightGBM trainer, metrics, ranking training script.</td>
+            <td>Thêm feature, sample weights, group ranking objective, time-based validation.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>src/serving</code></td>
+            <td>FAISS wrapper, ranker wrapper, recommendation pipeline.</td>
+            <td>Thêm fallback cold-start, cache, filtering business rules, explainability.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>tests/smoke_test.py</code></td>
+            <td>Kiểm tra pipeline nạp model và tạo recommendation cho user mẫu.</td>
+            <td>Thêm regression tests cho artifact loading và response schema.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>notebooks</code></td>
+            <td>EDA, feature engineering experiment, model experiment, ranking experiment.</td>
+            <td>Khám phá dữ liệu hoặc thử nghiệm trước khi đưa logic vào <code>src</code>.</td>
+          </tr>
+          <tr>
+            <td class="path"><code>plan</code> và <code>.ai-knowledge</code></td>
+            <td>Tài liệu kế hoạch, kiến trúc, phân tích rủi ro.</td>
+            <td>Đọc trước khi refactor lớn hoặc thay đổi thuật toán.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="config">
+      <h2>10. Cấu Hình Quan Trọng</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Config</th>
+            <th>Giá trị hiện tại</th>
+            <th>Ý nghĩa</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>RAW_DATA_PATH</code></td><td><code>data/raw/2019-Oct.csv</code></td><td>Nguồn raw data mặc định.</td></tr>
+          <tr><td><code>PIPELINE_NROWS</code></td><td><code>1_000_000</code></td><td>Số dòng CSV đọc vào. Đặt <code>None</code> nếu muốn chạy toàn bộ, nhưng cần RAM lớn.</td></tr>
+          <tr><td><code>SESSION_THRESHOLD_MINUTES</code></td><td><code>30</code></td><td>Ngưỡng tách session theo thời gian.</td></tr>
+          <tr><td><code>RECALL_BATCH_SIZE</code></td><td><code>4096</code></td><td>Batch size cho PyTorch recall model.</td></tr>
+          <tr><td><code>RECALL_EMBEDDING_DIM</code></td><td><code>64</code></td><td>Số chiều embedding user/item.</td></tr>
+          <tr><td><code>RECALL_EPOCHS</code></td><td><code>5</code></td><td>Số epoch huấn luyện recall.</td></tr>
+          <tr><td><code>RECALL_NEG_SAMPLE_RATIO</code></td><td><code>4</code></td><td>Số negative sample trên mỗi positive sample.</td></tr>
+          <tr><td><code>RANKING_NUM_BOOST_ROUND</code></td><td><code>100</code></td><td>Số boosting rounds của LightGBM.</td></tr>
+          <tr><td><code>SERVING_TOP_K_RECALL</code></td><td><code>200</code></td><td>Ý định cấu hình top-K recall. Code serving hiện hard-code <code>min(200, num_items)</code>.</td></tr>
+          <tr><td><code>SERVING_TOP_N_RANKING</code></td><td><code>20</code></td><td>Top-N mặc định theo config. Endpoint hiện nhận <code>top_n</code> default 20.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="artifacts">
+      <h2>11. Artifacts Và Trạng Thái Hiện Tại</h2>
+      <p>
+        Đây là trạng thái đã kiểm tra trực tiếp trong workspace tại thời điểm
+        tạo tài liệu.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Artifact</th>
+            <th>Trạng thái</th>
+            <th>Thông tin</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>models_store/recall_weights.pth</code></td>
+            <td><span class="badge ok">Có</span></td>
+            <td>User embedding shape <code>(163024, 64)</code>, item embedding shape <code>(63322, 64)</code>.</td>
+          </tr>
+          <tr>
+            <td><code>models_store/ranker_model.txt</code></td>
+            <td><span class="badge ok">Có</span></td>
+            <td>LightGBM model đã nạp được trong smoke test.</td>
+          </tr>
+          <tr>
+            <td><code>models_store/user_encoder.joblib</code></td>
+            <td><span class="badge ok">Có</span></td>
+            <td>Sử dụng để mapping user thật sang ID Index (đã được tạo khi gọi run_recall).</td>
+          </tr>
+          <tr>
+            <td><code>models_store/item_encoder.joblib</code></td>
+            <td><span class="badge ok">Có</span></td>
+            <td>Sử dụng để mapping item thật sang ID Index (đã được tạo khi gọi run_recall).</td>
+          </tr>
+          <tr>
+            <td><code>models_store/recall_metadata.json</code></td>
+            <td><span class="badge ok">Có</span></td>
+            <td>Lưu cấu hình để load model an toàn.</td>
+          </tr>
+          <tr>
+            <td><code>data/feature_store/item_embeddings.npy</code></td>
+            <td><span class="badge ok">Có</span></td>
+            <td>Shape <code>(63322, 64)</code>, dtype <code>float32</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="testing">
+      <h2>12. Testing Và Debug</h2>
+      <h3>Smoke test hiện có</h3>
+      <pre><code>uv run python tests/smoke_test.py</code></pre>
+      <p>Test này kiểm tra:</p>
+      <ul>
+        <li>Thư mục artifacts tồn tại.</li>
+        <li><code>RecommendationPipeline.initialize()</code> nạp được feature stores, FAISS, recall model và ranker.</li>
+        <li>Đọc user mẫu từ <code>user_features.parquet</code>.</li>
+        <li>Gọi <code>pipeline.recommend(..., top_n=5)</code>.</li>
+        <li>Response có key <code>recommendations</code> và không trả quá 5 item.</li>
+      </ul>
+
+      <h3>Kết quả kiểm tra gần nhất</h3>
+      <p>
+        Smoke test đã chạy thành công. Với user mẫu <code>244951053</code>,
+        pipeline trả được top-5 recommendation. Tổng latency được ghi nhận khoảng
+        <code>20.84 ms</code> trong lần chạy đó.
+      </p>
+
+      <h3>Các lỗi thường gặp</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Triệu chứng</th>
+            <th>Nguyên nhân thường gặp</th>
+            <th>Cách xử lý</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Không import được package</td>
+            <td>Chưa chạy <code>uv sync</code> hoặc gọi sai Python.</td>
+            <td>Dùng <code>uv run python ...</code>.</td>
+          </tr>
+          <tr>
+            <td>API startup fail vì thiếu file</td>
+            <td>Chưa train hoặc thiếu artifacts.</td>
+            <td>Chạy <code>uv run python main_train.py</code> hoặc kiểm tra <code>models_store</code>, <code>data/feature_store</code>.</td>
+          </tr>
+          <tr>
+            <td>Mismatch số item/user</td>
+            <td>Feature store, embeddings và weights sinh từ các lần train khác nhau.</td>
+            <td>Xóa artifacts cũ có kiểm soát rồi train lại toàn bộ pipeline để đồng bộ.</td>
+          </tr>
+          <tr>
+            <td>User cold-start</td>
+            <td>User không tồn tại trong encoder hoặc feature store.</td>
+            <td>Hiện chưa có fallback. Cần triển khai popular/trending/session fallback.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="risks">
+      <h2>13. Rủi Ro Kỹ Thuật Và Việc Cần Làm Tiếp</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Mức độ</th>
+            <th>Vấn đề</th>
+            <th>Hành động đề xuất</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="badge warn">Trung bình</span></td>
+            <td><code>SERVING_TOP_K_RECALL</code> trong config chưa được dùng trong pipeline serving.</td>
+            <td>Thay hard-code <code>200</code> bằng config, hoặc truyền top-K vào pipeline constructor.</td>
+          </tr>
+          <tr>
+            <td><span class="badge warn">Trung bình</span></td>
+            <td>Cold-start chưa có fallback.</td>
+            <td>Triển khai popular items, category/brand trending, hoặc session-based recommendations.</td>
+          </tr>
+          <tr>
+            <td><span class="badge">Thấp</span></td>
+            <td><code>main.py</code> chỉ in hello, không tham gia flow chính.</td>
+            <td>Có thể giữ làm placeholder hoặc cập nhật thành CLI entrypoint sau.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="mental-model">
+      <h2>14. Mental Model Cho Người Mới</h2>
+      <ol>
+        <li>
+          <strong>Đừng bắt đầu từ model.</strong> Hãy hiểu raw event log, session,
+          label và feature trước. Sai feature hoặc leakage sẽ làm model đúng giả.
+        </li>
+        <li>
+          <strong>Recall là bước lấy ứng viên.</strong> Nó ưu tiên nhanh và phủ rộng,
+          không cần xếp hạng cuối cùng thật chuẩn.
+        </li>
+        <li>
+          <strong>Ranking là bước quyết định thứ tự.</strong> Nó dùng feature rõ ràng
+          hơn và chỉ xử lý vài trăm ứng viên.
+        </li>
+        <li>
+          <strong>Serving phụ thuộc chặt vào artifact consistency.</strong>
+          Mapping user/item, embeddings, weights và feature store phải sinh từ cùng
+          một phiên bản dữ liệu.
+        </li>
+        <li>
+          <strong>Đánh giá recommender phải theo thời gian.</strong> Với hành vi
+          người dùng, validation ngẫu nhiên dễ trộn tương lai vào quá khứ.
+        </li>
+      </ol>
+    </section>
+
+    <section id="checklist">
+      <h2>15. Checklist Khi Thêm Tính Năng</h2>
+      <ul>
+        <li>Nếu thêm feature mới, thêm ở data pipeline, training ranking và serving ranker cùng lúc.</li>
+        <li>Nếu đổi embedding dimension hoặc số user/item, train lại recall và rebuild item embeddings.</li>
+        <li>Nếu đổi mapping encoder, đảm bảo API dùng đúng encoder artifact từ cùng lần train.</li>
+        <li>Nếu đổi label logic, kiểm tra lại tỷ lệ positive/negative và metrics ranking.</li>
+        <li>Nếu đổi API response, cập nhật smoke test và tài liệu endpoint.</li>
+        <li>Nếu thêm filtering business rules, áp dụng sau recall và trước ranking hoặc sau ranking tùy yêu cầu.</li>
+      </ul>
+    </section>
+
+    <section id="sources">
+      <h2>16. Nguồn Tham Chiếu Nội Bộ</h2>
+      <p>Tài liệu này được tổng hợp từ code và tài liệu trong repo:</p>
+      <ul class="toc-columns">
+        <li><code>README.md</code></li>
+        <li><code>pyproject.toml</code></li>
+        <li><code>main_train.py</code></li>
+        <li><code>main_serve.py</code></li>
+        <li><code>src/config.py</code></li>
+        <li><code>src/data_pipeline/*</code></li>
+        <li><code>src/recall_model/*</code></li>
+        <li><code>src/ranking_model/*</code></li>
+        <li><code>src/serving/*</code></li>
+        <li><code>tests/smoke_test.py</code></li>
+        <li><code>plan/*.md</code></li>
+        <li><code>.ai-knowledge/*.md</code></li>
+      </ul>
+      <p class="small">
+        Tạo cho workspace <code>D:\programing\project\EDA_project</code>.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

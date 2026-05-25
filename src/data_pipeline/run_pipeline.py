@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 from src.config import config
 from src.data_pipeline.sessionizer import create_sessions
 from src.data_pipeline.pseudo_label import apply_pseudo_labels
@@ -12,6 +13,10 @@ from src.data_pipeline.featurizer import (
 def run_pipeline(raw_data_path: str, output_dir: str, nrows: int):
     print(f"Reading data from {raw_data_path}...")
     df = pd.read_csv(raw_data_path, nrows=nrows)
+    
+    print("0.5. Preprocessing (Log Transform Price)...")
+    if 'price' in df.columns:
+        df['price'] = np.log1p(pd.to_numeric(df['price'], errors='coerce').fillna(0))
     
     print("1. Applying Sessionization...")
     df_sessions = create_sessions(df)

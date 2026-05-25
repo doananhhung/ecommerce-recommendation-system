@@ -23,6 +23,7 @@ class RankingTrainer:
             "metric": ["binary_logloss", "auc"],
             "learning_rate": learning_rate,
             "num_leaves": num_leaves,
+            "is_unbalance": True,
             "verbose": -1,
         }
         self.model = None
