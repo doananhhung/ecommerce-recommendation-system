@@ -60,15 +60,15 @@ graph TD
 
 ## 📁 Cấu Trúc Các Bài Giải Thích Chi Tiết
 
-Để hiểu sâu sắc về thiết kế hệ thống, thuật toán, công nghệ và các ví dụ thực tế tương ứng với từng giai đoạn, bạn hãy đọc lần lượt các tệp hướng dẫn dưới đây:
+Để hiểu sâu sắc về thiết kế hệ thống, thuật toán, công nghệ và các ví dụ thực tế tương ứng với từng giai đoạn, bạn hãy đọc lần lượt các tệp hướng dẫn dưới đây (mỗi Phase đều tích hợp phần giải thích chi tiết cho **tệp Jupyter Notebook tương ứng** trong thư mục `notebooks/`):
 
-| Tệp Tài Liệu | Giai Đoạn | Trọng Tâm Kỹ Thuật | Từ Khóa Công Nghệ |
-| :--- | :--- | :--- | :--- |
-| 📘 **[Phase 1: EDA & Setup](file:///D:/programing/project/EDA_project/explain/phase_1_eda_and_setup.md)** | Phân Tích & Thiết Lập | Khám phá phân phối hành vi, độ thưa thớt ma trận và độ lệch giá sản phẩm | `uv`, `pandas`, `sparsity`, `class imbalance` |
-| 📗 **[Phase 2: Data Pipeline](file:///D:/programing/project/EDA_project/explain/phase_2_data_pipeline.md)** | Đường Ống Dữ Liệu | Ngăn chặn rò rỉ thời gian (Data Leakage), chia phiên hành vi, đặc trưng lũy kế cấp phiên | `Point-in-time`, `Sessionization`, `Log-Transform`, `Parquet` |
-| 📙 **[Phase 3: Recall Model](file:///D:/programing/project/EDA_project/explain/phase_3_recall_model.md)** | Bộ Lọc Triệu Hồi | Học nhúng vector, kết nối 2 kênh triệu hồi (Sở thích lâu dài + Nhu cầu phiên) qua FAISS | `PyTorch`, `Average Item Embedding`, `Focal Loss`, `Dual-Channel Recall` |
-| 📕 **[Phase 4: Ranking Model](file:///D:/programing/project/EDA_project/explain/phase_4_ranking_model.md)** | Bộ Xếp Hạng Chi Tiết | Cây quyết định xếp hạng, đồng bộ đặc trưng động từ config, tối ưu hóa hiển thị | `LightGBM`, `Sample Weights`, `NDCG@K`, `Dynamic Features` |
-| 🪟 **[Phase 5: Serving Pipeline](file:///D:/programing/project/EDA_project/explain/phase_5_serving_pipeline.md)** | Phục Vụ Thời Gian Thực | Điều phối API bất đồng bộ, gộp kênh triệu hồi, tra cứu RAM Feature Store kháng lỗi | `FastAPI`, `FAISS Index`, `Session History Parsing`, `Cold-Start` |
+| Tệp Tài Liệu | Giai Đoạn | Tệp Notebook Thử Nghiệm | Trọng Tâm Kỹ Thuật | Từ Khóa Công Nghệ |
+| :--- | :--- | :--- | :--- | :--- |
+| 📘 **[Phase 1: EDA & Setup](file:///D:/programing/project/EDA_project/explain/phase_1_eda_and_setup.md)** | Phân Tích & Thiết Lập | `01_EDA.ipynb` | Khám phá phân phối hành vi, độ thưa thớt ma trận và độ lệch giá sản phẩm | `uv`, `pandas`, `sparsity`, `class imbalance` |
+| 📗 **[Phase 2: Data Pipeline](file:///D:/programing/project/EDA_project/explain/phase_2_data_pipeline.md)** | Đường Ống Dữ Liệu | `02_Feature_Eng.ipynb` | Ngăn chặn rò rỉ thời gian (Data Leakage), chia phiên hành vi, đặc trưng lũy kế cấp phiên | `Point-in-time`, `Sessionization`, `Log-Transform`, `Parquet` |
+| 📙 **[Phase 3: Recall Model](file:///D:/programing/project/EDA_project/explain/phase_3_recall_model.md)** | Bộ Lọc Triệu Hồi | `03_Model_Exp.ipynb` | Học nhúng vector, kết nối 2 kênh triệu hồi (Sở thích lâu dài + Nhu cầu phiên) qua FAISS | `PyTorch`, `Average Item Embedding`, `Focal Loss`, `Dual-Channel Recall` |
+| 📕 **[Phase 4: Ranking Model](file:///D:/programing/project/EDA_project/explain/phase_4_ranking_model.md)** | Bộ Xếp Hạng Chi Tiết | `04_Ranking_Exp.ipynb` | Cây quyết định xếp hạng, đồng bộ đặc trưng động từ config, tối ưu hóa hiển thị | `LightGBM`, `Sample Weights`, `NDCG@K`, `Dynamic Features` |
+| 🪟 **[Phase 5: Serving Pipeline](file:///D:/programing/project/EDA_project/explain/phase_5_serving_pipeline.md)** | Phục Vụ Thời Gian Thực | *N/A (FastAPI Server)* | Điều phối API bất đồng bộ, gộp kênh triệu hồi, tra cứu RAM Feature Store kháng lỗi | `FastAPI`, `FAISS Index`, `Session History Parsing`, `Cold-Start` |
 
 ---
 

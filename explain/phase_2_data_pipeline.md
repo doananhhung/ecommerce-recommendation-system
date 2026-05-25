@@ -16,7 +16,7 @@ Trong các hệ thống học máy thực tế, dữ liệu thô không bao gi�
 
 ## 📁 Thư Mục Khởi Tạo & Vai Trò
 
-Trong Phase này, các đoạn mã nguồn xử lý dữ liệu được thiết kế theo dạng module hóa trong thư mục `src/data_pipeline/`:
+Trong Phase này, các đoạn mã nguồn xử lý dữ liệu được thiết kế theo dạng module hóa trong thư mục `src/data_pipeline/` cùng với notebook thử nghiệm tương ứng:
 
 ```
 EDA_project/
@@ -26,6 +26,8 @@ EDA_project/
 │   └── feature_store/
 │       ├── user_features.parquet      # Đặc trưng tĩnh mới nhất của User phục vụ Online Serving
 │       └── item_features.parquet      # Đặc trưng tĩnh mới nhất của Item phục vụ Online Serving
+├── notebooks/
+│   └── 02_Feature_Eng.ipynb           # Vở bài tập chạy thử nghiệm và viết nháp logic Pipeline
 └── src/
     └── data_pipeline/
         ├── __init__.py
@@ -36,6 +38,9 @@ EDA_project/
 ```
 
 ### 🔹 Mục đích chi tiết của từng tệp:
+
+*   **`notebooks/02_Feature_Eng.ipynb`**:
+    *   *Kỹ thuật*: Tệp Jupyter Notebook dùng làm môi trường thử nghiệm và viết nháp (Prototyping) toàn bộ logic của Phase 2 bao gồm chia phiên, gán nhãn implicit feedback, và thiết kế thử nghiệm các đặc trưng point-in-time trên một tập con dữ liệu nhỏ. Khi logic chạy chính xác, nó được đóng gói chính thức vào thư mục `src/data_pipeline/`.
 
 *   **`sessionizer.py`**:
     *   *Kỹ thuật*: Khách hàng có thể vào trang thương mại điện tử nhiều lần trong ngày. Tệp này sử dụng thuật toán sắp xếp lịch sử tương tác của từng User theo thời gian, tính khoảng cách giữa hai hành động liên tiếp. Nếu khoảng cách này **vượt quá 30 phút** (mặc định), hệ thống sẽ tự động ngắt và đánh số một mã phiên mới (`custom_session_id`).

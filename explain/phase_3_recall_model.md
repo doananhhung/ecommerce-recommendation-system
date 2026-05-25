@@ -18,13 +18,15 @@ Khi hệ thống thương mại điện tử sở hữu hàng triệu sản ph�
 
 ## 📁 Thư Mục Khởi Tạo & Vai Trò
 
-Trong Phase này, mô hình học máy Deep Learning đầu tiên được phát triển bằng PyTorch trong thư mục `src/recall_model/`:
+Trong Phase này, mô hình học máy Deep Learning đầu tiên được phát triển bằng PyTorch trong thư mục `src/recall_model/` cùng với notebook thử nghiệm:
 
 ```
 EDA_project/
 ├── models_store/
 │   ├── recall_weights.pth        # Lưu trữ trọng số Embeddings của User và Item sau huấn luyện
 │   └── item_embeddings.npy       # Ma trận nhúng 64 chiều của toàn bộ sản phẩm phục vụ FAISS Index
+├── notebooks/
+│   └── 03_Model_Exp.ipynb        # Vở bài tập chạy thử nghiệm và viết nháp mô hình PyTorch MF
 └── src/
     └── recall_model/
         ├── __init__.py
@@ -34,7 +36,13 @@ EDA_project/
         └── run_recall.py         # Kịch bản sinh mẫu âm, chạy huấn luyện và đánh giá Recall@50
 ```
 
----
+### 🔹 Mục đích chi tiết của từng tệp:
+
+*   **`notebooks/03_Model_Exp.ipynb`**:
+    *   *Kỹ thuật*: Tệp Jupyter Notebook dùng để thử nghiệm nhanh (Prototyping) việc thiết kế mô hình PyTorch Matrix Factorization, xây dựng thử nghiệm lớp `Dataset` và `DataLoader` để nạp dữ liệu theo mini-batch, kiểm nghiệm tốc độ huấn luyện trên CPU/GPU, và xuất nháp ma trận nhúng của item trước khi chuyển đổi toàn bộ cấu trúc thành code module trong `src/recall_model/`.
+
+*   **`model.py`**:
+    *   *Kỹ thuật*: Định nghĩa lớp `MatrixFactorization` kế thừa `torch.nn.Module`. Lớp này khởi tạo hai bảng nhúng (`nn.Embedding`) cho User và Item với kích thước 64 chiều. Trọng số embeddings được khởi tạo bằng phương pháp **Xavier Uniform** giúp tăng tốc độ hội tụ. Hàm `forward` thực hiện tính Tích vô hướng (Dot Product) giữa User Embedding và Item Embedding rồi đưa qua hàm Sigmoid để ép giá trị dự đoán về khoảng `(0, 1)`.
 
 ## 🗺️ Thiết Kế Triệu Hồi Hai Kênh (Dual-Channel Recall Design)
 

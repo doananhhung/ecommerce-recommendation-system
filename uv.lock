@@ -366,6 +366,59 @@ wheels = [
 ]
 
 [[package]]
+name = "eda-project"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "faiss-cpu" },
+    { name = "fastapi" },
+    { name = "ipykernel" },
+    { name = "joblib" },
+    { name = "lightgbm" },
+    { name = "matplotlib" },
+    { name = "nbconvert" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "pandas" },
+    { name = "pyarrow" },
+    { name = "scikit-learn" },
+    { name = "seaborn" },
+    { name = "torch" },
+    { name = "torchaudio" },
+    { name = "torchvision" },
+    { name = "uvicorn" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "ipykernel" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "faiss-cpu", specifier = ">=1.13.2" },
+    { name = "fastapi" },
+    { name = "ipykernel", specifier = ">=7.2.0" },
+    { name = "joblib", specifier = ">=1.5.3" },
+    { name = "lightgbm", specifier = ">=4.6.0" },
+    { name = "matplotlib" },
+    { name = "nbconvert", specifier = ">=7.17.1" },
+    { name = "numpy" },
+    { name = "opencv-python" },
+    { name = "pandas" },
+    { name = "pyarrow", specifier = ">=24.0.0" },
+    { name = "scikit-learn" },
+    { name = "seaborn" },
+    { name = "torch", specifier = ">=2.7", index = "https://download.pytorch.org/whl/cu130" },
+    { name = "torchaudio", index = "https://download.pytorch.org/whl/cu130" },
+    { name = "torchvision", index = "https://download.pytorch.org/whl/cu130" },
+    { name = "uvicorn", specifier = ">=0.47.0" },
+]
+
+[package.metadata.requires-dev]
+dev = [{ name = "ipykernel", specifier = ">=7.2.0" }]
+
+[[package]]
 name = "executing"
 version = "2.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -1930,59 +1983,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/83/d3/803453b36afefb7c2
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl", hash = "sha256:e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5", size = 6299353, upload-time = "2025-04-27T18:04:59.103Z" },
 ]
-
-[[package]]
-name = "test"
-version = "0.1.0"
-source = { virtual = "." }
-dependencies = [
-    { name = "faiss-cpu" },
-    { name = "fastapi" },
-    { name = "ipykernel" },
-    { name = "joblib" },
-    { name = "lightgbm" },
-    { name = "matplotlib" },
-    { name = "nbconvert" },
-    { name = "numpy" },
-    { name = "opencv-python" },
-    { name = "pandas" },
-    { name = "pyarrow" },
-    { name = "scikit-learn" },
-    { name = "seaborn" },
-    { name = "torch" },
-    { name = "torchaudio" },
-    { name = "torchvision" },
-    { name = "uvicorn" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "ipykernel" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "faiss-cpu", specifier = ">=1.13.2" },
-    { name = "fastapi" },
-    { name = "ipykernel", specifier = ">=7.2.0" },
-    { name = "joblib", specifier = ">=1.5.3" },
-    { name = "lightgbm", specifier = ">=4.6.0" },
-    { name = "matplotlib" },
-    { name = "nbconvert", specifier = ">=7.17.1" },
-    { name = "numpy" },
-    { name = "opencv-python" },
-    { name = "pandas" },
-    { name = "pyarrow", specifier = ">=24.0.0" },
-    { name = "scikit-learn" },
-    { name = "seaborn" },
-    { name = "torch", specifier = ">=2.7", index = "https://download.pytorch.org/whl/cu130" },
-    { name = "torchaudio", index = "https://download.pytorch.org/whl/cu130" },
-    { name = "torchvision", index = "https://download.pytorch.org/whl/cu130" },
-    { name = "uvicorn", specifier = ">=0.47.0" },
-]
-
-[package.metadata.requires-dev]
-dev = [{ name = "ipykernel", specifier = ">=7.2.0" }]
 
 [[package]]
 name = "threadpoolctl"

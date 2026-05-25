@@ -16,12 +16,14 @@ Sau khi chiếc phễu triệu hồi ở Phase 3 lọc thô danh mục sản ph�
 
 ## 📁 Thư Mục Khởi Tạo & Vai Trò
 
-Trong Phase này, mô hình xếp hạng dạng bảng được xây dựng và huấn luyện bằng LightGBM trong thư mục `src/ranking_model/`:
+Trong Phase này, mô hình xếp hạng dạng bảng được xây dựng và huấn luyện bằng LightGBM trong thư mục `src/ranking_model/` cùng với notebook thử nghiệm:
 
 ```
 EDA_project/
 ├── models_store/
 │   └── ranker_model.txt          # File văn bản tuần tự hóa cây quyết định LightGBM đã huấn luyện
+├── notebooks/
+│   └── 04_Ranking_Exp.ipynb      # Vở bài tập chạy thử nghiệm và viết nháp mô hình LightGBM
 └── src/
     └── ranking_model/
         ├── __init__.py
@@ -31,6 +33,9 @@ EDA_project/
 ```
 
 ### 🔹 Mục đích chi tiết của từng tệp:
+
+*   **`notebooks/04_Ranking_Exp.ipynb`**:
+    *   *Kỹ thuật*: Tệp Jupyter Notebook dùng để Prototyping cho khâu Ranking. Nạp và ghép nối dữ liệu phẳng với các đặc trưng snapshot của User/Item lấy từ Feature Store, huấn luyện thử nghiệm thuật toán LightGBM dạng phân loại nhị phân, truyền `sample_weight` cho các hành vi implicit và tính toán nhanh các chỉ số NDCG và MRR trước khi đóng gói code sạch vào `src/ranking_model/`.
 
 *   **`lgbm_train.py`**:
     *   *Kỹ thuật*: Chứa logic cấu hình thuật toán LightGBM. Thiết lập cấu trúc `lgb.Dataset(X, y, weight=sample_weights)` tích hợp Sample Weights. Đồng thời, tệp cấu hình tham số chống mất cân bằng cực đoan như `is_unbalance=True` hoặc tự động điều chỉnh `scale_pos_weight` giúp mô hình không bị lệch hướng bởi số lượng View khổng lồ.
