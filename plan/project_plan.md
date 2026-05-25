@@ -68,3 +68,9 @@ Dự án được chia thành 5 Giai đoạn (Phases) cốt lõi.
 **5.2. API Integration:**
 - FastAPI nhận Request (user_id).
 - Hệ thống gọi FAISS lấy Top-K (Recall) -> Truy xuất Features từ Feature Store (được cập nhật real-time) -> Đưa vào LightGBM (Ranking) -> Trả về danh sách cuối cùng.
+
+**5.3. Đồng bộ hóa Đặc trưng & Tối ưu hóa Phục vụ (Feature Alignment & Serving Robustness):**
+- Tập trung cấu hình danh sách đặc trưng số và phân loại tại `config.py` để làm nguồn chuẩn duy nhất.
+- Cập nhật pipeline để lưu trữ đầy đủ các cột categorical (`category_code`, `brand`) vào Serving Feature Store.
+- Cải tiến LightGBM Ranker tự động đọc đặc trưng từ tệp mô hình đã huấn luyện và tự động điền khuyết/bù đắp cột bị thiếu, ngăn ngừa hoàn toàn lỗi crash do bất đồng bộ cấu trúc đặc trưng giữa huấn luyện và suy luận.
+

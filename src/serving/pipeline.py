@@ -92,6 +92,10 @@ class RecommendationPipeline:
             int(user_id): int(user_idx)
             for user_idx, user_id in enumerate(user_classes)
         }
+        self.product_id_to_idx = {
+            int(product_id): int(item_idx)
+            for item_idx, product_id in enumerate(item_classes)
+        }
 
     def _validate_artifacts(self, num_users: int, num_items: int):
         if len(self.idx_to_user_id) < num_users:
@@ -116,40 +120,84 @@ class RecommendationPipeline:
             emb = self.recall_model.user_embedding(user_tensor)
             return emb.numpy()[0]
 
-    def recommend(self, user_id: int, top_n: int = 20) -> Dict[str, Any]:
+    def recommend(self, user_id: int, top_n: int = 20, session_items: Optional[list] = None) -> Dict[str, Any]:
+        total_start = time.time()
         user_idx = self._user_id_to_idx(user_id)
         if user_idx is None:
-            return {
-                "error": "Cold-start user. Fallback logic not fully implemented.",
-                "recommendations": [],
-            }
+            return self._popular_fallback_recommendations(
+                user_id=user_id,
+                user_idx=-1,
+                top_n=top_n,
+                total_start=total_start,
+            )
 
-        return self.recommend_by_index(user_idx=user_idx, top_n=top_n, user_id=user_id)
+        return self.recommend_by_index(user_idx=user_idx, top_n=top_n, user_id=user_id, session_items=session_items)
 
     def recommend_by_index(
         self,
         user_idx: int,
         top_n: int = 20,
         user_id: Optional[int] = None,
+        session_items: Optional[list] = None,
     ) -> Dict[str, Any]:
         metrics = {}
         total_start = time.time()
 
         if user_idx >= self.recall_model.user_embedding.num_embeddings or user_idx < 0:
-            return {
-                "error": "Cold-start user (or out of bounds index). Fallback logic not fully implemented.",
-                "recommendations": [],
-            }
+            fallback_user_id = user_id if user_id is not None else -1
+            return self._popular_fallback_recommendations(
+                user_id=fallback_user_id,
+                user_idx=user_idx,
+                top_n=top_n,
+                total_start=total_start,
+            )
         if user_id is None:
             user_id = int(self.idx_to_user_id[user_idx])
 
+        # --- Channel 1: Long-term Recall ---
         u_start = time.time()
         u_emb = self.get_user_embedding(user_idx)
         metrics["user_emb_time_ms"] = (time.time() - u_start) * 1000
 
-        top_k = min(200, self.faiss_searcher.num_items)
-        _, candidate_indices, faiss_time = self.faiss_searcher.search(u_emb, top_k=top_k)
-        metrics["faiss_search_time_ms"] = faiss_time * 1000
+        top_k_long_term = min(100, self.faiss_searcher.num_items)
+        long_term_scores, long_term_indices, faiss_time_long = self.faiss_searcher.search(u_emb, top_k=top_k_long_term)
+        
+        # --- Channel 2: Session-based Recall ---
+        session_indices = []
+        session_scores = []
+        faiss_time_session = 0.0
+        
+        if session_items and len(session_items) > 0:
+            # Map product_ids to item_idxs
+            valid_session_item_idxs = []
+            for pid in session_items:
+                if int(pid) in self.product_id_to_idx:
+                    valid_session_item_idxs.append(self.product_id_to_idx[int(pid)])
+            
+            if len(valid_session_item_idxs) > 0:
+                with torch.no_grad():
+                    item_idxs_tensor = torch.tensor(valid_session_item_idxs, dtype=torch.long)
+                    # Fetch embeddings for these items
+                    item_embs = self.recall_model.item_embedding(item_idxs_tensor) # shape: [len, dim]
+                    # Compute dynamic session interest vector (mean embedding)
+                    session_vector = item_embs.mean(dim=0).cpu().numpy()
+                
+                # Search using the session vector
+                top_k_session = min(100, self.faiss_searcher.num_items)
+                session_scores, session_indices, faiss_time_session = self.faiss_searcher.search(session_vector, top_k=top_k_session)
+        
+        metrics["faiss_search_time_ms"] = (faiss_time_long + faiss_time_session) * 1000
+
+        # Merge candidates and keep track of channels
+        long_term_set = set(long_term_indices)
+        session_set = set(session_indices)
+        all_candidate_indices = list(long_term_set.union(session_set))
+        
+        # Build indicator flags for each candidate index
+        recalled_by_long_term_dict = {idx: 1.0 if idx in long_term_set else 0.0 for idx in all_candidate_indices}
+        recalled_by_session_dict = {idx: 1.0 if idx in session_set else 0.0 for idx in all_candidate_indices}
+        
+        candidate_indices = np.array(all_candidate_indices)
 
         lookup_start = time.time()
         if user_id in self.user_features.index:
@@ -164,6 +212,18 @@ class RecommendationPipeline:
 
         for key, value in u_feats.items():
             candidates_df[key] = value
+
+        # Dynamic computation of user_session_interaction_count
+        session_length = len(session_items) if session_items else 0
+        candidates_df["user_session_interaction_count"] = float(session_length)
+
+        # Map indicators to the candidates dataframe
+        candidates_df["recalled_by_long_term"] = candidates_df["item_idx"].map(recalled_by_long_term_dict).fillna(0.0)
+        candidates_df["recalled_by_session"] = candidates_df["item_idx"].map(recalled_by_session_dict).fillna(0.0)
+
+        # Safety fill for item_session_popularity if missing from old snapshots
+        if "item_session_popularity" not in candidates_df.columns:
+            candidates_df["item_session_popularity"] = 0.0
 
         metrics["feature_lookup_time_ms"] = (time.time() - lookup_start) * 1000
 
@@ -201,3 +261,29 @@ class RecommendationPipeline:
 
     def _user_id_to_idx(self, user_id: int) -> Optional[int]:
         return self.user_id_to_idx.get(int(user_id))
+
+    def _popular_fallback_recommendations(self, user_id: int, user_idx: int, top_n: int, total_start: float) -> Dict[str, Any]:
+        popular_items = self.item_features.sort_values(by="item_total_interactions", ascending=False).head(top_n)
+        recommendations = [
+            {
+                "product_id": int(row["product_id"]),
+                "item_idx": -1,
+                "score": float(row["item_total_interactions"]),
+            }
+            for _, row in popular_items.iterrows()
+        ]
+        elapsed_ms = (time.time() - total_start) * 1000
+        return {
+            "user_id": int(user_id),
+            "user_idx": int(user_idx),
+            "recommendations": recommendations,
+            "fallback": True,
+            "latency_metrics": {
+                "user_emb_time_ms": 0.0,
+                "faiss_search_time_ms": 0.0,
+                "feature_lookup_time_ms": 0.0,
+                "ranking_time_ms": 0.0,
+                "sort_time_ms": elapsed_ms,
+                "total_latency_ms": elapsed_ms,
+            },
+        }

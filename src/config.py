@@ -44,5 +44,20 @@ class ProjectConfig:
     # Serving Hyperparameters
     SERVING_TOP_K_RECALL: int = 200
     SERVING_TOP_N_RANKING: int = 20
+    RECALL_TOP_K_LONG_TERM: int = 100
+    RECALL_TOP_K_SESSION: int = 100
+
+    def __post_init__(self):
+        self.NUMERICAL_FEATURES = [
+            'user_total_interactions', 'user_total_sessions', 
+            'item_total_interactions', 'item_unique_users', 'item_avg_price',
+            'user_session_interaction_count', 'item_session_popularity',
+            'recalled_by_long_term', 'recalled_by_session'
+        ]
+        self.CATEGORICAL_FEATURES = [
+            'category_code', 'brand'
+        ]
 
 config = ProjectConfig()
+
+

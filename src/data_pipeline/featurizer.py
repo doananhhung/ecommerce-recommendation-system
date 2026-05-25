@@ -8,6 +8,12 @@ POINT_IN_TIME_FEATURES = [
     "item_total_interactions",
     "item_unique_users",
     "item_avg_price",
+    "hour_of_day",
+    "day_of_week",
+    "user_session_interaction_count",
+    "item_session_popularity",
+    "recalled_by_long_term",
+    "recalled_by_session",
 ]
 
 
@@ -62,6 +68,24 @@ def add_point_in_time_features(df: pd.DataFrame) -> pd.DataFrame:
     else:
         result["item_avg_price"] = 0.0
 
+    result["hour_of_day"] = result["event_time"].dt.hour
+    result["day_of_week"] = result["event_time"].dt.dayofweek
+
+    # Calculate user_session_interaction_count (point-in-time)
+    result["user_session_interaction_count"] = result.groupby(["user_id", "custom_session_id"]).cumcount()
+
+    # Calculate item_session_popularity (point-in-time)
+    first_item_session = ~result.duplicated(["product_id", "custom_session_id"])
+    result["item_session_popularity"] = (
+        first_item_session.groupby(result["product_id"]).cumsum()
+        - first_item_session.astype(int)
+    )
+
+    # In training data (historical interactions), every row represents a session event,
+    # so we assume it could be recalled by both channels.
+    result["recalled_by_long_term"] = 1.0
+    result["recalled_by_session"] = 1.0
+
     result[POINT_IN_TIME_FEATURES] = result[POINT_IN_TIME_FEATURES].fillna(0)
     return result.sort_values("_original_order").drop(columns=["_original_order"]).reset_index(drop=True)
 
@@ -104,4 +128,20 @@ def extract_item_features(df: pd.DataFrame) -> pd.DataFrame:
         )
         item_features = item_features.merge(item_price, on="product_id", how="left")
 
+    # Extract static features category_code and brand from the latest event per product
+    if "category_code" in df.columns or "brand" in df.columns:
+        cols_to_keep = [col for col in ["product_id", "category_code", "brand"] if col in df.columns]
+        static_info = df.sort_values("event_time").drop_duplicates("product_id", keep="last")[cols_to_keep]
+        item_features = item_features.merge(static_info, on="product_id", how="left")
+
+    # Extract unique sessions per item for item_session_popularity
+    if "custom_session_id" in df.columns:
+        item_sessions = (
+            df.groupby("product_id")["custom_session_id"]
+            .nunique()
+            .reset_index(name="item_session_popularity")
+        )
+        item_features = item_features.merge(item_sessions, on="product_id", how="left")
+
     return item_features
+

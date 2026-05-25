@@ -29,19 +29,35 @@ class LightGBMRanker:
         if self.model is None:
             raise ValueError("Model is not loaded. Call load_model() first.")
             
-        # LightGBM requires specific feature order, which was used during training
-        # 'user_total_interactions', 'user_total_sessions', 'item_total_interactions', 'item_unique_users', 'item_avg_price'
-        feature_cols = [
-            'user_total_interactions', 'user_total_sessions', 
-            'item_total_interactions', 'item_unique_users', 'item_avg_price'
-        ]
+        # Get the exact feature list and order from the trained LightGBM model
+        feature_cols = self.model.feature_name()
         
-        # Ensure columns exist and fillna
-        X = features_df[feature_cols].copy()
-        X.fillna(0, inplace=True)
+        X = features_df.copy()
+        
+        # Ensure all required features exist in X
+        for col in feature_cols:
+            if col not in X.columns:
+                if col in ['category_code', 'brand']:
+                    X[col] = '<UNKNOWN>'
+                else:
+                    X[col] = 0.0
+        
+        # Prepare categorical features
+        if 'category_code' in X.columns:
+            X['category_code'] = X['category_code'].fillna('<UNKNOWN>').astype('category')
+        if 'brand' in X.columns:
+            X['brand'] = X['brand'].fillna('<UNKNOWN>').astype('category')
+            
+        # Prepare numerical features
+        numeric_cols = X.select_dtypes(include=['number']).columns
+        X[numeric_cols] = X[numeric_cols].fillna(0)
+        
+        # Select and order features to match model's expected inputs
+        X = X[feature_cols]
         
         start_time = time.time()
         preds = self.model.predict(X)
         elapsed = time.time() - start_time
         
         return preds, elapsed
+

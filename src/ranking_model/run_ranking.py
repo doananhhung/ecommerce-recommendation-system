@@ -15,27 +15,57 @@ def run_ranking_training():
     df = df_interactions.merge(user_features, on='user_id', how='left')
     df = df.merge(item_features, on='product_id', how='left')
     
-    # Fill NaN cho các đặc trưng (nếu có)
-    df.fillna(0, inplace=True)
+    # Xử lý missing values đúng chuẩn thay vì fillna(0) toàn bộ
+    if 'category_code' in df.columns:
+        df['category_code'] = df['category_code'].fillna('<UNKNOWN>').astype('category')
+    if 'brand' in df.columns:
+        df['brand'] = df['brand'].fillna('<UNKNOWN>').astype('category')
     
-    print("3. Preparing Train/Test Split...")
-    features = [
-        'user_total_interactions', 'user_total_sessions', 
-        'item_total_interactions', 'item_unique_users', 'item_avg_price'
-    ]
+    # Fill số 0 cho các cột số bị thiếu
+    numeric_cols = df.select_dtypes(include=['number']).columns
+    df[numeric_cols] = df[numeric_cols].fillna(0)
+    
+    print("3. Preparing Train/Test Split (Time-based)...")
+    # Dynamically load features from ProjectConfig
+    features = []
+    for col in config.NUMERICAL_FEATURES:
+        if col in df.columns:
+            features.append(col)
+    for col in config.CATEGORICAL_FEATURES:
+        if col in df.columns:
+            features.append(col)
+            
     target = 'label'
     
-    df_train, df_test = train_test_split(df, test_size=config.RANKING_TEST_SIZE, random_state=42)
+    # TIME-BASED SPLITTING (Chống rò rỉ dữ liệu / Time Travel)
+    # Sắp xếp theo thời gian và cắt % thay vì lấy ngẫu nhiên
+    if 'event_time' in df.columns:
+        df = df.sort_values('event_time').reset_index(drop=True)
+    
+    split_idx = int(len(df) * (1 - config.RANKING_TEST_SIZE))
+    df_train = df.iloc[:split_idx]
+    df_test = df.iloc[split_idx:]
+    
     X_train = df_train[features]
     y_train = df_train[target]
+    w_train = df_train['sample_weight'] if 'sample_weight' in df_train.columns else None
+    
     X_test = df_test[features]
     y_test = df_test[target]
+    w_test = df_test['sample_weight'] if 'sample_weight' in df_test.columns else None
     
     print(f"Train samples: {len(X_train)}, Test samples: {len(X_test)}")
     
     print("4. Training LightGBM Model...")
     trainer = RankingTrainer(learning_rate=config.RANKING_LEARNING_RATE, num_leaves=config.RANKING_NUM_LEAVES)
-    preds = trainer.train(X_train, y_train, X_test, y_test, num_boost_round=config.RANKING_NUM_BOOST_ROUND)
+    
+    preds = trainer.train(
+        X_train, y_train, 
+        X_test, y_test, 
+        num_boost_round=config.RANKING_NUM_BOOST_ROUND,
+        train_weight=w_train,
+        test_weight=w_test
+    )
     
     print("5. Evaluating Model...")
     query_groups = df_test['user_id'].values
