@@ -55,9 +55,9 @@ class RankingTrainer:
 
         return preds
 
-    def evaluate(self, y_true: pd.Series, y_score: np.ndarray, k: int = 10):
-        ndcg = ndcg_at_k(y_true, y_score, k=k)
-        model_mrr = mrr(y_true, y_score)
+    def evaluate(self, y_true: pd.Series, y_score: np.ndarray, query_groups: Optional[np.ndarray] = None, k: int = 10):
+        ndcg = ndcg_at_k(y_true, y_score, query_groups=query_groups, k=k)
+        model_mrr = mrr(y_true, y_score, query_groups=query_groups)
 
         print("Evaluation Metrics:")
         print(f"NDCG@{k}: {ndcg:.4f}")
