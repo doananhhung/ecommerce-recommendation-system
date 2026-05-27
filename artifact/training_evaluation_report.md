@@ -58,8 +58,18 @@ Hệ thống được cấu hình thống nhất qua một nguồn chuẩn duy n
 Các kết quả thử nghiệm ngoại tuyến (Offline Evaluation) đạt được vô cùng ấn tượng, phản ánh đúng hiệu năng thực thi của các nâng cấp lớn đã triển khai:
 
 ### 1. Hiệu Năng Bộ Triệu Hồi (Recall Stage)
-*   **Hit Rate@50:** Đạt **84.5%** trên tập dữ liệu kiểm thử.
-*   **Ý nghĩa:** Chỉ với 50 sản phẩm được triệu hồi (chiếm chưa đầy 0.1% tổng số sản phẩm), bộ Recall đã bắt trọn tới 84.5% các sản phẩm người dùng thực sự tương tác trong thực tế.
+*   **Hit Rate@50 (Đánh giá thực tế):** Đạt **97.88%** (bắt được `601/614` tương tác dương trong mẫu đánh giá sau 5 epochs).
+*   **Tiến trình hội tụ Loss của PyTorch MF:** 
+    *   *Epoch 1:* `0.0433`
+    *   *Epoch 2:* `0.0320`
+    *   *Epoch 3:* `0.0097`
+    *   *Epoch 4:* `0.0022`
+    *   *Epoch 5:* `0.0010` (Loss giảm mạnh gấp 43 lần so với Epoch 1, cho thấy tốc độ bão hòa cực kỳ nhanh).
+*   **Phân tích & Cảnh báo Kỹ thuật Quan trọng (Overfitting & Evaluation Gap):**
+    > [!WARNING]
+    > Chỉ số **97.88%** thực tế đạt được là do khâu đánh giá Recall hiện tại đang kiểm nghiệm trực tiếp trên chính tập huấn luyện (chưa chia Train/Test tách biệt hoàn toàn cho giai đoạn Recall). Với số lượng tham số nhúng khổng lồ (~5.53 triệu tham số) so với số lượng mẫu thực tế (~19,265 positive samples), mô hình đang "học thuộc lòng" dữ liệu cũ rất tốt.
+    > 
+    > Do đó, việc **tăng thêm số lượng epoch (vượt quá 5 epochs) là hoàn toàn KHÔNG nên**. Loss ở Epoch 5 đã tiệm cận về sát 0 (`0.0010`). Nếu tăng thêm epoch, mô hình sẽ bị quá khớp (overfit) nặng hơn, làm mất đi khả năng khái quát hóa và làm tệ đi chất lượng gợi ý cho các sản phẩm mới trong thực tế.
 *   **Đóng góp của Kênh Phiên:** Việc bổ sung **Kênh 2 (Session-based Recall)** tính từ vector trung bình phiên giúp **tăng vọt chỉ số Hit Rate thêm 12.8%** so với việc chỉ sử dụng Kênh 1 (Long-term Preference). Điều này chứng minh hành vi mua sắm trực tuyến chịu ảnh hưởng cực kỳ lớn bởi bối cảnh tương tác tức thì.
 
 ### 2. Hiệu Năng Bộ Xếp Hạng (Ranking Stage)
