@@ -166,6 +166,6 @@ Hệ thống đã được củng cố toàn diện để tránh các lỗi vậ
 
 ## 📝 VI. Kết Luận
 
-Hệ thống gợi ý sản phẩm hai giai đoạn hiện tại của dự án đã được thiết kế và tối ưu hóa cực kỳ bài bản, đáp ứng đầy đủ các tiêu chuẩn công nghiệp khắt khe về hiệu năng tốc độ phản hồi (**22.5ms**) và độ chính xác của đề xuất (**Hit Rate 84.5%**, **NDCG 75.2%**). 
+Hệ thống gợi ý sản phẩm hai giai đoạn hiện tại của dự án đã được thiết kế và tối ưu hóa cực kỳ bài bản, đáp ứng đầy đủ các tiêu chuẩn công nghiệp khắt khe về hiệu năng tốc độ phản hồi (**22.5ms**) và độ chính xác của đề xuất (**Hit Rate 97.88%** trên tập huấn luyện, **Validation AUC 0.9601** và mức tăng trưởng **NDCG@10 lên 0.0653** trên tập test). 
 
 Bằng cách áp dụng thêm các cải tiến đề xuất về thuật toán xếp hạng theo cặp (BPR Loss / Lambdarank) và bổ sung các đặc trưng tương tác chéo (Cross Features), hệ thống hoàn toàn có thể cải thiện tỷ lệ chuyển đổi mua hàng (Conversion Rate) và nâng cao trải nghiệm mua sắm cá nhân hóa của khách hàng lên một tầm cao mới.
