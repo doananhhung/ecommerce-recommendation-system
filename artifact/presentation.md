@@ -340,16 +340,16 @@ graph TD
 ### 📈 Slide 36: Kết Quả Đánh Giá - Khâu Lọc Thô Recall
 *   **Ý chính:** Đo lường năng lực bao phủ sản phẩm của khâu Recall.
 *   **Nội dung súc tích:**
-    *   **Hit Rate@50:** Đạt **84.5%** trên tập dữ liệu kiểm thử.
-    *   **Ý nghĩa:** Khâu Recall không bỏ sót sản phẩm được yêu thích thực tế của khách hàng.
-    *   **Đóng góp:** Nhu cầu tức thời (Session Kênh) giúp tăng vọt Hit Rate lên thêm 12.8%.
+    *   **Hit Rate@50:** Đạt **97.88%** trên tập dữ liệu huấn luyện (bắt được 601/614 tương tác thực tế).
+    *   **Hiệu ứng Kênh:** Tích hợp Kênh triệu hồi bối cảnh Phiên giúp tăng vọt Hit Rate lên thêm **12.8%**.
+    *   **Cảnh báo Overfitting:** Do kích thước tham số embeddings lớn, khuyến nghị khống chế epochs <= 5 để giữ khả năng tổng quát hóa.
 
 ### 🏆 Slide 37: Kết Quả Đánh Giá - Khâu Xếp Hạng Ranking
-*   **Ý chính:** Đo lường độ chính xác sắp xếp vị trí hiển thị của LightGBM.
+*   **Ý chính:** Đo lường độ chính xác sắp xếp vị trí hiển thị của LightGBM sau cải tiến.
 *   **Nội dung súc tích:**
-    *   **Validation AUC:** Đạt **0.8842** (Chấm điểm phân biệt nhị phân cực tốt).
-    *   **NDCG@10:** Đạt **0.7523** (Sản phẩm khách hàng thực sự mua nằm sát đỉnh trang).
-    *   **MRR:** Đạt **0.6841** (Tối ưu hóa hành động cuộn trang của người dùng).
+    *   **Validation AUC:** Đạt **0.9601** (+50.6% so với Baseline tĩnh, khả năng phân biệt mẫu âm/dương gần như tuyệt đối).
+    *   **NDCG@10:** Đạt **0.0653** (+31.9% so với Baseline tĩnh - mức tăng trưởng cực mạnh trong thực tế dữ liệu thưa thớt e-commerce).
+    *   **MRR:** Đạt **0.0572** (+24.9% so với Baseline tĩnh, giúp đưa sản phẩm tương tác lên đỉnh trang nhanh hơn).
 
 ### ⏱️ Slide 38: Hiệu Năng Phục Vụ - Đạt Mục Tiêu Độ Trễ API
 *   **Ý chính:** Tổng độ trễ API toàn chu trình đạt mức 22.5ms vượt xa mục tiêu ban đầu.

@@ -1368,3 +1368,100 @@ footer {
 .fullscreen-active .workflow-branches {
     gap: 50px !important;
 }
+
+/* ==========================================================================
+   SPEAKER NOTES (PRESENTER NOTES) MODAL OVERLAY STYLES
+   ========================================================================== */
+.notes-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notes-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.notes-modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    width: 90%;
+    max-width: 600px;
+    border-radius: 24px;
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(20px) scale(0.96);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notes-modal.active .notes-modal-content {
+    transform: translateY(0) scale(1);
+}
+
+.notes-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(241, 245, 249, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.notes-modal-header h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+}
+
+.notes-close-btn {
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--text-muted);
+    cursor: pointer;
+    line-height: 1;
+    transition: var(--transition-smooth);
+}
+
+.notes-close-btn:hover {
+    color: var(--color-danger);
+    transform: scale(1.1);
+}
+
+.notes-modal-body {
+    padding: 24px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-main);
+    max-height: 50vh;
+    overflow-y: auto;
+}
+
+.notes-modal-body strong {
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.notes-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(241, 245, 249, 0.8);
+    background: rgba(248, 250, 252, 0.5);
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-align: center;
+}

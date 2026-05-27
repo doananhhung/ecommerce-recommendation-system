@@ -1497,7 +1497,7 @@
             <div class="slide" id="slide-34">
                 <div class="slide-header">
                     <div>
-                        <div class="slide-badge">Cấu HÌnh Hệ Thống</div>
+                        <div class="slide-badge">Cấu Hình Hệ Thống</div>
                         <h2 class="slide-title">Siêu Tham Số Huấn Luyện - Recall Stage</h2>
                     </div>
                 </div>
@@ -1508,20 +1508,39 @@
                             Cấu hình huấn luyện mô hình PyTorch Matrix Factorization:
                         </p>
                         
-                        <div class="feature-card success reveal-item reveal-delay-1" style="padding: 10px 14px;">
-                            <h4 class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">Không gian biểu diễn ẩn</h4>
-                            <p class="card-desc" style="font-size: 0.75rem;">`RECALL_EMBEDDING_DIM = 64` (Độ rộng vector nhúng User/Item).</p>
+                        <div class="feature-card success reveal-item reveal-delay-1" style="padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 class="card-title" style="font-size: 0.9rem; margin-bottom: 2px;">Không gian biểu diễn ẩn</h4>
+                                <p class="card-desc" style="font-size: 0.75rem;">Độ rộng vector nhúng User/Item</p>
+                            </div>
+                            <code style="background: rgba(14, 165, 233, 0.08); padding: 4px 10px; border-radius: 8px; color: var(--color-primary); font-weight: 700; font-family: var(--font-mono); font-size: 0.9rem;">DIM = 64</code>
                         </div>
-                        <div class="feature-card success reveal-item reveal-delay-2" style="padding: 10px 14px;">
-                            <h4 class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">Lấy mẫu âm tính</h4>
-                            <p class="card-desc" style="font-size: 0.75rem;">`RECALL_NEG_SAMPLE_RATIO = 4` (Tỷ lệ 1 mẫu dương : 4 mẫu âm).</p>
+                        <div class="feature-card success reveal-item reveal-delay-2" style="padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 class="card-title" style="font-size: 0.9rem; margin-bottom: 2px;">Lấy mẫu âm tính</h4>
+                                <p class="card-desc" style="font-size: 0.75rem;">Tỷ lệ 1 mẫu dương : 4 mẫu âm</p>
+                            </div>
+                            <code style="background: rgba(14, 165, 233, 0.08); padding: 4px 10px; border-radius: 8px; color: var(--color-primary); font-weight: 700; font-family: var(--font-mono); font-size: 0.9rem;">RATIO = 1:4</code>
                         </div>
                     </div>
 
-                    <div class="reveal-item reveal-delay-3" style="display: flex; flex-direction: column; gap: 10px;">
-                        <div class="feature-card success" style="padding: 10px 14px;">
-                            <h4 class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">Tốc độ học & Chu kỳ huấn luyện</h4>
-                            <p class="card-desc" style="font-size: 0.75rem;">`RECALL_LEARNING_RATE = 0.01` | `RECALL_EPOCHS = 5` | `BATCH_SIZE = 4096`.</p>
+                    <div class="reveal-item reveal-delay-3" style="display: flex; flex-direction: column; justify-content: center;">
+                        <div class="feature-card success" style="padding: 18px; display: flex; flex-direction: column; gap: 10px; background: rgba(5,150,105,0.02); border-color: rgba(5,150,105,0.15);">
+                            <h4 class="card-title" style="font-size: 0.95rem; margin-bottom: 6px; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 6px;">⚡ Tốc độ học & Chu kỳ huấn luyện</h4>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+                                    <span style="color: var(--text-muted); font-weight: 500;">Learning Rate</span>
+                                    <code style="background: rgba(14, 165, 233, 0.08); padding: 2px 8px; border-radius: 6px; color: var(--color-primary); font-weight: 600; font-family: var(--font-mono);">0.01</code>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+                                    <span style="color: var(--text-muted); font-weight: 500;">Epochs</span>
+                                    <code style="background: rgba(14, 165, 233, 0.08); padding: 2px 8px; border-radius: 6px; color: var(--color-primary); font-weight: 600; font-family: var(--font-mono);">5</code>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+                                    <span style="color: var(--text-muted); font-weight: 500;">Batch Size</span>
+                                    <code style="background: rgba(14, 165, 233, 0.08); padding: 2px 8px; border-radius: 6px; color: var(--color-primary); font-weight: 600; font-family: var(--font-mono);">4096</code>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1549,16 +1568,35 @@
                             Cấu hình huấn luyện mô hình cây quyết định LightGBM Ranker:
                         </p>
                         
-                        <div class="feature-card success reveal-item reveal-delay-1" style="padding:10px 14px;">
-                            <div class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">RANKING_NUM_LEAVES = 31</div>
-                            <p class="card-desc" style="font-size: 0.75rem;">Số lượng lá tối đa trong mỗi cây quyết định giúp kiểm soát quá khớp (overfitting).</p>
+                        <div class="feature-card success reveal-item reveal-delay-1" style="padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 class="card-title" style="font-size: 0.9rem; margin-bottom: 2px;">Khống chế số lượng lá</h4>
+                                <p class="card-desc" style="font-size: 0.75rem;">Số lượng lá cây tối đa giúp kiểm soát quá khớp</p>
+                            </div>
+                            <code style="background: rgba(14, 165, 233, 0.08); padding: 4px 10px; border-radius: 8px; color: var(--color-primary); font-weight: 700; font-family: var(--font-mono); font-size: 0.9rem;">LEAVES = 31</code>
+                        </div>
+                        <div class="feature-card success reveal-item reveal-delay-2" style="padding: 14px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <h4 class="card-title" style="font-size: 0.9rem; margin-bottom: 2px;">Phân chia dữ liệu kiểm thử</h4>
+                                <p class="card-desc" style="font-size: 0.75rem;">Phân chia dữ liệu theo chiều thời gian (Time-based)</p>
+                            </div>
+                            <code style="background: rgba(14, 165, 233, 0.08); padding: 4px 10px; border-radius: 8px; color: var(--color-primary); font-weight: 700; font-family: var(--font-mono); font-size: 0.9rem;">TEST SIZE = 20%</code>
                         </div>
                     </div>
 
-                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
-                        <div class="feature-card success" style="padding:10px 14px;">
-                            <div class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">RANKING_LEARNING_RATE = 0.05 / ROUNDS = 100</div>
-                            <p class="card-desc" style="font-size: 0.75rem;">Tốc độ học tối ưu và tổng số cây GBDT (rounds) được huấn luyện.</p>
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center;">
+                        <div class="feature-card success" style="padding: 18px; display: flex; flex-direction: column; gap: 10px; background: rgba(5,150,105,0.02); border-color: rgba(5,150,105,0.15);">
+                            <h4 class="card-title" style="font-size: 0.95rem; margin-bottom: 6px; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 6px;">⚡ Tốc độ học & Cây quyết định</h4>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+                                    <span style="color: var(--text-muted); font-weight: 500;">Learning Rate</span>
+                                    <code style="background: rgba(14, 165, 233, 0.08); padding: 2px 8px; border-radius: 6px; color: var(--color-primary); font-weight: 600; font-family: var(--font-mono);">0.05</code>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem;">
+                                    <span style="color: var(--text-muted); font-weight: 500;">Boost Rounds (Số cây)</span>
+                                    <code style="background: rgba(14, 165, 233, 0.08); padding: 2px 8px; border-radius: 6px; color: var(--color-primary); font-weight: 600; font-family: var(--font-mono);">100</code>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1583,21 +1621,21 @@
                 <div class="slide-body grid-2col">
                     <div style="display: flex; flex-direction: column; gap: 15px;">
                         <p class="lead reveal-item">
-                            Đo lường năng lực bao phủ sản phẩm của khâu lọc thô Recall trên tập dữ liệu kiểm thử:
+                            Đo lường năng lực bao phủ sản phẩm của khâu lọc thô Recall trên tập dữ liệu:
                         </p>
                         
                         <div class="feature-card success reveal-item reveal-delay-1">
-                            <div class="card-title">Hit Rate@50 đạt 84.5%</div>
+                            <div class="card-title">Hit Rate@50 đạt 97.88%</div>
                             <p class="card-desc">
-                                Đảm bảo tuyệt đối không bỏ sót sản phẩm được yêu thích thực tế của khách hàng khi đi qua khâu triệu hồi ứng viên.
+                                Đảm bảo bắt được 601/614 tương tác thực tế của khách hàng trong khâu triệu hồi ứng viên. Cần khống chế epochs <= 5 để chống quá khớp.
                             </p>
                         </div>
                     </div>
 
                     <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
                         <div class="stat-item reveal-item reveal-delay-2" style="width: 80%; padding: 25px; border-color:var(--color-success); background:rgba(5,150,105,0.02)">
-                            <div class="stat-value" style="font-size: 3.5rem; line-height: 1; color:var(--color-success)">84.5%</div>
-                            <div class="stat-label" style="font-size: 0.95rem; font-weight: 600;">Hit Rate@50</div>
+                            <div class="stat-value" style="font-size: 3.5rem; line-height: 1; color:var(--color-success)">97.88%</div>
+                            <div class="stat-label" style="font-size: 0.95rem; font-weight: 600;">Hit Rate@50 (Train Set)</div>
                         </div>
                         <p class="reveal-item reveal-delay-3" style="font-size: 0.8rem; color:var(--text-muted); text-align:center; max-width:80%;">
                             Việc bổ sung Kênh triệu hồi nhu cầu Phiên tức thì giúp tăng vọt chỉ số Hit Rate thêm <strong>+12.8%</strong>.
@@ -1624,21 +1662,21 @@
 
                 <div class="slide-body" style="grid-template-columns: repeat(3, 1fr); gap: 15px; align-items: stretch;">
                     <div class="metric-glow-card reveal-item">
-                        <div class="metric-large-val"><span>0.8842</span></div>
-                        <div class="metric-card-lbl">Validation AUC</div>
-                        <div class="metric-card-desc">Khả năng chấm điểm phân biệt nhị phân của GBDT đạt độ chính xác rất cao.</div>
+                        <div class="metric-large-val"><span>0.9601</span></div>
+                        <div class="metric-card-lbl">Validation AUC (+50.6%)</div>
+                        <div class="metric-card-desc">Khả năng phân biệt mẫu âm/dương đạt mức tiệm cận tuyệt đối nhờ huấn luyện trên ứng viên FAISS thực tế.</div>
                     </div>
 
                     <div class="metric-glow-card accent reveal-item reveal-delay-1">
-                        <div class="metric-large-val"><span>0.7523</span></div>
-                        <div class="metric-card-lbl">NDCG@10</div>
-                        <div class="metric-card-desc">Đo lường độ chính xác xếp hạng. Đảm bảo sản phẩm mua sắm được ưu tiên lên đầu.</div>
+                        <div class="metric-large-val"><span>0.0653</span></div>
+                        <div class="metric-card-lbl">NDCG@10 (+31.9%)</div>
+                        <div class="metric-card-desc">Tăng vọt 31.9% so với Baseline tĩnh. Hiệu năng vượt trội dưới điều kiện dữ liệu thưa thớt e-commerce thực tế.</div>
                     </div>
 
                     <div class="metric-glow-card success reveal-item reveal-delay-2">
-                        <div class="metric-large-val"><span>0.6841</span></div>
-                        <div class="metric-card-lbl">MRR</div>
-                        <div class="metric-card-desc">Vị trí tương tác đầu tiên nằm sát đỉnh trang gợi ý (tiết kiệm thao tác cuộn).</div>
+                        <div class="metric-large-val"><span>0.0572</span></div>
+                        <div class="metric-card-lbl">MRR (+24.9%)</div>
+                        <div class="metric-card-desc">Cải thiện 24.9% so với Baseline tĩnh, giúp đưa sản phẩm tương tác ưa thích lên đầu trang nhanh hơn.</div>
                     </div>
                 </div>
 
@@ -1829,14 +1867,40 @@
             <span><span class="shortcut-badge">←</span> / <span class="shortcut-badge">→</span> Di chuyển</span>
             <span><span class="shortcut-badge">Space</span> Tiếp tục</span>
             <span><span class="shortcut-badge">P</span> Toàn màn hình</span>
+            <span><span class="shortcut-badge">S</span> Kịch bản</span>
         </div>
     </footer>
 
+    <!-- Speaker Notes Modal Overlay -->
+    <div class="notes-modal" id="notes-modal">
+        <div class="notes-modal-content">
+            <div class="notes-modal-header">
+                <h3>🎙️ KỊCH BẢN THUYẾT TRÌNH (PRESENTER NOTES)</h3>
+                <span class="notes-close-btn" id="notes-close-btn">&times;</span>
+            </div>
+            <div class="notes-modal-body" id="notes-modal-body">
+                <!-- Script content will be loaded here dynamically -->
+            </div>
+            <div class="notes-modal-footer">
+                <span>Nhấn lại phím <span class="shortcut-badge">S</span> để ẩn kịch bản</span>
+            </div>
+        </div>
+    </div>
+
     <!-- --- SCRIPTS --- -->
     <!-- Script coordinates all interactive behaviors -->
+    <script src="notes.js"></script>
     <script src="script.js"></script>
     
     <!-- Render mathematical formulas beautifully in web views using lightweight MathJax -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 

@@ -22,6 +22,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const timelineProgress = document.getElementById('timeline-progress-bar');
     const timelineSteps = document.querySelectorAll('.timeline-step');
 
+    // Cache speaker notes modal elements
+    const notesModal = document.getElementById('notes-modal');
+    const notesCloseBtn = document.getElementById('notes-close-btn');
+    const notesModalBody = document.getElementById('notes-modal-body');
+
     if (totalSlidesNum) totalSlidesNum.textContent = totalSlides;
 
     function updateSlideUI() {
@@ -159,6 +164,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 orb2.style.transform = `translate(${Math.cos(currentSlide) * -60}px, ${Math.sin(currentSlide) * -60}px) scale(1)`;
             }
         }
+
+        // Update speaker notes content automatically
+        updateSpeakerNotes();
     }
 
     function changeSlide(direction) {
@@ -174,6 +182,34 @@ document.addEventListener('DOMContentLoaded', () => {
             currentSlide = slideNum;
             updateSlideUI();
         }
+    }
+
+    // --- SPEAKER NOTES CONTROLLER ---
+    function updateSpeakerNotes() {
+        if (notesModalBody && typeof SPEAKER_NOTES !== 'undefined') {
+            const notes = SPEAKER_NOTES[currentSlide];
+            notesModalBody.innerHTML = notes || `<strong>Slide ${currentSlide}</strong><br><br>Không có kịch bản thuyết trình cho slide này.`;
+        }
+    }
+
+    function toggleSpeakerNotes() {
+        if (notesModal) {
+            notesModal.classList.toggle('active');
+        }
+    }
+
+    // Close notes modal on close button click
+    if (notesCloseBtn) {
+        notesCloseBtn.addEventListener('click', toggleSpeakerNotes);
+    }
+
+    // Close notes modal when clicking outside the content block
+    if (notesModal) {
+        notesModal.addEventListener('click', (e) => {
+            if (e.target === notesModal) {
+                toggleSpeakerNotes();
+            }
+        });
     }
 
     // --- FULLSCREEN CONTROLLER ---
@@ -201,6 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.changeSlide = changeSlide;
     window.goToSlide = goToSlide;
     window.toggleFullscreen = toggleFullscreen;
+    window.toggleSpeakerNotes = toggleSpeakerNotes;
 
     // --- KEYBOARD CONTROLS ---
     document.addEventListener('keydown', (e) => {
@@ -221,6 +258,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (key === 'p') {
             e.preventDefault();
             toggleFullscreen();
+        } else if (key === 's') {
+            e.preventDefault();
+            toggleSpeakerNotes();
         }
     });
 
