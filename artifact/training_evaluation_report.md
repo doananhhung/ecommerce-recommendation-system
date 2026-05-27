@@ -73,11 +73,16 @@ Các kết quả thử nghiệm ngoại tuyến (Offline Evaluation) đạt đư
 *   **Đóng góp của Kênh Phiên:** Việc bổ sung **Kênh 2 (Session-based Recall)** tính từ vector trung bình phiên giúp **tăng vọt chỉ số Hit Rate thêm 12.8%** so với việc chỉ sử dụng Kênh 1 (Long-term Preference). Điều này chứng minh hành vi mua sắm trực tuyến chịu ảnh hưởng cực kỳ lớn bởi bối cảnh tương tác tức thì.
 
 ### 2. Hiệu Năng Bộ Xếp Hạng (Ranking Stage)
-*   **Validation AUC:** Đạt **0.8842** (Khả năng chấm điểm phân biệt nhị phân giữa tương tác tích cực và tiêu cực cực kỳ xuất sắc).
-*   **NDCG@10 (Normalized Discounted Cumulative Gain):** Đạt **0.7523**.
-    *   *Ý nghĩa:* Điểm số NDCG@10 rất cao chứng minh các sản phẩm mà khách hàng thực sự mua sắm được LightGBM ưu tiên xếp ở những vị trí đầu trang (Top 1 - Top 3), tối ưu hóa trải nghiệm thị giác của khách hàng.
-*   **MRR (Mean Reciprocal Rank):** Đạt **0.6841**.
-    *   *Ý nghĩa:* Tỷ lệ nghịch đảo vị trí tương tác đầu tiên xấp xỉ 0.68 chứng minh người dùng chỉ cần cuộn nhẹ trang (trung bình ở vị trí thứ 1 hoặc thứ 2) là đã tìm thấy sản phẩm ưa thích, tối ưu hóa tỷ lệ chuyển đổi (Conversion Rate).
+*   **Validation AUC:** Đạt **0.6375** (Khả năng phân loại nhị phân thực tế ở mức trung bình khá, nhỉnh hơn đoán ngẫu nhiên 0.50).
+*   **NDCG@10 (Normalized Discounted Cumulative Gain):** Đạt **0.0495** (~4.95%).
+*   **MRR (Mean Reciprocal Rank):** Đạt **0.0458** (~4.58%).
+*   **Phân Tích Chuyên Sâu Về Lý Do Chỉ Số Xếp Hạng Thấp (Critical Ranking Analysis):**
+    > [!CAUTION]
+    > Các chỉ số NDCG@10 và MRR thực tế đạt được cực kỳ thấp do các nguyên nhân gốc rễ sau:
+    > 
+    > 1. **Mất Cân Bằng Lớp Cực Đoan (Severe Class Imbalance):** Số lượng tương tác dương (`cart/purchase` nhãn 1) chỉ chiếm ~3.2% tổng số mẫu dữ liệu, trong khi `view` (nhãn 0) chiếm đến 96.8%. Do đó, hầu hết các nhóm query (`user_id`) trong test set không có bất kỳ mẫu dương nào (`y_true` toàn bộ bằng 0). Khi tính trung bình NDCG/MRR trên toàn bộ user, các điểm số 0 này trực tiếp kéo trung bình NDCG@10 và MRR của toàn hệ thống về sát 0.
+    > 2. **Sai Lệch Phân Phối Huấn Luyện & Thực Tế (Train-Test Distribution Mismatch):** Mô hình LightGBM hiện tại chỉ được huấn luyện trên các sản phẩm người dùng đã click tương tác thực tế (nhãn 0 = view, nhãn 1 = cart/purchase). Nó hoàn toàn không học cách phân loại các sản phẩm chưa tương tác (True Negatives) do bộ Recall sinh ra. Khi chạy test/serving, mô hình phải xếp hạng 200 ứng viên từ Recall, tạo ra hiện tượng lệch phân phối dữ liệu nghiêm trọng.
+    > 3. **Đặc Trưng Quá Đơn Giản (Feature Sparsity):** Các đặc trưng số học cơ bản chỉ mô tả tần suất tĩnh và động, thiếu các đặc trưng tương tác chéo mạnh mẽ (User-Item Cross Features) như tỷ lệ tương tác của user trên danh mục/thương hiệu, khiến LightGBM không thể học được sở thích cá nhân hóa sâu sắc (AUC chỉ đạt 0.6375).
 
 ### 3. Phân Tích Độ Trễ Phục Vụ API (Latency Breakdown)
 Trong môi trường kiểm thử tải thực tế, hệ thống API FastAPI đạt **tổng độ trễ trung bình chỉ 22.5ms** (đáp ứng xuất sắc mục tiêu công nghiệp dưới 50ms). Phân tích chi tiết thời gian xử lý của từng khâu:

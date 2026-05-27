@@ -1063,3 +1063,308 @@ footer {
     font-size: 1.35rem !important;
     margin-top: 6px !important;
 }
+
+/* ==========================================================================
+   NEW WORKFLOW DIAGRAM SCHEMATIC COMPONENT DEVELOPMENTS
+   ========================================================================== */
+
+.workflow-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 0;
+    transition: all 0.5s;
+}
+
+.workflow-node {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 22px 26px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    transition: var(--transition-bounce);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.005);
+}
+
+.workflow-node:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translate3d(0, -5px, 0);
+    box-shadow: var(--shadow-glow);
+}
+
+.workflow-node.accent:hover {
+    box-shadow: var(--shadow-glow-accent);
+}
+
+.workflow-node-badge {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    background: rgba(14, 165, 233, 0.06);
+    border: 1px solid rgba(14, 165, 233, 0.15);
+    border-radius: 20px;
+    color: var(--color-primary);
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.workflow-node.accent .workflow-node-badge {
+    background: rgba(109, 40, 217, 0.06);
+    border-color: rgba(109, 40, 217, 0.15);
+    color: var(--color-accent);
+}
+
+.workflow-node-title {
+    font-family: var(--font-display);
+    font-size: 1.35rem !important;
+    font-weight: 800 !important;
+    color: var(--text-bright) !important;
+    margin-bottom: 8px !important;
+}
+
+.workflow-node-desc {
+    font-size: 1.05rem !important;
+    line-height: 1.5 !important;
+    color: var(--text-muted) !important;
+    font-weight: 400 !important;
+}
+
+.workflow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 2.2rem;
+    font-weight: 800;
+    padding: 0 8px;
+    animation: pulseArrow 2s infinite ease-in-out;
+}
+
+@keyframes pulseArrow {
+    0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.5; }
+    50% { transform: translate3d(5px, 0, 0); opacity: 1; }
+}
+
+/* Fullscreen Workflow enlargements */
+.fullscreen-active .workflow-node {
+    padding: 35px 30px !important;
+    border-radius: 24px !important;
+}
+
+.fullscreen-active .workflow-node-badge {
+    font-size: 1.1rem !important;
+    padding: 6px 16px !important;
+    margin-bottom: 18px !important;
+}
+
+.fullscreen-active .workflow-node-title {
+    font-size: 1.85rem !important;
+    margin-bottom: 12px !important;
+}
+
+.fullscreen-active .workflow-node-desc {
+    font-size: 1.45rem !important;
+    line-height: 1.6 !important;
+}
+
+.fullscreen-active .workflow-arrow {
+    font-size: 3.5rem !important;
+}
+
+/* ==========================================================================
+   DETAILED WORKFLOW DIAGRAM GRAPH COMPONENTS (SLIDE 17 EXCLUSIVES)
+   ========================================================================== */
+
+.detailed-workflow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 0;
+}
+
+.workflow-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.workflow-node-det {
+    background: rgba(255, 255, 255, 0.45);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 20px;
+    width: 100%;
+    max-width: 580px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.015);
+    transition: var(--transition-bounce);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.workflow-node-det:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translate3d(0, -3px, 0);
+    box-shadow: var(--shadow-glow);
+}
+
+.node-det-badge {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    background: rgba(14, 165, 233, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.15);
+    border-radius: 12px;
+    color: var(--color-primary);
+    font-weight: 700;
+    display: inline-block;
+    margin-bottom: 6px;
+}
+
+.node-det-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    margin-bottom: 4px;
+}
+
+.node-det-desc {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+}
+
+.workflow-arrow-down {
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 4px 0;
+    animation: bounceDown 2s infinite ease-in-out;
+}
+
+@keyframes bounceDown {
+    0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.6; }
+    50% { transform: translate3d(0, 4px, 0); opacity: 1; }
+}
+
+.workflow-split-arrows {
+    display: flex;
+    justify-content: space-between;
+    width: 250px;
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 2px 0;
+}
+
+.workflow-merge-arrows {
+    display: flex;
+    justify-content: space-between;
+    width: 250px;
+    color: var(--color-primary);
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 2px 0;
+}
+
+.workflow-branches {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 30px;
+    margin: 5px 0;
+}
+
+.workflow-branch-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.workflow-branch-col .workflow-node-det {
+    max-width: 100%;
+}
+
+.trigger-node {
+    background: rgba(255, 255, 255, 0.65);
+    border-color: rgba(14, 165, 233, 0.3);
+    max-width: 320px;
+}
+
+.trigger-node .node-det-title {
+    color: var(--color-primary);
+    font-size: 1.05rem;
+    margin-bottom: 0;
+}
+
+.branch-node.left-accent {
+    border-left: 3px solid var(--color-primary);
+}
+.branch-node.left-accent .node-det-badge {
+    background: rgba(14, 165, 233, 0.08);
+    color: var(--color-primary);
+}
+
+.branch-node.right-accent {
+    border-left: 3px solid var(--color-accent);
+}
+.branch-node.right-accent .node-det-badge {
+    background: rgba(109, 40, 217, 0.08);
+    border-color: rgba(109, 40, 217, 0.15);
+    color: var(--color-accent);
+}
+
+.merge-node {
+    border-top: 2px dashed rgba(14, 165, 233, 0.3);
+}
+
+/* Fullscreen scaling override for Slide 17 Detailed Diagram */
+.fullscreen-active .workflow-node-det {
+    padding: 16px 24px !important;
+    border-radius: 16px !important;
+}
+
+.fullscreen-active .node-det-badge {
+    font-size: 0.95rem !important;
+    padding: 4px 12px !important;
+}
+
+.fullscreen-active .node-det-title {
+    font-size: 1.5rem !important;
+    margin-bottom: 8px !important;
+}
+
+.fullscreen-active .node-det-desc {
+    font-size: 1.15rem !important;
+    line-height: 1.45 !important;
+}
+
+.fullscreen-active .workflow-arrow-down {
+    font-size: 2.2rem !important;
+    margin: 8px 0 !important;
+}
+
+.fullscreen-active .workflow-split-arrows,
+.fullscreen-active .workflow-merge-arrows {
+    font-size: 2.2rem !important;
+    width: 360px !important;
+}
+
+.fullscreen-active .workflow-branches {
+    gap: 50px !important;
+}

@@ -5,7 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
     let currentSlide = 1;
-    const totalSlides = 39;
+    const totalSlides = 40;
     const slides = [];
 
     // Cache slides elements
@@ -57,9 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Timeline steps mapping:
             // Step 1 (Phase 1): Slide 3 to 6
             // Step 2 (Phase 2): Slide 7 to 16
-            // Step 3 (Phase 3): Slide 17 to 23
-            // Step 4 (Phase 4): Slide 24 to 28
-            // Step 5 (Phase 5): Slide 29 to 39
+            // Step 3 (Phase 3): Slide 17 to 24 (Slide 17 is Architecture Workflow, Slides 18-24 are Recall Stage)
+            // Step 4 (Phase 4): Slide 25 to 29
+            // Step 5 (Phase 5): Slide 30 to 40
             
             timelineSteps.forEach((step, idx) => {
                 step.classList.remove('active', 'completed');
@@ -70,14 +70,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (idx === 1) { // Phase 2 (Slides 7-16)
                     if (currentSlide >= 7 && currentSlide <= 16) step.classList.add('active');
                     else if (currentSlide > 16) step.classList.add('completed');
-                } else if (idx === 2) { // Phase 3 (Slides 17-23)
-                    if (currentSlide >= 17 && currentSlide <= 23) step.classList.add('active');
-                    else if (currentSlide > 23) step.classList.add('completed');
-                } else if (idx === 3) { // Phase 4 (Slides 24-28)
-                    if (currentSlide >= 24 && currentSlide <= 28) step.classList.add('active');
-                    else if (currentSlide > 28) step.classList.add('completed');
-                } else if (idx === 4) { // Phase 5 (Slides 29-39)
-                    if (currentSlide >= 29) step.classList.add('active');
+                } else if (idx === 2) { // Phase 3 (Slides 17-24)
+                    if (currentSlide >= 17 && currentSlide <= 24) step.classList.add('active');
+                    else if (currentSlide > 24) step.classList.add('completed');
+                } else if (idx === 3) { // Phase 4 (Slides 25-29)
+                    if (currentSlide >= 25 && currentSlide <= 29) step.classList.add('active');
+                    else if (currentSlide > 29) step.classList.add('completed');
+                } else if (idx === 4) { // Phase 5 (Slides 30-40)
+                    if (currentSlide >= 30) step.classList.add('active');
                 }
             });
 
@@ -88,12 +88,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 progressPercent = ((currentSlide - 3) / (6 - 3)) * 25;
             } else if (currentSlide >= 7 && currentSlide <= 16) {
                 progressPercent = 25 + ((currentSlide - 7) / (16 - 7)) * 25;
-            } else if (currentSlide >= 17 && currentSlide <= 23) {
-                progressPercent = 50 + ((currentSlide - 17) / (23 - 17)) * 25;
-            } else if (currentSlide >= 24 && currentSlide <= 28) {
-                progressPercent = 75 + ((currentSlide - 24) / (28 - 24)) * 20;
-            } else if (currentSlide >= 29) {
-                progressPercent = 95 + ((currentSlide - 29) / (39 - 29)) * 5;
+            } else if (currentSlide >= 17 && currentSlide <= 24) {
+                progressPercent = 50 + ((currentSlide - 17) / (24 - 17)) * 25;
+            } else if (currentSlide >= 25 && currentSlide <= 29) {
+                progressPercent = 75 + ((currentSlide - 25) / (29 - 25)) * 20;
+            } else if (currentSlide >= 30) {
+                progressPercent = 95 + ((currentSlide - 30) / (40 - 30)) * 5;
             }
             
             progressPercent = Math.min(100, Math.max(0, progressPercent));
@@ -128,19 +128,19 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentSlide === 10) {
                 orb1.style.transform = 'translate(-120px, -180px) scale(0.85)';
                 orb2.style.transform = 'translate(120px, 180px) scale(1.15)';
-            } else if (currentSlide === 19) {
+            } else if (currentSlide === 20) {
                 orb1.style.transform = 'translate(120px, 220px) scale(1.1)';
                 orb2.style.transform = 'translate(-120px, -220px) scale(0.9)';
-            } else if (currentSlide === 23) {
+            } else if (currentSlide === 24) {
                 orb1.style.transform = 'translate(180px, -120px) scale(0.9)';
                 orb2.style.transform = 'translate(-180px, 120px) scale(1.1)';
-            } else if (currentSlide === 25) {
+            } else if (currentSlide === 26) {
                 orb1.style.transform = 'translate(-120px, 180px) scale(1.15)';
                 orb2.style.transform = 'translate(120px, -180px) scale(0.85)';
-            } else if (currentSlide === 38) {
+            } else if (currentSlide === 39) {
                 orb1.style.transform = 'translate(0px, 0px) scale(1)';
                 orb2.style.transform = 'translate(0px, 0px) scale(1)';
-                // Re-trigger latency bar animations for Slide 38
+                // Re-trigger latency bar animations for Slide 39
                 setTimeout(() => {
                     const latencyFills = document.querySelectorAll('.latency-bar-fill');
                     latencyFills.forEach(fill => {

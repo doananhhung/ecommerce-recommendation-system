@@ -1,4 +1,4 @@
-# Kịch Bản Thuyết Trình: Hệ Thống Gợi Ý Sản Phẩm Hai Giai Đoạn (39 Slide Tinh Gọn)
+# Kịch Bản Thuyết Trình: Hệ Thống Gợi Ý Sản Phẩm Hai Giai Đoạn (40 Slide Tinh Gọn)
 
 Tài liệu này phác thảo nội dung **siêu tinh gọn (ultra-minimalist)** và **một ý duy nhất mỗi slide** của **39 Slide** thuyết trình. Cấu trúc cực kỳ chi tiết này phân rã toàn bộ kiến thức kỹ thuật phức tạp thành các khái niệm đơn lẻ, súc tích, đọc vào là hiểu ngay lập tức. Bài trình bày tương tác đã được cập nhật tại tệp `presentation.html` ở gốc dự án.
 
@@ -33,35 +33,36 @@ graph TD
     end
     
     subgraph Phase 3: Recall Stage
-        S16 --> S17[Slide 17: Tổng Quan Triệu Hồi]
-        S17 --> S18[Slide 18: Kênh 1 - Gu Lâu Dài]
-        S18 --> S19[Slide 19: Kênh 2 - Nhu Cầu Phiên]
-        S19 --> S20[Slide 20: Huấn Luyện MF - Kiến Trúc]
-        S20 --> S21[Slide 21: Huấn Luyện MF - Khởi Tạo Xavier]
-        S21 --> S22[Slide 22: Huấn Luyện MF - Lấy Mẫu Âm Tính]
-        S22 --> S23[Slide 23: Huấn Luyện MF - Focal Loss]
+        S16 --> S17[Slide 17: Quy Trình Vận Hành Thời Gian Thực]
+        S17 --> S18[Slide 18: Tổng Quan Triệu Hồi]
+        S18 --> S19[Slide 19: Kênh 1 - Gu Lâu Dài]
+        S19 --> S20[Slide 20: Kênh 2 - Nhu Cầu Phiên]
+        S20 --> S21[Slide 21: Huấn Luyện MF - Kiến Trúc]
+        S21 --> S22[Slide 22: Huấn Luyện MF - Khởi Tạo Xavier]
+        S22 --> S23[Slide 23: Huấn Luyện MF - Lấy Mẫu Âm Tính]
+        S23 --> S24[Slide 24: Huấn Luyện MF - Focal Loss]
     end
     
     subgraph Phase 4: Ranking Stage
-        S23 --> S24[Slide 24: Tổng Quan Xếp Hạng]
-        S24 --> S25[Slide 25: Cắt Dữ Liệu Time-Based]
-        S25 --> S26[Slide 26: Trọng Số Mẫu LGBM]
-        S26 --> S27[Slide 27: Tối Ưu NDCG & MRR]
-        S27 --> S28[Slide 28: Đồng Bộ Đặc Trưng Động]
+        S24 --> S25[Slide 25: Tổng Quan Xếp Hạng]
+        S25 --> S26[Slide 26: Cắt Dữ Liệu Time-Based]
+        S26 --> S27[Slide 27: Trọng Số Mẫu LGBM]
+        S27 --> S28[Slide 28: Tối Ưu NDCG & MRR]
+        S28 --> S29[Slide 29: Đồng Bộ Đặc Trưng Động]
     end
     
     subgraph Phase 5: API Phục Vụ & Kết quả
-        S28 --> S29[Slide 29: Serving In-Memory RAM]
-        S29 --> S30[Slide 30: Serving Kháng Lỗi API]
-        S30 --> S31[Slide 31: Serving Giải Quyết Cold-Start]
-        S31 --> S32[Slide 32: Cấu Hình Data Pipeline]
-        S32 --> S33[Slide 33: Cấu Hình Recall PyTorch]
-        S33 --> S34[Slide 34: Cấu Hình Ranking LightGBM]
-        S34 --> S35[Slide 35: Kết Quả Đánh Giá Recall]
-        S35 --> S36[Slide 36: Kết Quả Đánh Giá Ranking]
-        S36 --> S37[Slide 37: Tổng Đạt Mục Tiêu Độ Trễ]
-        S37 --> S38[Slide 38: Breakdown Độ Trễ API]
-        S38 --> S39[Slide 39: Tổng Kết Ưu Điểm System]
+        S29 --> S30[Slide 30: Serving In-Memory RAM]
+        S30 --> S31[Slide 31: Serving Kháng Lỗi API]
+        S31 --> S32[Slide 32: Serving Giải Quyết Cold-Start]
+        S32 --> S33[Slide 33: Cấu Hình Data Pipeline]
+        S33 --> S34[Slide 34: Cấu Hình Recall PyTorch]
+        S34 --> S35[Slide 35: Cấu Hình Ranking LightGBM]
+        S35 --> S36[Slide 36: Kết Quả Đánh Giá Recall]
+        S36 --> S37[Slide 37: Kết Quả Đánh Giá Ranking]
+        S37 --> S38[Slide 38: Tổng Đạt Mục Tiêu Độ Trễ]
+        S38 --> S39[Slide 39: Breakdown Độ Trễ API]
+        S39 --> S40[Slide 40: Tổng Kết Ưu Điểm System]
     end
 ```
 
@@ -188,21 +189,34 @@ graph TD
 
 ## ⚡ Phase 3: Recall Stage (Giai Đoạn Triệu Hồi)
 
-### 🚀 Slide 17: Tổng Quan Triệu Hồi (Recall Stage)
+### 🗺️ Slide 17: Quy Trình Vận Hành Thời Gian Thực (Detailed Operational Workflow)
+*   **Ý chính:** Sơ đồ dòng chảy dữ liệu rẽ nhánh song song và hợp nhất thời gian thực từ đầu vào đến đầu ra API.
+*   **Nội dung súc tích:**
+    *   **Start/Input:** Nhận API Request chứa `user_id` và `session_items` (lịch sử click nóng hổi).
+    *   **Triệu hồi Kênh 1 (Sở Thích Lâu Dài):** MF Model lấy User Embedding Vector ➜ Quét FAISS Index lấy 100 Candidates.
+    *   **Triệu hồi Kênh 2 (Nhu Cầu Tức Thì):** Tính Average Session Item Embedding ➜ Quét FAISS Index lấy 100 Candidates.
+    *   **Candidates Union (Hợp Nhất):** Gộp ứng viên của 2 kênh, loại bỏ trùng lặp và lọc bỏ các sản phẩm đã mua/tương tác.
+    *   **Feature Store Fetch:** Truy xuất nhanh đặc trưng tĩnh & động của User/Item từ RAM Cache ghép thành Feature Vector đầy đủ.
+    *   **LightGBM Ranker:** Mô hình GBDT chấm điểm, xếp hạng chính xác theo nhãn đa mục tiêu (Purchase/View).
+    *   **API Response (Top-N):** Trả về chuỗi JSON chứa 20 gợi ý sản phẩm tốt nhất cho phía Client trong <25ms.
+
+---
+
+### 🚀 Slide 18: Tổng Quan Triệu Hồi (Recall Stage)
 *   **Ý chính:** Bộ lọc thô siêu tốc thu hẹp không gian tìm kiếm từ hàng triệu xuống 200 sản phẩm.
 *   **Nội dung súc tích:**
     *   **Yêu cầu:** Độ trễ cực thấp **<10ms** trên toàn bộ catalog hàng triệu sản phẩm.
     *   **Độ phủ (Recall/Hit Rate):** Phải cực rộng để không bỏ sót các sản phẩm tiềm năng.
     *   **Giải pháp:** Chạy truy vấn song song trên 2 kênh độc lập dựa trên FAISS Indexing.
 
-### 🧬 Slide 18: Triệu Hồi Kênh 1 - Sở Thích Lâu Dài (Long-term)
+### 🧬 Slide 19: Triệu Hồi Kênh 1 - Sở Thích Lâu Dài (Long-term)
 *   **Ý chính:** Đề xuất dựa trên gu mua sắm tích lũy lâu năm của khách hàng.
 *   **Nội dung súc tích:**
     *   **Cơ chế:** Lấy Vector nhúng User (User Embedding) từ mô hình PyTorch MF đã huấn luyện.
     *   **Truy vấn:** Dùng Vector User quét FAISS Index để tìm 100 sản phẩm lân cận có độ tương hợp cao nhất.
     *   **Ưu điểm:** Giữ vững tính ổn định và định hình gu thẩm mỹ/mua sắm dài hạn của khách hàng.
 
-### 🔥 Slide 19: Triệu Hồi Kênh 2 - Nhu Cầu Tức Thời (Session Context)
+### 🔥 Slide 20: Triệu Hồi Kênh 2 - Nhu Cầu Tức Thời (Session Context)
 *   **Ý chính:** Đề xuất nhạy bén với hành động nóng hổi của khách hàng ngay trong phiên hiện tại.
 *   **Nội dung súc tích:**
     *   **Cơ chế:** Lấy Embeddings của các sản phẩm khách hàng vừa tương tác trong phiên hiện tại.
@@ -210,7 +224,7 @@ graph TD
     *   **Truy vấn:** Quét FAISS Index để lấy ra 100 sản phẩm tương đồng nhất.
     *   **Ưu điểm:** Phản hồi tức thì với hành vi mua sắm nóng hổi mà không cần huấn luyện lại mô hình.
 
-### 📐 Slide 20: Huấn Luyện Recall - Kiến Trúc Matrix Factorization
+### 📐 Slide 21: Huấn Luyện Recall - Kiến Trúc Matrix Factorization
 *   **Ý chính:** Ánh xạ ID User và Item thành các vector nhúng 64 chiều.
 *   **Nội dung súc tích:**
     *   **Kiến trúc:** PyTorch Embedding layer chuyển hóa thông tin ID thưa thớt thành vector dày đặc.
@@ -218,21 +232,21 @@ graph TD
         $$\hat{y} = \sigma(u_{idx} \cdot i_{idx})$$
     *   **Đầu ra:** Vector nhúng chất lượng cao lưu vào FAISS Index phục vụ tìm kiếm lân cận.
 
-### 🧩 Slide 21: Huấn Luyện Recall - Khởi Tạo Trọng Số Xavier
+### 🧩 Slide 22: Huấn Luyện Recall - Khởi Tạo Trọng Số Xavier
 *   **Ý chính:** Sử dụng Xavier Uniform giúp trọng số embeddings phân phối tối ưu từ đầu.
 *   **Nội dung súc tích:**
     *   **Vấn đề:** Khởi tạo ngẫu nhiên thông thường dễ gây bão hòa sigmoid hoặc triệt tiêu gradient.
     *   **Giải pháp:** Xavier Uniform tự động tính toán biên độ khởi tạo dựa trên kích thước embedding.
     *   **Kết quả:** Đảm bảo gradient ổn định, tăng tốc độ hội tụ mô hình gấp nhiều lần.
 
-### 🎯 Slide 22: Huấn Luyện Recall - Lấy Mẫu Âm Tính (Negative Sampling)
+### 🎯 Slide 23: Huấn Luyện Recall - Lấy Mẫu Âm Tính (Negative Sampling)
 *   **Ý chính:** Thiết lập tỷ lệ 1 mẫu dương : 4 mẫu âm tính ngẫu nhiên.
 *   **Nội dung súc tích:**
     *   **Mẫu dương tính (Label = 1):** Tương tác thực tế lịch sử của người dùng.
     *   **Mẫu âm tính (Label = 0):** Lấy ngẫu nhiên các sản phẩm người dùng chưa từng tương tác.
     *   **Vai trò:** Giúp mô hình học được ranh giới rõ ràng giữa sản phẩm được thích và phần còn lại của catalog.
 
-### 🛡️ Slide 23: Trị Lệch Dữ Liệu - Focal Loss
+### 🛡️ Slide 24: Trị Lệch Dữ Liệu - Focal Loss
 *   **Ý chính:** Dập lỗi từ các mẫu dễ học (lượt xem) xuống 100 lần để tập trung học mua sắm.
 *   **Nội dung súc tích:**
     *   **Công thức:** $\text{FL}(p_t) = -\alpha_t (1 - p_t)^\gamma \log(p_t)$
@@ -243,35 +257,35 @@ graph TD
 
 ## 🏆 Phase 4: Ranking Stage (Giai Đoạn Xếp Hạng)
 
-### 📈 Slide 24: Tổng Quan Xếp Hạng (Ranking Stage)
+### 📈 Slide 25: Tổng Quan Xếp Hạng (Ranking Stage)
 *   **Ý chính:** Tinh lọc danh sách 200 ứng viên từ Recall để chọn ra Top-20 sản phẩm tốt nhất.
 *   **Nội dung súc tích:**
     *   **Yêu cầu:** Châm điểm sâu sắc, xem xét đa chiều toàn bộ đặc trưng Point-in-time.
     *   **Thuật toán:** Học máy dạng cây quyết định phân loại GBDT (LightGBM Ranker).
     *   **Tác động:** Sắp xếp thứ tự tối ưu nhất theo xác suất chuyển đổi mua sắm thực tế của khách hàng.
 
-### 📅 Slide 25: Huấn Luyện Ranking - Cắt Dữ Liệu Theo Thời Gian
+### 📅 Slide 26: Huấn Luyện Ranking - Cắt Dữ Liệu Theo Thời Gian
 *   **Ý chính:** Chia tập Train/Test theo trình tự thời gian nghiêm ngặt thay vì ngẫu nhiên.
 *   **Nội dung súc tích:**
     *   **Tỷ lệ:** 80% thời gian đầu làm tập huấn luyện (Train), 20% thời gian sau làm tập kiểm thử (Test).
     *   **Nguyên tắc:** Sắp xếp toàn bộ tương tác theo dòng thời gian `event_time`.
     *   **Lợi ích:** Tránh rò rỉ dữ liệu tương lai, mô phỏng chính xác hành vi dự đoán thực tế khi Serving.
 
-### ⚖️ Slide 26: Huấn Luyện Ranking - Trọng Số Mẫu Custom
+### ⚖️ Slide 27: Huấn Luyện Ranking - Trọng Số Mẫu Custom
 *   **Ý chính:** Đồng bộ trọng số huấn luyện trực tiếp với thang điểm phản hồi ngầm định.
 *   **Nội dung súc tích:**
     *   **Gán trọng số:** View = **0.1**, Cart = **0.5**, Purchase = **1.0** trong cấu hình huấn luyện.
     *   **Cơ chế:** Thuật toán tối ưu hóa cây quyết định sẽ ưu tiên phân nhánh chính xác cho các mẫu có trọng số cao.
     *   **Hiệu quả:** Định hướng mô hình xếp hạng đặt các sản phẩm mua sắm lên vị trí cao nhất.
 
-### 📊 Slide 27: Huấn Luyện Ranking - Tối Ưu NDCG & MRR
+### 📊 Slide 28: Huấn Luyện Ranking - Tối Ưu NDCG & MRR
 *   **Ý chính:** Đánh giá chất lượng xếp thứ tự đề xuất trên đỉnh trang hiển thị.
 *   **Nội dung súc tích:**
     *   **NDCG@10:** Đo lường xem sản phẩm khách hàng thực sự mua có được ưu tiên đưa lên Top 10 đầu trang hay không.
     *   **MRR (Mean Reciprocal Rank):** Đo vị trí của sản phẩm tương tác đầu tiên (khách hàng có phải cuộn quá sâu không).
     *   **Ý nghĩa:** Gom nhóm theo `user_id` để đánh giá cá nhân hóa chính xác.
 
-### ⚙️ Slide 28: Đồng Bộ Đặc Trưng Động (Config-Driven)
+### ⚙️ Slide 29: Đồng Bộ Đặc Trưng Động (Config-Driven)
 *   **Ý chính:** Định nghĩa danh sách đặc trưng tập trung tại config.py tránh Feature Mismatch.
 *   **Nội dung súc tích:**
     *   **Cơ chế:** Danh sách cột đặc trưng được định nghĩa tập trung duy nhất tại `config.py`.
@@ -282,69 +296,69 @@ graph TD
 
 ## ⚡ Phase 5: API Phục Vụ Serving & Kết Quả Đánh Giá
 
-### 🧠 Slide 29: Phục Vụ Serving - In-Memory RAM Store
+### 🧠 Slide 30: Phục Vụ Serving - In-Memory RAM Store
 *   **Ý chính:** Tải toàn bộ đặc trưng và FAISS Index lên bộ nhớ RAM khi API khởi động.
 *   **Nội dung súc tích:**
     *   **Cơ chế:** Đọc sẵn dữ liệu Parquet từ ổ đĩa và cache vào RAM của FastAPI Server.
     *   **Tác động:** Khâu truy xuất thuộc tính tĩnh & động (Feature Fetching) được hoàn thành trong **<3ms**.
     *   **Hiệu năng:** Loại bỏ hoàn toàn nghẽn truy xuất ổ đĩa IO, sẵn sàng chịu tải lớn.
 
-### 🛡️ Slide 30: Phục Vụ Serving - Cơ Chế Kháng Lỗi API
+### 🛡️ Slide 31: Phục Vụ Serving - Cơ Chế Kháng Lỗi API
 *   **Ý chính:** Tự động bù đắp dữ liệu khuyết thiếu khi chạy Production thực tế.
 *   **Nội dung súc tích:**
     *   **Vấn đề:** Các yêu cầu API thực tế thường bị khuyết thiếu một vài cột đặc trưng động.
     *   **Giải pháp:** API Serving tự động điền khuyết giá trị mặc định (Imputation) trước khi truyền vào LightGBM.
     *   **Kết quả:** Hệ thống vận hành bền bỉ 24/7, tuyệt đối không bị crash do thiếu thuộc tính.
 
-### ❄️ Slide 31: Phục Vụ Serving - Giải Quyết Cold-Start
+### ❄️ Slide 32: Phục Vụ Serving - Giải Quyết Cold-Start
 *   **Ý chính:** Cơ chế Popularity Fallback cho người dùng mới hoàn toàn.
 *   **Nội dung súc tích:**
     *   **Vấn đề:** Khách hàng mới chưa có embeddings lâu dài lẫn hành vi phiên để triệu hồi.
     *   **Giải pháp:** Tự động chuyển hướng đề xuất sang danh mục sản phẩm thịnh hành nhất (Popularity Fallback).
     *   **Ưu điểm:** Duy trì trải nghiệm gợi ý mượt mà, không gián đoạn cho bất kỳ khách hàng nào.
 
-### ⚙️ Slide 32: Cấu Hình Hệ Thống - Data Pipeline
+### ⚙️ Slide 33: Cấu Hình Hệ Thống - Data Pipeline
 *   **Ý chính:** Quản lý tham số phân phiên mua sắm.
 *   **Nội dung súc tích:**
     *   `SESSION_THRESHOLD_MINUTES = 30` (30 phút không hoạt động để ngắt phiên).
     *   `MIN_INTERACTIONS_PER_USER = 2` (Lọc bỏ nhiễu user quá thụ động).
 
-### 🧬 Slide 33: Cấu Cấu Hình Hệ Thống - Recall Stage
+### 🧬 Slide 34: Cấu Cấu Hình Hệ Thống - Recall Stage
 *   **Ý chính:** Các siêu tham số huấn luyện mô hình Matrix Factorization.
 *   **Nội dung súc tích:**
     *   `RECALL_EMBEDDING_DIM = 64` (Không gian vector nhúng).
     *   `RECALL_NEG_SAMPLE_RATIO = 4` (Tỷ lệ lấy mẫu âm tính).
     *   `RECALL_LEARNING_RATE = 0.01` | `RECALL_EPOCHS = 5`.
 
-### 🌳 Slide 34: Cấu Hình Hệ Thống - Ranking Stage
+### 🌳 Slide 35: Cấu Hình Hệ Thống - Ranking Stage
 *   **Ý chính:** Các siêu tham số huấn luyện mô hình LightGBM Ranker.
 *   **Nội dung súc tích:**
     *   `RANKING_NUM_LEAVES = 31` (Số lá tối đa trong cây, chống quá khớp).
     *   `RANKING_LEARNING_RATE = 0.05` | `RANKING_ROUNDS = 100` (Số cây quyết định).
     *   `RANKING_TEST_SIZE = 0.2` (Tỷ lệ phân chia tập test theo thời gian).
 
-### 📈 Slide 35: Kết Quả Đánh Giá - Khâu Lọc Thô Recall
+### 📈 Slide 36: Kết Quả Đánh Giá - Khâu Lọc Thô Recall
 *   **Ý chính:** Đo lường năng lực bao phủ sản phẩm của khâu Recall.
 *   **Nội dung súc tích:**
     *   **Hit Rate@50:** Đạt **84.5%** trên tập dữ liệu kiểm thử.
     *   **Ý nghĩa:** Khâu Recall không bỏ sót sản phẩm được yêu thích thực tế của khách hàng.
     *   **Đóng góp:** Nhu cầu tức thời (Session Kênh) giúp tăng vọt Hit Rate lên thêm 12.8%.
 
-### 🏆 Slide 36: Kết Quả Đánh Giá - Khâu Xếp Hạng Ranking
+### 🏆 Slide 37: Kết Quả Đánh Giá - Khâu Xếp Hạng Ranking
 *   **Ý chính:** Đo lường độ chính xác sắp xếp vị trí hiển thị của LightGBM.
 *   **Nội dung súc tích:**
     *   **Validation AUC:** Đạt **0.8842** (Chấm điểm phân biệt nhị phân cực tốt).
     *   **NDCG@10:** Đạt **0.7523** (Sản phẩm khách hàng thực sự mua nằm sát đỉnh trang).
     *   **MRR:** Đạt **0.6841** (Tối ưu hóa hành động cuộn trang của người dùng).
 
-### ⏱️ Slide 37: Hiệu Năng Phục Vụ - Đạt Mục Tiêu Độ Trễ API
+### ⏱️ Slide 38: Hiệu Năng Phục Vụ - Đạt Mục Tiêu Độ Trễ API
 *   **Ý chính:** Tổng độ trễ API toàn chu trình đạt mức 22.5ms vượt xa mục tiêu ban đầu.
 *   **Nội dung súc tích:**
     *   **Mục tiêu công nghiệp:** Phản hồi API gợi ý < **50ms**.
     *   **Kết quả đạt được:** Chỉ tốn **22.5ms** dưới điều kiện tải thực tế.
     *   **Ưu thế:** Đảm bảo trải nghiệm mua sắm không có độ trễ cảm nhận cho khách hàng.
 
-### 📊 Slide 38: Hiệu Năng Phục Vụ - Breakdown Độ Trễ Từng Bước
+### 📊 Slide 39: Hiệu Năng Phục Vụ - Breakdown Độ Trễ Từng Bước
 *   **Ý chính:** Phân tích chi tiết thời gian xử lý của 4 khâu chính trong API.
 *   **Nội dung súc tích:**
     *   *1. Nạp đặc trưng (In-Memory Lookup):* **2.8ms**
@@ -352,7 +366,7 @@ graph TD
     *   *3. Xếp hạng LightGBM GBDT:* **12.2ms** (Chiếm tỷ trọng lớn nhất 54.2%).
     *   *4. Gom nhóm & phản hồi JSON:* **3.0ms**
 
-### 🎯 Slide 39: Tổng Kết - Ưu Điểm Vượt Trội Của Hệ Thống
+### 🎯 Slide 40: Tổng Kết - Ưu Điểm Vượt Trội Của Hệ Thống
 *   **Ý chính:** Khẳng định giá trị thực tế của giải pháp gợi ý hai giai đoạn.
 *   **Nội dung súc tích:**
     *   **Hiệu năng siêu tốc:** API đáp ứng nhanh **22.5ms**, sẵn sàng phục vụ quy mô lớn.
