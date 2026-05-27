@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Gợi Ý Sản Phẩm Hai Giai Đoạn - Industrial Two-Stage Recommender</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Link to Standalone Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- --- APP HEADER --- -->
+    <header>
+        <div class="logo-section">
+            <svg class="logo-icon" viewBox="0 0 24 24">
+                <path d="M12 2L2 22h20L12 2zm0 3.99L19.53 19H4.47L12 5.99zM13 16h-2v2h2v-2zm0-6h-2v4h2v-4z"/>
+            </svg>
+            <div class="logo-text">Industrial Recommender</div>
+        </div>
+        <div class="project-tag">two_stage_recall_ranking_v2</div>
+    </header>
+
+    <!-- --- MAIN VIEWPORT --- -->
+    <div class="presentation-container">
+        <div class="slide-wrapper">
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 1: TITLE (ULTRA-MINIMALIST) -->
+            <!-- ======================================================= -->
+            <div class="slide active" id="slide-1">
+                <div class="title-slide-content">
+                    <div class="title-badge reveal-item">
+                        <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="margin-top:-2px;">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                        </svg>
+                        PRODUCTION-GRADE ARCHITECTURE
+                    </div>
+                    <h1 class="main-title reveal-item reveal-delay-1">Hệ Thống Gợi Ý Sản Phẩm Hai Giai Đoạn</h1>
+                    <div class="glow-title reveal-item reveal-delay-2">Triệu Hồi Song Song Hai Kênh & Đặc Trưng Phiên Thời Gian Thực</div>
+                </div>
+                
+                <div class="slide-footer-info">
+                    <div>Thiết kế & Kiến trúc Hệ thống Gợi ý</div>
+                    <div>Phân rã 39 slide súc tích</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 2: TIMELINE / DEVELOPMENT ROADMAP -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-2">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Lộ Trình Dự Án</div>
+                        <h2 class="slide-title">Chu Trình Khép Kín 5 Giai Đoạn (Phases)</h2>
+                    </div>
+                </div>
+                <div class="slide-body" style="justify-content: center; align-content: center;">
+
+                    <div class="timeline-container reveal-item reveal-delay-1">
+                        <div class="timeline-line"></div>
+                        <div class="timeline-progress" id="timeline-progress-bar"></div>
+                        
+                        <div class="timeline-step" onclick="goToSlide(3)">
+                            <div class="timeline-dot">1</div>
+                            <div class="timeline-content">
+                                <div class="timeline-phase">Phase 1</div>
+                                <div class="timeline-title">EDA & Setup</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-step" onclick="goToSlide(7)">
+                            <div class="timeline-dot">2</div>
+                            <div class="timeline-content">
+                                <div class="timeline-phase">Phase 2</div>
+                                <div class="timeline-title">Pipeline & Features</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-step" onclick="goToSlide(17)">
+                            <div class="timeline-dot">3</div>
+                            <div class="timeline-content">
+                                <div class="timeline-phase">Phase 3</div>
+                                <div class="timeline-title">Triệu Hồi Recall</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-step" onclick="goToSlide(24)">
+                            <div class="timeline-dot">4</div>
+                            <div class="timeline-content">
+                                <div class="timeline-phase">Phase 4</div>
+                                <div class="timeline-title">Xếp Hạng Ranking</div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-step" onclick="goToSlide(29)">
+                            <div class="timeline-dot">5</div>
+                            <div class="timeline-content">
+                                <div class="timeline-phase">Phase 5</div>
+                                <div class="timeline-title">Serving & API</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Lộ trình phát triển hệ thống gợi ý</div>
+                    <div>Slide 2 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 3: THÁCH THỨC DỮ LIỆU - SPARSITY -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-3">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 1: EDA & Setup</div>
+                        <h2 class="slide-title">Thách Thức Dữ Liệu - Matrix Sparsity</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Khám phá dữ liệu E-commerce phát hiện thách thức đầu tiên: độ thưa thớt của ma trận tương tác User-Item cực kỳ lớn.
+                        </p>
+                        
+                        <div class="feature-card pink reveal-item reveal-delay-1">
+                            <div class="card-title">Tại sao các thuật toán thông thường thất bại?</div>
+                            <p class="card-desc">
+                                Một khách hàng chỉ xem hoặc mua một vài món đồ trong số hàng chục nghìn sản phẩm. Ma trận tương tác trống tới 99.99% khiến các mô hình Collaborative Filtering truyền thống mất độ chính xác hoặc sụp đổ.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+                        <div class="stat-item reveal-item reveal-delay-2" style="width: 80%; padding: 25px;">
+                            <div class="stat-value" style="font-size: 3.5rem; line-height: 1; color: var(--color-pink);">99.99%</div>
+                            <div class="stat-label" style="font-size: 0.95rem; font-weight: 600;">Độ Thưa Thớt (Matrix Sparsity)</div>
+                        </div>
+                        <p class="reveal-item reveal-delay-3" style="font-size: 0.8rem; color:var(--text-muted); text-align:center; max-width:80%; line-height:1.4;">
+                            Mỗi user trung bình chỉ tương tác với 1-2 sản phẩm, đòi hỏi một không gian biểu diễn ẩn (Embedding Space) để tìm sự tương đồng.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Challenges - Matrix Sparsity in E-commerce</div>
+                    <div>Slide 3 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 4: THÁCH THỨC DỮ LIỆU - MẤT CÂN BẰNG HÀNH VI -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-4">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 1: EDA & Setup</div>
+                        <h2 class="slide-title">Thách Thức Dữ Liệu - Mất Cân Bằng Hành Vi</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Khách hàng chủ yếu thực hiện hành vi xem ngẫu nhiên. Các hành vi bỏ giỏ hoặc mua hàng thực sự chiếm tỷ trọng cực kỳ nhỏ.
+                        </p>
+                        
+                        <div class="feature-card pink reveal-item reveal-delay-1">
+                            <div class="card-title">Mất cân bằng cực đoan (Class Imbalance)</div>
+                            <p class="card-desc">
+                                Số lượt View chiếm áp đảo hoàn toàn. Nếu mô hình huấn luyện trên dữ liệu thô này, nó sẽ bị bão hòa bởi các lượt xem ngẫu nhiên (nhiễu cao) và bỏ qua các tương tác mua sắm quý giá.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="chart-box reveal-item reveal-delay-2">
+                        <h3 class="card-title" style="margin-bottom: 5px; text-align: center; font-size:0.9rem;">Tần Suất Hành Vi Thực Tế</h3>
+                        
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-labels">
+                                <span>Xem sản phẩm (View)</span>
+                                <span class="highlight-text">96.8%</span>
+                            </div>
+                            <div class="chart-bar-bg">
+                                <div class="chart-bar-fill fill-view" style="width: 96.8%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-labels">
+                                <span>Thêm giỏ hàng (Cart)</span>
+                                <span class="highlight-text" style="color: var(--color-warning);">2.3%</span>
+                            </div>
+                            <div class="chart-bar-bg">
+                                <div class="chart-bar-fill fill-cart" style="width: 20%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="chart-bar-container">
+                            <div class="chart-bar-labels">
+                                <span>Mua hàng (Purchase)</span>
+                                <span class="highlight-text" style="color: var(--color-pink);">0.9%</span>
+                            </div>
+                            <div class="chart-bar-bg">
+                                <div class="chart-bar-fill fill-purchase" style="width: 9%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Challenges - Extreme Behavior Class Imbalance</div>
+                    <div>Slide 4 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 5: TRIẾT LÝ IMPLICIT FEEDBACK -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-5">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 1: EDA & Setup</div>
+                        <h2 class="slide-title">Triết Lý Tối Ưu - Implicit Feedback</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Để mô hình hiểu được "mức độ quan tâm" thực sự của khách hàng, hệ thống từ bỏ nhãn nhị phân cứng nhắc (0 và 1).
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Chuyển đổi sang Phản Hồi Ngầm Định (Implicit Feedback)</div>
+                            <p class="card-desc">
+                                Thay vì coi mọi tương tác chỉ là Thích/Không thích (Binary), hệ thống gán một trọng số giá trị cho từng hành động để định hướng mô hình tối ưu các chuyển đổi tạo ra doanh thu thực tế.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px; text-align: center;">
+                        <h3 class="card-title" style="font-size: 1.1rem; color: var(--color-success)">Mục Tiêu Tối Ưu Hóa</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                            Dạy mô hình biết rằng một lượt mua hàng (Purchase) quý giá gấp nhiều lần một lượt xem (View) ngẫu nhiên, từ đó ưu tiên đẩy sản phẩm mua lên hàng đầu.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Strategy - Implicit Feedback Philosophy</div>
+                    <div>Slide 5 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 6: CHI TIẾT TRỌNG SỐ HÀNH VI -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-6">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 1: EDA & Setup</div>
+                        <h2 class="slide-title">Quy Đổi Hành Vi Sang Thang Điểm Trọng Số</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Hành vi thô được ánh xạ trực tiếp thành trọng số huấn luyện tối ưu hóa theo quy chuẩn sau:
+                        </p>
+                        
+                        <div class="feature-card reveal-item reveal-delay-1" style="padding: 12px 15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:600; color:var(--text-bright);">Xem sản phẩm (View)</span>
+                                <span style="background:rgba(59,130,246,0.1); border:1px solid #3b82f6; padding:2px 8px; border-radius:4px; color:#3b82f6; font-family:var(--font-mono); font-weight:700;">Điểm: 0.1</span>
+                            </div>
+                            <p class="card-desc" style="margin-top: 4px; font-size: 0.72rem;">Ý định yếu, độ nhiễu cao, xảy ra liên tục.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card warning reveal-item reveal-delay-2" style="padding: 12px 15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:600; color:var(--text-bright);">Thêm giỏ hàng (Cart)</span>
+                                <span style="background:rgba(217,119,6,0.1); border:1px solid #d97706; padding:2px 8px; border-radius:4px; color:#d97706; font-family:var(--font-mono); font-weight:700;">Điểm: 0.5</span>
+                            </div>
+                            <p class="card-desc" style="margin-top: 4px; font-size: 0.72rem;">Ý định mua sắm rất mạnh mẽ của khách hàng.</p>
+                        </div>
+                        
+                        <div class="feature-card pink reveal-item reveal-delay-3" style="padding: 12px 15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-weight:600; color:var(--text-bright);">Mua hàng (Purchase)</span>
+                                <span style="background:rgba(219,39,119,0.1); border:1px solid #db2777; padding:2px 8px; border-radius:4px; color:#db2777; font-family:var(--font-mono); font-weight:700;">Điểm: 1.0</span>
+                            </div>
+                            <p class="card-desc" style="margin-top: 4px; font-size: 0.72rem;">Tín hiệu chuyển đổi tối thượng của hệ thống gợi ý.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Strategy - Implicit Feedback Weight Details</div>
+                    <div>Slide 6 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 7: PHÂN PHIÊN HÀNH VI (SESSIONIZATION) -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-7">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Phân Phiên Hành Vi (Sessionization)</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Hành vi của người dùng thay đổi cực kỳ nhanh chóng theo bối cảnh truy cập. Hệ thống gom tương tác theo phiên độc lập.
+                        </p>
+                        
+                        <div class="feature-card accent reveal-item reveal-delay-1">
+                            <div class="card-title">Ngưỡng không hoạt động 30 phút</div>
+                            <p class="card-desc">
+                                Các tương tác cách nhau trên 30 phút tự động được chia thành các phiên mua sắm độc lập khác nhau, bắt trọn từng khoảnh khắc quan tâm của khách hàng.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+                        <div class="stat-item reveal-item reveal-delay-2" style="width: 80%; padding: 25px; border-color:var(--color-accent); background:rgba(109,40,217,0.02)">
+                            <div class="stat-value" style="font-size: 3.5rem; line-height: 1; color:var(--color-accent)">30 Phút</div>
+                            <div class="stat-label" style="font-size: 0.95rem; font-weight: 600;">Ngưỡng Phân Chia Phiên</div>
+                        </div>
+                        <p class="reveal-item reveal-delay-3" style="font-size: 0.8rem; color:var(--text-muted); text-align:center; max-width:80%;">
+                            Làm đầu vào quan trọng cho Kênh gợi ý tức thời thời gian thực (Real-time Session Recall).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - Dynamic Sessionization thresholds</div>
+                    <div>Slide 7 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 8: HIỂM HỌA RÒ RỈ DỮ LIỆU -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-8">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Hiểm Họa Rò Rỉ Dữ Liệu (Time-Travel Leakage)</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Một lỗi kinh điển phá hủy mô hình khuyến nghị là dùng thông tin tương lai để dự đoán quá khứ.
+                        </p>
+                        
+                        <div class="feature-card pink reveal-item reveal-delay-1">
+                            <div class="card-title">Time-Travel Leakage là gì?</div>
+                            <p class="card-desc">
+                                Nếu tính tổng tương tác của user trên toàn bộ tập dữ liệu rồi gán vào một dòng tương tác ở giữa dòng thời gian, mô hình đã vô tình "biết trước" hành vi tương lai của user. Điểm train sẽ siêu cao nhưng serving thực tế sẽ sụp đổ hoàn toàn.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+                        <div class="feature-card warning reveal-item reveal-delay-2" style="padding: 20px;">
+                            <div class="card-title" style="color:var(--color-warning)">⚠️ Hậu quả nghiêm trọng</div>
+                            <p class="card-desc" style="line-height:1.4; font-size: 0.8rem;">
+                                Mô hình học được các "phím tắt" từ tương lai, mất hoàn toàn năng lực dự đoán thực tế khi chỉ có thông tin quá khứ tại thời điểm gọi API.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - The Danger of Time-Travel Leakage</div>
+                    <div>Slide 8 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 9: NGUYÊN TẮC POINT-IN-TIME -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-9">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Giải Pháp - Trích Xuất Đặc Trưng Point-in-Time</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Hệ thống giải quyết triệt để lỗi rò rỉ dữ liệu thông qua cơ chế tính toán Point-in-Time nghiêm ngặt.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Cơ chế trích xuất Point-in-Time</div>
+                            <p class="card-desc">
+                                Đặc trưng tại mỗi hàng chỉ được tính toán từ các sự kiện đã xảy ra trước mili-giây của tương tác hiện tại (`event_time`). Tuyệt đối không biết trước tương lai.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; text-align: center; gap: 10px;">
+                        <div style="font-size: 3rem;">🛡️</div>
+                        <h3 class="card-title">Bảo Vệ Tính Đồng Bộ</h3>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); max-width:80%; margin: 0 auto; line-height: 1.4;">
+                            Đảm bảo dữ liệu huấn luyện (Offline Train) khớp 100% logic với dữ liệu phục vụ (Online Serving) tại thời điểm gọi API.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - Point-in-Time Extraction Principle</div>
+                    <div>Slide 9 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 10: USER - TẦN SUẤT LỊCH SỬ -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-10">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Đặc Trưng User - Tần Suất Tương Tác Lịch Sử</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Đo lường mức độ tích cực tổng thể của người dùng thông qua mã nguồn:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">user_total_interactions</div>
+                            <p class="card-desc">
+                                Tổng số lượt tương tác (views, carts, purchases) lũy tiến của người dùng kể từ đầu lịch sử cho đến sát mili-giây hiện tại.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <h3 class="card-title" style="font-size: 0.95rem; text-align:center; color:var(--text-bright);">Ý nghĩa kỹ thuật</h3>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); line-height: 1.5; text-align:center;">
+                            Giúp GBDT phân biệt rõ ràng giữa một khách hàng thân thiết có hoạt động mua sắm thường xuyên với một user vãng lai mới truy cập để hiệu chỉnh điểm gợi ý phù hợp.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - User Historical Interaction Frequency</div>
+                    <div>Slide 10 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 11: USER - TẦN SUẤT PHIÊN -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-11">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Đặc Trưng User - Tần Suất Phiên Lịch Sử</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Bắt trọn thói quen truy cập định kỳ của người dùng:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">user_total_sessions</div>
+                            <p class="card-desc">
+                                Tổng số lượng phiên mua sắm độc nhất mà khách hàng đã thực hiện trong quá khứ tính đến thời điểm hiện tại.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <h3 class="card-title" style="font-size: 0.95rem; text-align:center; color:var(--text-bright);">Ý nghĩa kỹ thuật</h3>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); line-height: 1.5; text-align:center;">
+                            Đo lường mức độ thường xuyên quay lại của khách hàng để tối ưu hóa sự đa dạng (diversity) của danh mục đề xuất, tránh lặp lại nhàm chán.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - User Historical Session Frequency</div>
+                    <div>Slide 11 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 12: ITEM - SỨC HÚT SẢN PHẨM -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-12">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Đặc Trưng Item - Đo Sức Hút Sản Phẩm</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Nhận biết sức hút tự nhiên của các sản phẩm thông qua tương tác lũy tiến:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">item_total_interactions</div>
+                            <p class="card-desc">
+                                Tổng số lượt tương tác lũy kế của toàn bộ khách hàng lên sản phẩm tính đến thời điểm hiện tại.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card success">
+                            <div class="card-title">item_unique_users</div>
+                            <p class="card-desc">
+                                Số lượng khách hàng độc nhất đã tiếp cận và tương tác với sản phẩm (đo lường độ phủ rộng của sản phẩm).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - Item Attraction Metrics</div>
+                    <div>Slide 12 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 13: ITEM - GIÁ LŨY TIẾN -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-13">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Đặc Trưng Item - Giá Trung Bình Lũy Tiến</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Tránh sự nhiễu loạn của giá cả đột ngột:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">item_avg_price</div>
+                            <p class="card-desc">
+                                Giá trị trung bình cuốn chiếu của giá sản phẩm xuất hiện trong các tương tác tính đến thời điểm hiện tại.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <h3 class="card-title" style="font-size: 0.95rem; text-align:center; color:var(--text-bright);">Ý nghĩa kỹ thuật</h3>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); line-height: 1.5; text-align:center;">
+                            Triệt tiêu các biến động giá ảo đột biến do flash sale hoặc lỗi hệ thống, giúp mô hình xếp hạng học được khoảng giá trị thực tế khách hàng chấp nhận bỏ tiền cho sản phẩm này.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - Cumulative Item Average Price</div>
+                    <div>Slide 13 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 14: ITEM - ĐỘ NÓNG PHIÊN -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-14">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Đặc Trưng Item - Độ Nóng Theo Phiên</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Chống hiện tượng click-spam làm lệch xu hướng sản phẩm:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">item_session_popularity</div>
+                            <p class="card-desc">
+                                Tổng số lượng phiên mua sắm độc nhất chứa sản phẩm này lũy kế đến thời điểm hiện tại.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <h3 class="card-title" style="font-size: 0.95rem; text-align:center; color:var(--text-bright);">Chống Click-Spam</h3>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); line-height: 1.5; text-align:center;">
+                            Nếu một user xem một sản phẩm 100 lần trong 1 phiên, `item_total_interactions` tăng vọt 100, nhưng `item_session_popularity` chỉ tăng thêm 1. Đây là giải pháp chống nhiễu dữ liệu cực kỳ hiệu quả.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - Item Session Popularity</div>
+                    <div>Slide 14 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 15: CONTEXT - ĐỘ SÂU PHIÊN -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-15">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Đặc Trưng Context - Độ Sâu Phiên Hiện Tại</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Nhận biết trạng thái tâm lý tức thời của khách hàng:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">user_session_interaction_count</div>
+                            <p class="card-desc">
+                                Tổng số lượng tương tác người dùng đã thực hiện từ đầu phiên truy cập hiện tại đến mili-giây hiện tại.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <h3 class="card-title" style="font-size: 0.95rem; text-align:center; color:var(--text-bright);">Ý nghĩa kỹ thuật</h3>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); line-height: 1.5; text-align:center;">
+                            Giúp mô hình phân biệt trạng thái khách hàng đang lướt dạo chơi (số click ít) với khách hàng đang cực kỳ tích cực tìm mua sắm (số click tăng nhanh) để quyết định mức độ đẩy các đề xuất có tính thương mại cao.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - Context Session Interaction Depth</div>
+                    <div>Slide 15 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 16: CONTEXT - KHUNG GIỜ & NGÀY -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-16">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 2: Data Pipeline</div>
+                        <h2 class="slide-title">Đặc Trưng Context - Khung Giờ & Ngày</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Bắt trọn thói quen sinh hoạt và tính chu kỳ của khách hàng:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">hour_of_day (0-23h)</div>
+                            <p class="card-desc">
+                                Giúp nhận diện thói quen giờ vàng mua sắm (ví dụ: mua sắm trong giờ nghỉ trưa hoặc tối muộn trước khi ngủ).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card success">
+                            <div class="card-title">day_of_week (0-6)</div>
+                            <p class="card-desc">
+                                Phân biệt hành vi ngày thường đi làm vs cuối tuần nghỉ ngơi (cuối tuần thường có lượng mua sắm cao hơn và quan tâm các nhóm mặt hàng giải trí).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Data Pipeline - Context Time Features</div>
+                    <div>Slide 16 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 17: TỔNG QUAN TRIỆU HỒI (RECALL) -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-17">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 3: Recall Stage</div>
+                        <h2 class="slide-title">Tổng Quan Giai Đoạn Triệu Hồi (Recall)</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Khâu lọc thô tối quan trọng giúp thu hẹp không gian tìm kiếm nhanh chóng và đáng tin cậy.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Mục tiêu khâu Recall</div>
+                            <p class="card-desc">
+                                Lọc thô cực nhanh từ hàng triệu sản phẩm trong hệ thống xuống còn <strong>200 ứng viên sáng giá nhất</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size:0.85rem; margin-bottom: 2px;">⚡ Độ trễ cực thấp: &lt;10ms</h4>
+                            <p class="card-desc" style="font-size: 0.75rem;">Yêu cầu tiên quyết để đảm bảo phục vụ API tải cao quy mô lớn.</p>
+                        </div>
+                        <div class="feature-card accent" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size:0.85rem; margin-bottom: 2px;">🎯 Độ bao phủ (Recall/Hit Rate) rộng</h4>
+                            <p class="card-desc" style="font-size: 0.75rem;">Đảm bảo tuyệt đối không lọc bỏ các sản phẩm khách hàng thực sự muốn mua.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Recall Stage - High Performance Coarse Filtering</div>
+                    <div>Slide 17 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 18: KÊNH 1 - GU LÂU DÀI -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-18">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 3: Recall Stage</div>
+                        <h2 class="slide-title">Triệu Hồi Kênh 1 - Sở Thích Lâu Dài (Long-term)</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Lọc sản phẩm dựa trên gu mua sắm định hình lâu năm của khách hàng:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Cơ chế truy vấn FAISS</div>
+                            <p class="card-desc">
+                                Lấy Vector nhúng User (User Embedding) từ PyTorch Matrix Factorization và dùng nó quét FAISS Index để tìm 100 sản phẩm lân cận có tích vô hướng (Dot Product) cao nhất.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px; text-align: center;">
+                        <h3 class="card-title" style="font-size: 1.1rem; color: var(--color-success)">Duy Trì Tính Ổn Định</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                            Giúp gợi ý giữ vững bản sắc cá nhân và sở thích ổn định của khách hàng qua nhiều ngày, nhiều tháng.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Recall Stage - Long-term User Preferences Channel</div>
+                    <div>Slide 18 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 19: KÊNH 2 - NHU CẦU PHIÊN -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-19">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 3: Recall Stage</div>
+                        <h2 class="slide-title">Triệu Hồi Kênh 2 - Nhu Cầu Tức Thời (Session)</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Bắt trọn nhu cầu tức thì của khách hàng đang thay đổi liên tục ngay trong phiên hiện tại:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Vector Trung Bình Phiên (Average Session Embedding)</div>
+                            <p class="card-desc">
+                                Tính trung bình cộng Vector nhúng của toàn bộ các sản phẩm khách hàng đã tương tác trong phiên hiện tại.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card accent">
+                            <div class="card-title">Truy vấn FAISS</div>
+                            <p class="card-desc">
+                                Dùng Vector trung bình phiên quét FAISS Index để lấy ra 100 sản phẩm tương đồng nhất. Đảm bảo phản hồi tức thì với hành vi mua sắm nóng hổi mà không cần train lại model.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Recall Stage - Session Context-aware Channel</div>
+                    <div>Slide 19 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 20: HUẤN LUYỆN MF - KIẾN TRÚC -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-20">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 3: Recall Stage</div>
+                        <h2 class="slide-title">Huấn Luyện Recall - Kiến Trúc Matrix Factorization</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Mô hình PyTorch Matrix Factorization ánh xạ ID User và Item thành các vector nhúng dày đặc 64 chiều.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Tích vô hướng & Sigmoid</div>
+                            <p class="card-desc">
+                                Dự đoán xác suất tương tác bằng hàm sigmoid trên Dot Product của Vector User và Vector Item:
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div class="feature-card" style="width:100%; padding: 20px; text-align:center;">
+                            <h3 class="card-title" style="margin-bottom: 10px;">Công Thức Dự Đoán</h3>
+                            $$\hat{y} = \sigma(u_{idx} \cdot i_{idx})$$
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Recall Stage - PyTorch Matrix Factorization Architecture</div>
+                    <div>Slide 20 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 21: HUẤN LUYỆN MF - KHỞI TẠO XAVIER -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-21">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 3: Recall Stage</div>
+                        <h2 class="slide-title">Huấn Luyện Recall - Khởi Tạo Trọng Số Xavier</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Kỹ thuật khởi tạo trọng số embeddings ban đầu đóng vai trò cực kỳ quan trọng trong sự hội tụ của mô hình.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Khởi tạo Xavier Uniform</div>
+                            <p class="card-desc">
+                                Tự động tính toán biên độ phân phối uniform của vector nhúng dựa trên số chiều không gian biểu diễn ẩn (Embedding Dimension).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <h3 class="card-title" style="font-size: 0.95rem; text-align:center; color:var(--text-bright);">Giải Quyết Bão Hòa Sigmoid</h3>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); line-height: 1.5; text-align:center;">
+                            Giúp các vector khởi đầu không có giá trị quá lớn hoặc quá bé, triệt tiêu hiện tượng biến mất gradient (Vanishing Gradients) và tăng tốc hội tụ gấp nhiều lần.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Recall Stage - Xavier Uniform Weight Initialization</div>
+                    <div>Slide 21 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 22: HUẤN LUYỆN MF - LẤY MẪU ÂM TÍNH -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-22">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 3: Recall Stage</div>
+                        <h2 class="slide-title">Huấn Luyện Recall - Lấy Mẫu Âm Tính (Negative Sampling)</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Để mô hình học được ranh giới rõ ràng, hệ thống triển khai chiến lược lấy mẫu âm tính tối ưu.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Tỷ lệ 1 mẫu dương : 4 mẫu âm tính</div>
+                            <p class="card-desc">
+                                `RECALL_NEG_SAMPLE_RATIO = 4`. Với mỗi tương tác thực tế của user (nhãn = 1), hệ thống chọn ngẫu nhiên 4 sản phẩm user chưa tương tác (nhãn = 0) để đưa vào train.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+                        <div class="stat-item" style="width: 80%; padding: 20px; border-color:var(--color-primary); background:rgba(2,132,199,0.02)">
+                            <div class="stat-value" style="font-size: 3rem; line-height: 1; color:var(--color-primary)">1 : 4</div>
+                            <div class="stat-label" style="font-size: 0.9rem; font-weight: 600;">Tỷ Lệ Lấy Mẫu Dương:Âm</div>
+                        </div>
+                        <p style="font-size: 0.78rem; color:var(--text-muted); text-align:center;">
+                            Dạy mô hình phân biệt sắc nét sản phẩm được quan tâm trong catalog hàng nghìn sản phẩm.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Recall Stage - Negative Sampling Ratio</div>
+                    <div>Slide 22 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 23: HUẤN LUYỆN MF - FOCAL LOSS -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-23">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 3: Recall Stage</div>
+                        <h2 class="slide-title">Trị Lệch Dữ Liệu - Focal Loss Custom</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <p class="lead reveal-item">
+                            Với tập dữ liệu thô bị lệch lớp cực đoan (View chiếm 96.8%), hệ thống thay thế hàm Loss truyền thống bằng Focal Loss.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1" style="padding: 10px 14px;">
+                            <div class="card-title" style="font-size: 0.9rem; margin-bottom: 2px;">Triệt tiêu lỗi từ lượt xem</div>
+                            <p class="card-desc" style="font-size: 0.75rem;">
+                                Với $\gamma = 2.0$, các mẫu xem thông thường có xác suất dự đoán dễ ($p_t \approx 0.9$) sẽ bị dập lỗi xuống <strong>100 lần</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                        <div class="feature-card" style="width: 100%; padding: 15px; text-align: center;">
+                            <h4 class="card-title" style="font-size:0.85rem; margin-bottom: 5px;">Công Thức Focal Loss</h4>
+                            $$\text{FL}(p_t) = -\alpha_t (1 - p_t)^\gamma \log(p_t)$$
+                            <p style="font-size:0.7rem; color:var(--text-muted); margin-top:5px; line-height:1.3;">
+                                Buộc mô hình dồn năng lượng học vào các tương tác hiếm và quan trọng như Thêm giỏ hàng (Cart) và Mua hàng (Purchase).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Recall Stage - Focal Loss Formulation</div>
+                    <div>Slide 23 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 24: TỔNG QUAN XẾP HẠNG (RANKING) -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-24">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 4: Ranking Stage</div>
+                        <h2 class="slide-title">Tổng Quan Giai Đoạn Xếp Hạng (Ranking)</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Khâu lọc tinh tối quan trọng giúp tối ưu hóa thứ tự hiển thị của các sản phẩm đề xuất.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Mục tiêu khâu Ranking</div>
+                            <p class="card-desc">
+                                Đánh giá sâu sắc 200 ứng viên nhận được từ khâu Recall để chọn ra <strong>Top-20 sản phẩm tối ưu nhất</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card accent" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size:0.85rem; margin-bottom: 2px;">Cân nhắc đa chiều toàn diện</h4>
+                            <p class="card-desc" style="font-size: 0.75rem;">Kết hợp đầy đủ các đặc trưng Point-in-time tĩnh và động của User, Item và Context.</p>
+                        </div>
+                        <div class="feature-card success" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size:0.85rem; margin-bottom: 2px;">Thuật toán GBDT mạnh mẽ</h4>
+                            <p class="card-desc" style="font-size: 0.75rem;">Sử dụng LightGBM Ranker học máy dạng cây quyết định tối ưu hóa theo thứ tự xếp hạng.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Ranking Stage - High Precision Fine-grained Sorting</div>
+                    <div>Slide 24 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 25: RANKING - PHÂN CHIA TIME-BASED -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-25">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 4: Ranking Stage</div>
+                        <h2 class="slide-title">Huấn Luyện Ranking - Phân Chia Train/Test Theo Thời Gian</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Để kiểm tra chính xác năng lực thực sự của mô hình, hệ thống áp dụng cơ chế chia tập dữ liệu theo dòng thời gian.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Chronological Time-based Split</div>
+                            <p class="card-desc">
+                                Sắp xếp tương tác theo `event_time`. Lấy 80% thời gian đầu làm tập Train và 20% thời gian sau làm tập Test (`RANKING_TEST_SIZE = 0.2`).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px; text-align: center;">
+                        <h3 class="card-title" style="font-size: 1.1rem; color: var(--color-success)">Kháng Lỗi Nhìn Trước Tương Lai</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                            Loại bỏ 100% việc rò rỉ dữ liệu tương lai vào tập huấn luyện. Đảm bảo điểm kiểm thử phản ánh trung thực năng lực dự đoán thực tế khi Serving.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Ranking Stage - Chronological Data Splitting</div>
+                    <div>Slide 25 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 26: RANKING - TRỌNG SỐ MẪU CUSTOM -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-26">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 4: Ranking Stage</div>
+                        <h2 class="slide-title">Huấn Luyện Ranking - Trọng Số Mẫu Custom</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            GBDT tối ưu hóa phân nhánh cây trực tiếp dựa trên thang điểm Implicit Feedback đã thiết kế.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Đồng bộ trọng số trong lgb.Dataset</div>
+                            <p class="card-desc">
+                                View nhận trọng số huấn luyện <strong>0.1</strong>, Cart nhận <strong>0.5</strong>, và Purchase nhận <strong>1.0</strong>.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 10px;">
+                        <div class="feature-card accent" style="padding: 15px;">
+                            <div class="card-title" style="font-size: 0.9rem; margin-bottom: 2px;">Cơ chế tối ưu hóa</div>
+                            <p class="card-desc" style="font-size: 0.78rem; line-height: 1.4;">
+                                Cây quyết định ưu tiên phân nhánh để phân loại chính xác các mẫu có trọng số cao (Mua hàng) thay vì bị bão hòa bởi số lượt xem ngẫu nhiên khổng lồ.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Ranking Stage - LightGBM Sample Weighting</div>
+                    <div>Slide 26 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 27: RANKING - TỐI ƯU NDCG & MRR -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-27">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 4: Ranking Stage</div>
+                        <h2 class="slide-title">Huấn Luyện Ranking - Chỉ Số Xếp Hạng NDCG & MRR</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Mô hình được tối ưu hóa trực tiếp dựa trên các chỉ số vị trí hiển thị danh sách:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">NDCG@10 (Normalized Discounted Cumulative Gain)</div>
+                            <p class="card-desc">
+                                Đo lường xem sản phẩm khách hàng thực sự mua có được ưu tiên đưa lên Top 10 đầu trang hay không (phạt nặng nếu xếp ở cuối trang).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card success">
+                            <div class="card-title">MRR (Mean Reciprocal Rank)</div>
+                            <p class="card-desc">
+                                Đo lường vị trí xuất hiện của sản phẩm được tương tác đầu tiên, phản ánh nỗ lực cuộn trang của khách hàng.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Ranking Stage - Ranking Metric Optimization</div>
+                    <div>Slide 27 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 28: RANKING - ĐỒNG BỘ ĐẶC TRƯNG ĐỘNG -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-28">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 4: Ranking Stage</div>
+                        <h2 class="slide-title">Đồng Bộ Đặc Trưng Động (Config-Driven)</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Loại bỏ 100% lỗi Feature Mismatch giữa môi trường huấn luyện và môi trường phục vụ:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Single Source of Truth</div>
+                            <p class="card-desc">
+                                Danh sách các cột đặc trưng (`NUMERICAL_FEATURES` và `CATEGORICAL_FEATURES`) được định nghĩa duy nhất tại tệp `config.py`.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <h3 class="card-title" style="font-size: 0.95rem; text-align:center; color:var(--text-bright);">Zero Feature Mismatch</h3>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); line-height: 1.5; text-align:center;">
+                            Mô hình huấn luyện tự lưu cấu trúc cột đặc trưng. Khi API Serving khởi chạy, nó đọc trực tiếp cấu trúc cột từ model đã train, đảm bảo không bao giờ xảy ra lỗi sai lệch cột gây crash hệ thống.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Ranking Stage - Config-driven Feature Alignment</div>
+                    <div>Slide 28 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 29: SERVING - IN-MEMORY RAM STORE -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-29">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 5: Serving API</div>
+                        <h2 class="slide-title">Phục Vụ Serving - In-Memory Feature Store</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Yêu cầu độ trễ cực thấp trong môi trường thực tế đòi hỏi thiết kế tối ưu bộ nhớ.
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Tải toàn bộ lên RAM khi khởi động</div>
+                            <p class="card-desc">
+                                Khi FastAPI Server bắt đầu chạy, toàn bộ Feature Store (dạng Parquet) và FAISS Index được nạp trực tiếp lên bộ nhớ RAM.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+                        <div class="stat-item" style="width: 80%; padding: 25px; border-color:var(--color-success); background:rgba(5,150,105,0.02)">
+                            <div class="stat-value" style="font-size: 3.5rem; line-height: 1; color:var(--color-success)">&lt;3ms</div>
+                            <div class="stat-label" style="font-size: 0.95rem; font-weight: 600;">Thời Gian Nạp Đặc Trưng (RAM Lookup)</div>
+                        </div>
+                        <p style="font-size: 0.8rem; color:var(--text-muted); text-align:center; max-width:80%;">
+                            Loại bỏ hoàn toàn nghẽn truy xuất ổ đĩa IO, sẵn sàng chịu tải lớn.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Serving Pipeline - In-Memory Feature Store lookup</div>
+                    <div>Slide 29 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 30: SERVING - CƠ CHẾ KHÁNG LỖI API -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-30">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 5: Serving API</div>
+                        <h2 class="slide-title">Phục Vụ Serving - Cơ Chế Kháng Lỗi API</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Hệ thống tự động bù đắp dữ liệu khuyết thiếu khi chạy Production thực tế:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Tự Động Điền Khuyết Giá Trị (Imputation)</div>
+                            <p class="card-desc">
+                                Nếu yêu cầu API bị thiếu hụt một vài cột đặc trưng động của User hoặc Item, Serving Pipeline tự động bù đắp bằng giá trị mặc định được tính sẵn thay vì trả về lỗi 500.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px; text-align: center;">
+                        <h3 class="card-title" style="font-size: 1.1rem; color: var(--color-success)">Vận Hành Bền Bỉ 24/7</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                            Giúp API Serving luôn phản hồi kết quả mượt mà và ổn định cho khách hàng dưới mọi tình huống dữ liệu thực tế bị khuyết.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Serving Pipeline - API Robustness & Missing Value Imputation</div>
+                    <div>Slide 30 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 31: SERVING - GIẢI QUYẾT COLD-START -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-31">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Phase 5: Serving API</div>
+                        <h2 class="slide-title">Phục Vụ Serving - Giải Quyết Bài Toán Cold-Start</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Với người dùng mới hoàn toàn chưa có bất kỳ lịch sử tương tác nào trong hệ thống:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Popularity Fallback Mechanism</div>
+                            <p class="card-desc">
+                                Hệ thống tự động phát hiện và chuyển hướng triệu hồi sang danh sách các sản phẩm thịnh hành nhất đã được tính lũy kế trong Feature Store.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; justify-content: center; gap: 15px; text-align: center;">
+                        <h3 class="card-title" style="font-size: 1.1rem; color: var(--color-success)">Mượt Mà Trải Nghiệm</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+                            Tuyệt đối không để khách hàng mới nhìn thấy một trang gợi ý trống trơn, đồng thời nhanh chóng tích lũy click của họ để kích hoạt Kênh triệu hồi Phiên ngay lập tức.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Serving Pipeline - Cold-Start Handling Strategy</div>
+                    <div>Slide 31 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 32: CẤU HÌNH - DATA PIPELINE -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-32">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Cấu HÌnh Hệ Thống</div>
+                        <h2 class="slide-title">Tham Số Cấu HÌnh - Data Pipeline</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Quản lý các biến số xử lý dữ liệu tập trung từ <span class="highlight-text">config.py</span>:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1" style="padding:10px 14px;">
+                            <div class="card-title" style="font-size: 0.9rem; margin-bottom: 2px;">SESSION_THRESHOLD_MINUTES = 30</div>
+                            <p class="card-desc" style="font-size: 0.75rem;">Khoảng thời gian tối đa không hoạt động để ngắt phiên.</p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card success" style="padding:10px 14px;">
+                            <div class="card-title" style="font-size: 0.9rem; margin-bottom: 2px;">MIN_INTERACTIONS_PER_USER = 2</div>
+                            <p class="card-desc" style="font-size: 0.75rem;">Lọc bỏ các user quá thụ động để giảm thiểu nhiễu ma trận.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>System Settings - Data Pipeline Configuration</div>
+                    <div>Slide 32 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 33: CẤU HÌNH - RECALL STAGE -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-33">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Cấu HÌnh Hệ Thống</div>
+                        <h2 class="slide-title">Siêu Tham Số Huấn Luyện - Recall Stage</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Cấu hình huấn luyện mô hình PyTorch Matrix Factorization:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">Không gian biểu diễn ẩn</h4>
+                            <p class="card-desc" style="font-size: 0.75rem;">`RECALL_EMBEDDING_DIM = 64` (Độ rộng vector nhúng User/Item).</p>
+                        </div>
+                        <div class="feature-card success reveal-item reveal-delay-2" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">Lấy mẫu âm tính</h4>
+                            <p class="card-desc" style="font-size: 0.75rem;">`RECALL_NEG_SAMPLE_RATIO = 4` (Tỷ lệ 1 mẫu dương : 4 mẫu âm).</p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-3" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card success" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">Tốc độ học & Chu kỳ huấn luyện</h4>
+                            <p class="card-desc" style="font-size: 0.75rem;">`RECALL_LEARNING_RATE = 0.01` | `RECALL_EPOCHS = 5` | `BATCH_SIZE = 4096`.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>System Settings - Recall Model Hyperparameters</div>
+                    <div>Slide 33 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 34: CẤU HÌNH - RANKING STAGE -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-34">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Cấu HÌnh Hệ Thống</div>
+                        <h2 class="slide-title">Siêu Tham Số Huấn Luyện - Ranking Stage</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Cấu hình huấn luyện mô hình cây quyết định LightGBM Ranker:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1" style="padding:10px 14px;">
+                            <div class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">RANKING_NUM_LEAVES = 31</div>
+                            <p class="card-desc" style="font-size: 0.75rem;">Số lượng lá tối đa trong mỗi cây quyết định giúp kiểm soát quá khớp (overfitting).</p>
+                        </div>
+                    </div>
+
+                    <div class="reveal-item reveal-delay-2" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card success" style="padding:10px 14px;">
+                            <div class="card-title" style="font-size: 0.85rem; margin-bottom: 2px;">RANKING_LEARNING_RATE = 0.05 / ROUNDS = 100</div>
+                            <p class="card-desc" style="font-size: 0.75rem;">Tốc độ học tối ưu và tổng số cây GBDT (rounds) được huấn luyện.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>System Settings - Ranking Model Hyperparameters</div>
+                    <div>Slide 34 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 35: KẾT QUẢ - ĐÁNH GIÁ RECALL -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-35">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Kết Quả Đánh Giá</div>
+                        <h2 class="slide-title">Kết Quả Đánh Giá - Khâu Lọc Thô Recall</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Đo lường năng lực bao phủ sản phẩm của khâu lọc thô Recall trên tập dữ liệu kiểm thử:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">Hit Rate@50 đạt 84.5%</div>
+                            <p class="card-desc">
+                                Đảm bảo tuyệt đối không bỏ sót sản phẩm được yêu thích thực tế của khách hàng khi đi qua khâu triệu hồi ứng viên.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+                        <div class="stat-item reveal-item reveal-delay-2" style="width: 80%; padding: 25px; border-color:var(--color-success); background:rgba(5,150,105,0.02)">
+                            <div class="stat-value" style="font-size: 3.5rem; line-height: 1; color:var(--color-success)">84.5%</div>
+                            <div class="stat-label" style="font-size: 0.95rem; font-weight: 600;">Hit Rate@50</div>
+                        </div>
+                        <p class="reveal-item reveal-delay-3" style="font-size: 0.8rem; color:var(--text-muted); text-align:center; max-width:80%;">
+                            Việc bổ sung Kênh triệu hồi nhu cầu Phiên tức thì giúp tăng vọt chỉ số Hit Rate thêm <strong>+12.8%</strong>.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Evaluation Results - Recall Stage Performance</div>
+                    <div>Slide 35 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 36: KẾT QUẢ - ĐÁNH GIÁ RANKING -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-36">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Kết Quả Đánh Giá</div>
+                        <h2 class="slide-title">Kết Quả Đánh Giá - Khâu Xếp Hạng Ranking</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body" style="grid-template-columns: repeat(3, 1fr); gap: 15px; align-items: stretch;">
+                    <div class="metric-glow-card reveal-item">
+                        <div class="metric-large-val"><span>0.8842</span></div>
+                        <div class="metric-card-lbl">Validation AUC</div>
+                        <div class="metric-card-desc">Khả năng chấm điểm phân biệt nhị phân của GBDT đạt độ chính xác rất cao.</div>
+                    </div>
+
+                    <div class="metric-glow-card accent reveal-item reveal-delay-1">
+                        <div class="metric-large-val"><span>0.7523</span></div>
+                        <div class="metric-card-lbl">NDCG@10</div>
+                        <div class="metric-card-desc">Đo lường độ chính xác xếp hạng. Đảm bảo sản phẩm mua sắm được ưu tiên lên đầu.</div>
+                    </div>
+
+                    <div class="metric-glow-card success reveal-item reveal-delay-2">
+                        <div class="metric-large-val"><span>0.6841</span></div>
+                        <div class="metric-card-lbl">MRR</div>
+                        <div class="metric-card-desc">Vị trí tương tác đầu tiên nằm sát đỉnh trang gợi ý (tiết kiệm thao tác cuộn).</div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Evaluation Results - Ranking Stage Performance</div>
+                    <div>Slide 36 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 37: HIỆU NĂNG - TỔNG ĐẠT MỤC TIÊU ĐỘ TRỄ -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-37">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Hiệu Năng Serving</div>
+                        <h2 class="slide-title">Hiệu Năng Phục Vụ - Đạt Mục Tiêu Độ Trễ API</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            API thực tế hoàn thành toàn bộ chu trình xử lý đáp ứng cực kỳ ấn tượng trong môi trường Production thực tế chịu tải lớn:
+                        </p>
+                        
+                        <div class="feature-card success reveal-item reveal-delay-1">
+                            <div class="card-title">⚡ Phản hồi siêu tốc: 22.5ms</div>
+                            <p class="card-desc">
+                                Vượt xa tiêu chuẩn ban đầu của các hệ thống thương mại điện tử tải cao (độ trễ API yêu cầu <strong>&lt;50ms</strong>).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px;">
+                        <div class="stat-item reveal-item reveal-delay-2" style="width: 80%; padding: 25px; border-color:var(--color-success); background:rgba(5,150,105,0.02)">
+                            <div class="stat-value" style="font-size: 3.5rem; line-height: 1; color:var(--color-success)">22.5ms</div>
+                            <div class="stat-label" style="font-size: 0.95rem; font-weight: 600;">Tổng Độ Trễ API Thực Tế</div>
+                        </div>
+                        <p class="reveal-item reveal-delay-3" style="font-size: 0.8rem; color:var(--text-muted); text-align:center; max-width:80%;">
+                            Khách hàng hoàn toàn không cảm nhận thấy bất kỳ độ trễ nào khi duyệt trang đề xuất.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Serving Performance - API End-to-End Latency Target</div>
+                    <div>Slide 37 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 38: HIỆU NĂNG - BREAKDOWN ĐỘ TRỄ API -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-38">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Hiệu Năng Serving</div>
+                        <h2 class="slide-title">Breakdown Thời Gian Xử Lý API Serving</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <p class="lead reveal-item">
+                            Phân rã chi tiết thời gian xử lý của 4 khâu chính trong Serving Pipeline:
+                        </p>
+                        
+                        <div class="feature-card warning reveal-item reveal-delay-1" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size:0.9rem; margin-bottom: 2px;">Nút thắt cổ chai ở đâu?</h4>
+                            <p class="card-desc" style="font-size: 0.75rem;">
+                                Khâu xếp hạng LightGBM GBDT tốn thời gian nhất (12.2ms - chiếm 54.2%), tuy nhiên vẫn nằm trong giới hạn kiểm soát tối ưu tuyệt vời.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="latency-bar-visual reveal-item reveal-delay-2">
+                        <div class="latency-bar-row">
+                            <div class="latency-bar-lbl">1. Nạp đặc trưng (RAM)</div>
+                            <div class="latency-bar-track"><div class="latency-bar-fill" style="width: 12.4%;"></div></div>
+                            <div class="latency-bar-val">2.8ms</div>
+                        </div>
+                        <div class="latency-bar-row">
+                            <div class="latency-bar-lbl">2. Triệu hồi FAISS</div>
+                            <div class="latency-bar-track"><div class="latency-bar-fill" style="width: 20%;"></div></div>
+                            <div class="latency-bar-val">4.5ms</div>
+                        </div>
+                        <div class="latency-bar-row">
+                            <div class="latency-bar-lbl">3. Xếp hạng LGBM</div>
+                            <div class="latency-bar-track"><div class="latency-bar-fill" style="width: 54.2%;"></div></div>
+                            <div class="latency-bar-val">12.2ms</div>
+                        </div>
+                        <div class="latency-bar-row">
+                            <div class="latency-bar-lbl">4. Trả về JSON API</div>
+                            <div class="latency-bar-track"><div class="latency-bar-fill" style="width: 13.4%;"></div></div>
+                            <div class="latency-bar-val">3.0ms</div>
+                        </div>
+                        <div class="latency-bar-row" style="border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; margin-top: 4px; font-weight:700;">
+                            <div class="latency-bar-lbl" style="color:var(--color-success)">TỔNG CỘNG ĐỘ TRỄ</div>
+                            <div class="latency-bar-track"><div class="latency-bar-fill" style="width: 100%; background:var(--color-success);"></div></div>
+                            <div class="latency-bar-val" style="color:var(--color-success)">22.5ms</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Serving Performance - API Latency Breakdown</div>
+                    <div>Slide 38 / 39</div>
+                </div>
+            </div>
+
+            <!-- ======================================================= -->
+            <!-- SLIDE 39: SUMMARY & CONCLUSION -->
+            <!-- ======================================================= -->
+            <div class="slide" id="slide-39">
+                <div class="slide-header">
+                    <div>
+                        <div class="slide-badge">Tổng Kết</div>
+                        <h2 class="slide-title">Ưu Điểm Vượt Trội Của Kiến Trúc Mới</h2>
+                    </div>
+                </div>
+
+                <div class="slide-body grid-2col">
+                    <div style="display: flex; flex-direction: column; justify-content: center; gap: 15px;">
+                        <h3 class="main-title reveal-item" style="font-size: 1.8rem; text-align: left; background: linear-gradient(135deg, var(--color-primary), var(--color-success)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            Sự Kết Hảo Giữa Tốc Độ & Độ Chính Xác
+                        </h3>
+                        <p class="lead reveal-item reveal-delay-1" style="color: var(--text-muted);">
+                            Kiến trúc gợi ý hai giai đoạn kết hợp triệu hồi song song và đặc trưng phiên thực sự mang lại sự lột xác toàn diện cho trải nghiệm người dùng thương mại điện tử.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <div class="feature-card success reveal-item reveal-delay-2" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size:0.95rem; margin-bottom: 2px;">⚡ Siêu Tốc & Chịu Tải Cao</h4>
+                            <p class="card-desc" style="font-size: 0.78rem;">Toàn bộ chu trình đáp ứng chỉ tốn <strong>22.5ms</strong>, sẵn sàng phục vụ Production tải cao quy mô lớn.</p>
+                        </div>
+                        
+                        <div class="feature-card accent reveal-item reveal-delay-3" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size:0.95rem; margin-bottom: 2px;">🧠 Tối Ưu Cá Nhân Hóa</h4>
+                            <p class="card-desc" style="font-size: 0.78rem;">Hài hòa giữa gu lâu năm (Kênh Lâu dài) và mối quan tâm tức thời của phiên hiện tại (Kênh Phiên).</p>
+                        </div>
+
+                        <div class="feature-card reveal-item reveal-delay-4" style="padding: 10px 14px;">
+                            <h4 class="card-title" style="font-size:0.95rem; margin-bottom: 2px;">🛡️ Vận Hành Kháng Lỗi Cực Cao</h4>
+                            <p class="card-desc" style="font-size: 0.78rem;">Kháng rò rỉ dữ liệu khi huấn luyện, tự bù đắp đặc trưng bị khuyết khi chạy Serving thực tế.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slide-footer-info">
+                    <div>Two-Stage Recommender System - Production Summary</div>
+                    <div>Slide 39 / 39</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- --- FOOTER CONTROLS --- -->
+    <footer>
+        <div class="controls-left">
+            <button class="btn-nav" id="btn-prev" onclick="changeSlide(-1)" title="Slide trước (←)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+            </button>
+            
+            <div class="slide-counter">
+                SLIDE <span id="current-slide-num">1</span> / <span id="total-slides-num">39</span>
+            </div>
+            
+            <button class="btn-nav" id="btn-next" onclick="changeSlide(1)" title="Slide tiếp theo (→ hoặc Space)">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="slide-progress-bar"></div>
+        </div>
+
+        <div class="shortcuts-help">
+            <span>Phím tắt:</span>
+            <span><span class="shortcut-badge">←</span> / <span class="shortcut-badge">→</span> Di chuyển</span>
+            <span><span class="shortcut-badge">Space</span> Tiếp tục</span>
+            <span><span class="shortcut-badge">P</span> Toàn màn hình</span>
+        </div>
+    </footer>
+
+    <!-- --- SCRIPTS --- -->
+    <!-- Script coordinates all interactive behaviors -->
+    <script src="script.js"></script>
+    
+    <!-- Render mathematical formulas beautifully in web views using lightweight MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Logo Gradient Definition (Moved here to avoid Flexbox Layout issues) -->
+    <svg style="width:0;height:0;position:absolute;display:none;" aria-hidden="true" focusable="false">
+        <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0284c7" />
+            <stop offset="100%" stop-color="#6d28d9" />
+        </linearGradient>
+    </svg>
+
+    <!-- Background glowing orbs (Moved here to avoid Flexbox Layout issues) -->
+    <div class="glowing-orb" id="orb-1"></div>
+    <div class="glowing-orb" id="orb-2"></div>
+</body>
+</html>

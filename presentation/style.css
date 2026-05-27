@@ -1,0 +1,1065 @@
+/* ==========================================================================
+   PRODUCTION-GRADE DESIGN SYSTEM & STYLESHEET FOR PRESENTATION
+   OPTIMIZED FOR 60FPS SMOOTH PERFORMANCE (ZERO-LAG GPU ACCELERATED)
+   SUPERSIZED FOR MAXIMUM READABILITY (CINEMATIC GIANT FRAME)
+   MAXIMIZED TYPOGRAPHY SCALE FOR IMPRESSIVE VISUAL IMPACT (SUPER-BIG TEXT)
+   OVERRIDING HARDCODED INLINE STYLES WITH !IMPORTANT RULES
+   ========================================================================== */
+
+:root {
+    --bg-main: #f8fafc;           /* Light cool gray background */
+    --bg-card: rgba(255, 255, 255, 0.9); /* Frosted white premium glass */
+    --bg-card-hover: rgba(255, 255, 255, 0.98);
+    --border-color: rgba(148, 163, 184, 0.12); /* Soft slate border */
+    --border-hover: rgba(14, 165, 233, 0.4);
+    
+    --color-primary: #0284c7;     /* Sky Blue */
+    --color-secondary: #2563eb;   /* Cobalt Blue */
+    --color-accent: #6d28d9;      /* Rich Violet Purple */
+    --color-pink: #db2777;        /* Rose Pink-Red */
+    --color-success: #059669;     /* Emerald Green */
+    --color-warning: #d97706;     /* Amber Orange */
+    
+    --text-main: #334155;         /* Deep slate gray for body text */
+    --text-muted: #64748b;        /* Slate gray for secondary text */
+    --text-bright: #0f172a;       /* Dark charcoal for headers */
+    
+    --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'Fira Code', monospace;
+    
+    --shadow-glow: 0 0 35px rgba(14, 165, 233, 0.15);
+    --shadow-glow-accent: 0 0 35px rgba(109, 40, 217, 0.15);
+    --shadow-card: 0 20px 40px rgba(15, 23, 42, 0.06);
+    
+    --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    
+    /* Optimized transition: only transition transform and opacity which are GPU compositor friendly */
+    --transition-slide: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                        opacity 0.5s ease-out,
+                        visibility 0.6s;
+}
+
+/* --- BASE RESET --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    background-image: 
+        radial-gradient(circle at 5% 15%, rgba(109, 40, 217, 0.03) 0%, transparent 45%),
+        radial-gradient(circle at 95% 85%, rgba(14, 165, 233, 0.03) 0%, transparent 45%);
+    transition: padding 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Ambient Glowing Orbs - Simplifed filters to improve rendering performance */
+.glowing-orb {
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    border-radius: 50%;
+    pointer-events: none;
+    filter: blur(95px);
+    z-index: 0;
+    opacity: 0.18;
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#orb-1 {
+    background: radial-gradient(circle, var(--color-primary) 0%, transparent 70%);
+    top: -100px;
+    right: 15%;
+}
+
+#orb-2 {
+    background: radial-gradient(circle, var(--color-accent) 0%, transparent 70%);
+    bottom: -100px;
+    left: 15%;
+}
+
+/* --- APP HEADER --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 60px;
+    z-index: 10;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                opacity 0.4s ease, 
+                height 0.5s, 
+                padding 0.5s;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.logo-icon {
+    width: 32px;
+    height: 32px;
+    fill: url(#logo-grad);
+}
+
+.logo-text {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.45rem;
+    letter-spacing: 0.5px;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.project-tag {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    background: rgba(14, 165, 233, 0.05);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(14, 165, 233, 0.15);
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* --- CINEMATIC SUPERSIZED SLIDE VIEWER CONTAINER --- */
+.presentation-container {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 50px;
+    position: relative;
+    z-index: 5;
+    transition: padding 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide-wrapper {
+    width: 96vw;
+    max-width: 1440px;  /* Supersized slide width for cinematic display */
+    height: 78vh;
+    max-height: 720px;  /* Taller slide height to maximize content visibility */
+    position: relative;
+    overflow: hidden; 
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- HIGH-PERFORMANCE SLIDE CARDS (NO FILTER BLUR / 2D GPU ACCELERATED) --- */
+.slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    visibility: hidden; /* Hide completely from rendering tree when inactive */
+    pointer-events: none;
+    transform: translate3d(100%, 0, 0); /* Start off-screen right */
+    
+    /* GPU Hardware Acceleration Promotion */
+    will-change: transform, opacity;
+    
+    transition: var(--transition-slide);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 28px; /* Bigger rounded corners */
+    padding: 45px 60px;  /* Expanded breathing room inside slide */
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Slide Transition States */
+.slide.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate3d(0, 0, 0); /* Center on-screen */
+    z-index: 5;
+    /* Apply backdrop blur ONLY on the active slide to conserve GPU resources */
+    backdrop-filter: blur(12px);
+}
+
+.slide.exit-left {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate3d(-100%, 0, 0); /* Slide out left */
+}
+
+.slide.enter-right {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translate3d(100%, 0, 0); /* Slide in right */
+}
+
+/* Slide Header */
+.slide-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.slide-badge {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--color-accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+}
+
+.slide-badge::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-accent);
+}
+
+.slide-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem; /* Supersized title text for massive visual impact */
+    font-weight: 800;
+    color: var(--text-bright);
+    margin-top: 8px;
+    letter-spacing: -1px;
+    line-height: 1.25;
+}
+
+.slide-title span {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Slide Body Layouts */
+.slide-body {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+    align-items: center;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.08) transparent;
+}
+
+.grid-2col {
+    grid-template-columns: 1.15fr 0.85fr;
+}
+
+/* Slide Footer details */
+.slide-footer-info {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid rgba(148, 163, 184, 0.08);
+    padding-top: 15px;
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* --- LIGHTWEIGHT REVEAL ANIMATIONS (NO SLOW FILTERS) --- */
+.reveal-item {
+    opacity: 0;
+    transform: translate3d(0, 15px, 0);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+}
+
+.active .reveal-item {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+}
+
+.active .reveal-delay-1 { transition-delay: 0.12s; }
+.active .reveal-delay-2 { transition-delay: 0.24s; }
+.active .reveal-delay-3 { transition-delay: 0.36s; }
+.active .reveal-delay-4 { transition-delay: 0.48s; }
+
+/* --- TYPOGRAPHY UTILITIES --- */
+p.lead {
+    font-size: 1.55rem !important; /* Expanded lead text for extreme cinematic visibility */
+    line-height: 1.7 !important;
+    color: var(--text-main) !important;
+    font-weight: 300 !important;
+}
+
+.highlight-text {
+    color: var(--color-primary);
+    font-weight: 600;
+}
+
+/* --- PREMIUM INTERACTIVE CARDS (GIANT FONT SCALE) --- */
+.feature-card {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 26px 32px; /* Extra spacious card padding */
+    transition: var(--transition-smooth);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.005);
+}
+
+.feature-card:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-hover);
+    transform: translate3d(0, -2px, 0);
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: var(--color-primary);
+    opacity: 0.85;
+}
+
+.feature-card.accent::before { background: var(--color-accent); }
+.feature-card.pink::before { background: var(--color-pink); }
+.feature-card.success::before { background: var(--color-success); }
+.feature-card.warning::before { background: var(--color-warning); }
+
+.card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    color: var(--color-primary);
+    font-size: 1.35rem;
+}
+
+.accent .card-icon { color: var(--color-accent); }
+.pink .card-icon { color: var(--color-pink); }
+.success .card-icon { color: var(--color-success); }
+
+/* ==========================================================================
+   FORCE HIGH-IMPACT TYPOGRAPHY TO OVERRIDE ALL HARDCODED INLINE FONT SIZES
+   ========================================================================== */
+
+/* Enforce giant scale on all paragraph explanations and card descriptions */
+.slide-body p, 
+.slide-body .card-desc,
+.slide-body div[style*="font-size"] p {
+    font-size: 1.45rem !important; /* Base large size for standard mode */
+    line-height: 1.65 !important;
+    font-weight: 300 !important;
+    color: var(--text-main) !important;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Enforce giant scale on all card titles / section headers */
+.slide-body h3, 
+.slide-body .card-title,
+.slide-body div[style*="font-size"] h3 {
+    font-size: 1.8rem !important; /* Base large size for standard mode */
+    font-weight: 800 !important;
+    letter-spacing: -0.5px !important;
+    color: var(--text-bright) !important;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Special Success and Warning titles overrides */
+.slide-body h3[style*="color-success"], 
+.slide-body h3[style*="var(--color-success)"] {
+    color: var(--color-success) !important;
+}
+
+/* Maintain distinct text colors for muted text elements */
+.slide-body p[style*="color-muted"],
+.slide-body p[style*="var(--text-muted)"] {
+    color: var(--text-muted) !important;
+}
+
+/* --- EXCEPTION: PRESERVE METRICS, TABLES, & CHARTS FROM GIANT P SCALE --- */
+.config-table td, 
+.config-table th {
+    font-size: 1.15rem !important;
+    line-height: 1.4 !important;
+    font-weight: 400 !important;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.config-table th {
+    font-weight: 700 !important;
+}
+
+.latency-bar-lbl, 
+.latency-bar-val, 
+.chart-bar-labels span {
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chart-bar-labels span:not(.highlight-text) {
+    font-weight: 500 !important;
+}
+
+/* --- SLIDE 1: ULTRA-MINIMALIST TITLE SLIDE --- */
+.title-slide-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    height: 100%;
+    position: relative;
+}
+
+.main-title {
+    font-family: var(--font-display);
+    font-size: 3.8rem;
+    font-weight: 850;
+    line-height: 1.15;
+    color: var(--text-bright);
+    letter-spacing: -1.5px;
+    margin-bottom: 15px;
+    background: linear-gradient(135deg, #0f172a 20%, #475569 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glow-title {
+    font-size: 1.65rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: 45px;
+    letter-spacing: 0.5px;
+    font-family: var(--font-display);
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.title-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(14, 165, 233, 0.07);
+    border: 1px solid rgba(14, 165, 233, 0.2);
+    color: var(--color-primary);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 0.95rem;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    margin-bottom: 25px;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- SLIDE 2: TIMELINE ROADMAP --- */
+.timeline-container {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    padding: 40px 0;
+    width: 100%;
+}
+
+.timeline-line {
+    position: absolute;
+    top: 50%;
+    left: 6%;
+    width: 88%;
+    height: 2px;
+    background: rgba(0, 0, 0, 0.05);
+    z-index: 1;
+    transform: translateY(-50%);
+}
+
+.timeline-progress {
+    position: absolute;
+    top: 50%;
+    left: 6%;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    z-index: 2;
+    transform: translateY(-50%);
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 10px var(--color-primary);
+}
+
+.timeline-step {
+    position: relative;
+    z-index: 3;
+    width: 18%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: var(--transition-bounce);
+}
+
+.timeline-step:hover {
+    transform: translate3d(0, -4px, 0);
+}
+
+.timeline-dot {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 2px solid rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.35rem;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    transition: var(--transition-smooth);
+}
+
+.timeline-step.active .timeline-dot {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: rgba(14, 165, 233, 0.06);
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.25);
+    transform: scale(1.15);
+}
+
+.timeline-step.completed .timeline-dot {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background: rgba(109, 40, 217, 0.06);
+    box-shadow: 0 0 12px rgba(109, 40, 217, 0.15);
+}
+
+.timeline-content {
+    text-align: center;
+}
+
+.timeline-phase {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    font-weight: 700;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timeline-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-bright);
+    line-height: 1.35;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- STATS GRID --- */
+.chart-box {
+    background: rgba(0, 0, 0, 0.012);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.chart-bar-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.chart-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.chart-bar-bg {
+    height: 16px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.chart-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    width: 0%;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: width;
+}
+
+.fill-view { background: var(--color-primary); }
+.fill-cart { background: var(--color-warning); }
+.fill-purchase { background: var(--color-pink); }
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    font-weight: 800;
+    color: var(--color-primary);
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-label {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 4px;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- LATENCY VISUALIZER --- */
+.latency-bar-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(0,0,0,0.012);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 24px;
+}
+
+.latency-bar-row {
+    display: grid;
+    grid-template-columns: 220px 1fr 80px;
+    align-items: center;
+    gap: 14px;
+}
+
+.latency-bar-lbl {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.latency-bar-track {
+    height: 18px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 9px;
+    overflow: hidden;
+}
+
+.latency-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+    border-radius: 9px;
+    width: 0%;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: width;
+}
+
+.latency-bar-val {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-align: right;
+    color: var(--text-bright);
+}
+
+/* --- GLOWING METRICS --- */
+.metric-glow-card {
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.005);
+    transition: var(--transition-bounce);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.metric-glow-card:hover {
+    transform: translate3d(0, -4px, 0);
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-glow);
+}
+
+.metric-glow-card.accent:hover {
+    box-shadow: var(--shadow-glow-accent);
+}
+
+.metric-large-val {
+    font-family: var(--font-display);
+    font-size: 3.8rem;
+    font-weight: 850;
+    color: var(--color-primary);
+    line-height: 1.1;
+    margin-bottom: 8px;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.accent .metric-large-val { color: var(--color-accent); }
+.success .metric-large-val { color: var(--color-success); }
+
+.metric-card-lbl {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--text-bright);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.metric-card-desc {
+    font-size: 1.1rem !important;
+    line-height: 1.45 !important;
+    color: var(--text-muted) !important;
+    transition: font-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- APP FOOTER CONTROLS --- */
+footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 60px;
+    background: rgba(255, 255, 255, 0.85);
+    border-top: 1px solid var(--border-color);
+    z-index: 10;
+    backdrop-filter: blur(10px);
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), 
+                opacity 0.4s ease, 
+                height 0.5s, 
+                padding 0.5s;
+}
+
+.controls-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-nav {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-main);
+    transition: var(--transition-smooth);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.btn-nav:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    transform: scale(1.08);
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.12);
+}
+
+.btn-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.slide-counter {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-muted);
+}
+
+.progress-bar-container {
+    flex-grow: 1;
+    max-width: 500px;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 3px;
+    margin: 0 40px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+    border-radius: 3px;
+    transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 0 10px var(--color-primary);
+}
+
+.shortcuts-help {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.shortcut-badge {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    color: var(--text-bright);
+}
+
+/* ==========================================================================
+   HTML5 FULLSCREEN SYSTEM & EXTREME MEGA CINEMATIC TYPOGRAPHY
+   ========================================================================== */
+
+.fullscreen-active header {
+    transform: translateY(-100%);
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    border: none;
+    pointer-events: none;
+}
+
+.fullscreen-active footer {
+    transform: translateY(100%);
+    opacity: 0;
+    height: 0;
+    padding: 0;
+    border: none;
+    pointer-events: none;
+}
+
+.fullscreen-active .presentation-container {
+    height: 100vh;
+    width: 100vw;
+    padding: 0px;
+    margin: 0px;
+}
+
+.fullscreen-active .slide-wrapper {
+    width: 98vw;
+    height: 96vh;
+    max-width: none;
+    max-height: none;
+}
+
+.fullscreen-active .slide {
+    border-radius: 20px;
+    padding: 60px 80px; /* Extra spacious padding */
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.08);
+}
+
+/* --------------------------------------------------------------------------
+   MEGA TYPOGRAPHY UPSCALE - ACTIVATES ONLY IN FULLSCREEN ('P' MODE)
+   -------------------------------------------------------------------------- */
+
+/* 1. Main Title of Slides */
+.fullscreen-active .slide-title {
+    font-size: 3.2rem !important; /* Supersized giant title */
+    margin-top: 10px !important;
+}
+
+/* 2. Subtitle of Slides */
+.fullscreen-active p.lead {
+    font-size: 1.95rem !important; /* Supersized lead text */
+    line-height: 1.75 !important;
+}
+
+/* 3. Outer column explanation paragraphs (Enforced) */
+.fullscreen-active .slide-body p, 
+.fullscreen-active .slide-body div[style*="font-size"] p {
+    font-size: 1.75rem !important; /* Mega Cinematic Body text: extremely legible from far away! */
+    line-height: 1.7 !important;
+    font-weight: 300 !important;
+}
+
+/* 4. Column subheaders (Enforced) */
+.fullscreen-active .slide-body h3, 
+.fullscreen-active .slide-body div[style*="font-size"] h3 {
+    font-size: 2.2rem !important; /* Mega inner titles */
+    font-weight: 800 !important;
+    margin-bottom: 12px !important;
+}
+
+/* 5. Feature Card Custom Enlargements */
+.fullscreen-active .feature-card {
+    padding: 30px 42px !important; /* Add massive margins and breathing space */
+    border-radius: 24px !important;
+}
+
+.fullscreen-active .feature-card .card-title {
+    font-size: 2.15rem !important; /* Giant card titles inside fullscreen */
+    margin-bottom: 10px !important;
+}
+
+.fullscreen-active .feature-card .card-desc,
+.fullscreen-active .feature-card p {
+    font-size: 1.7rem !important; /* Giant card description inside fullscreen */
+    line-height: 1.65 !important;
+}
+
+/* 6. Glowing Metrics Extreme Scale */
+.fullscreen-active .metric-glow-card {
+    padding: 35px 25px !important;
+    border-radius: 24px !important;
+}
+
+.fullscreen-active .metric-large-val {
+    font-size: 4.8rem !important; /* Massive giant performance numbers! */
+    margin-bottom: 12px !important;
+}
+
+.fullscreen-active .metric-card-lbl {
+    font-size: 1.45rem !important;
+    letter-spacing: 1.5px !important;
+    margin-bottom: 10px !important;
+}
+
+.fullscreen-active .metric-card-desc {
+    font-size: 1.3rem !important;
+    line-height: 1.5 !important;
+}
+
+/* 7. Slide 2: Timeline Steps scale up */
+.fullscreen-active .timeline-dot {
+    width: 58px !important; /* Giant dots */
+    height: 58px !important;
+    font-size: 1.65rem !important;
+    border-width: 3px !important;
+}
+
+.fullscreen-active .timeline-phase {
+    font-size: 1.05rem !important;
+    margin-bottom: 6px !important;
+}
+
+.fullscreen-active .timeline-title {
+    font-size: 1.35rem !important;
+    line-height: 1.4 !important;
+}
+
+/* 8. Slide 1: Welcome elements scale up */
+.fullscreen-active .main-title {
+    font-size: 4.6rem !important; /* Massive cinematic welcome title */
+    margin-bottom: 20px !important;
+}
+
+.fullscreen-active .glow-title {
+    font-size: 2.1rem !important;
+    margin-bottom: 60px !important;
+}
+
+.fullscreen-active .title-badge {
+    font-size: 1.2rem !important;
+    padding: 12px 24px !important;
+    margin-bottom: 30px !important;
+}
+
+/* 9. Configuration Tables scale up */
+.fullscreen-active .config-table {
+    font-size: 1.45rem !important; /* Massive config text */
+}
+
+.fullscreen-active .config-table th {
+    padding: 18px 22px !important;
+    border-bottom: 3px solid var(--border-color) !important;
+}
+
+.fullscreen-active .config-table td {
+    padding: 18px 22px !important;
+}
+
+/* 10. Latency Bars scale up */
+.fullscreen-active .latency-bar-row {
+    grid-template-columns: 280px 1fr 100px !important; /* Extra width for giant labels */
+    gap: 20px !important;
+}
+
+.fullscreen-active .latency-bar-lbl {
+    font-size: 1.45rem !important; /* Huge step labels */
+}
+
+.fullscreen-active .latency-bar-track {
+    height: 22px !important; /* Thicker tracks */
+}
+
+.fullscreen-active .latency-bar-val {
+    font-size: 1.45rem !important; /* Huge value indicators */
+}
+
+/* 11. Imbalance Chart elements scale up */
+.fullscreen-active .chart-box {
+    padding: 30px !important;
+    gap: 22px !important;
+}
+
+.fullscreen-active .chart-bar-labels {
+    font-size: 1.35rem !important; /* Giant chart indicators */
+}
+
+.fullscreen-active .chart-bar-bg {
+    height: 22px !important; /* Thicker chart bars */
+}
+
+.fullscreen-active .stat-item {
+    padding: 24px !important;
+    border-radius: 18px !important;
+}
+
+.fullscreen-active .stat-value {
+    font-size: 3.6rem !important; /* Giant stats value */
+}
+
+.fullscreen-active .stat-label {
+    font-size: 1.35rem !important;
+    margin-top: 6px !important;
+}
