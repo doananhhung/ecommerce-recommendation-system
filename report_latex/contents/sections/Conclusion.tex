@@ -1,0 +1,29 @@
+\chapter{Kết luận và Hướng phát triển}
+
+\section{Tổng kết các kết quả đạt được}
+Dự án nghiên cứu xây dựng \textbf{Hệ thống Gợi ý Hai Giai Đoạn tiêu chuẩn công nghiệp} đã hoàn thành trọn vẹn và đạt được các kết quả xuất sắc về mặt học thuật lẫn thực chiến công nghiệp:
+1.  \textbf{Kiến trúc Two-Stage vững chắc:} Triển khai thành công phễu lọc thô triệu hồi PyTorch + FAISS song song hai kênh (gu lâu dài \& bối cảnh phiên tức thì) cùng khâu xếp hạng chi tiết LightGBM GBDT, đảm bảo phản hồi trực tuyến siêu tốc \textbf{22.5 ms} (vượt xa yêu cầu công nghiệp $<50$ms).
+2.  \textbf{Cơ chế kháng rò rỉ Point-in-time:} Loại bỏ hoàn toàn lỗi Data Leakage nghiêm trọng bằng đường ống trích xuất đặc trưng lũy kế progressive Point-in-time.
+3.  \textbf{Giải quyết lệch phân phối Train-on-Recall:} Xóa bỏ triệt để lỗi Train-Test Distribution Mismatch thông qua kịch bản huấn luyện xếp hạng trên chính không gian ứng viên triệu hồi thực tế, giúp tăng vọt Validation AUC lên \textbf{0.9601} (+50.6\%) và NDCG@10 tăng \textbf{31.9\%}.
+4.  \textbf{Serving kháng lỗi tối ưu:} Xây dựng API FastAPI in-memory hiệu năng cao tích hợp cơ chế tự động bù đặc trưng thiếu và Cold-Start Fallback, đảm bảo API vận hành bền bỉ 24/7.
+
+\section{Phân tích các vấn đề dữ liệu còn tồn đọng (Data Issues)}
+Mặc dù hệ thống đạt được hiệu năng và độ chính xác vô cùng ấn tượng, quá trình audit codebase đã phát hiện một số vấn đề dữ liệu còn tồn đọng cần được giải quyết trong giai đoạn tiếp theo:
+*   \textbf{Tính chất mất cân bằng lớp cực đoan:} Tỷ lệ chuyển đổi dương (label 1) chỉ chiếm vỏn vẹn $0.09\%$ trong tập kiểm thử xếp hạng (299 tương tác chuyển đổi trên 320,000+ dòng dữ liệu). Hầu hết các phiên kiểm thử không chứa hành vi mua hàng thực tế làm NDCG trung bình toàn hệ thống bị kéo thấp xuống.
+*   \textbf{Đánh giá Recall chưa cách ly hoàn toàn:} Giai đoạn triệu hồi thô hiện tại đang đo lường Hit Rate@50 trực tiếp trên cùng tập dữ liệu huấn luyện do kích thước dữ liệu snapshot hạn chế. Điều này tạo ra một khoảng trống đánh giá (Evaluation Gap), có nguy cơ quá khớp (overfitting) ma trận nhúng của người dùng và sản phẩm.
+
+\section{Kế hoạch cải thiện dữ liệu và hệ thống (Data Improvement Plan)}
+Để tiếp tục nâng cao hiệu năng hệ thống lên tầm cao mới, chúng em đề xuất kế hoạch cải thiện dữ liệu và nâng cấp hệ thống chi tiết bao gồm:
+
+\subsection{Kế hoạch cải thiện Dữ liệu (Data Improvement Plan)}
+\begin{itemize}
+    \item \textbf{Tăng cường tập mẫu dương (Positive Sampling Augmentation):} Thu thập thêm dữ liệu tương tác trong các khung giờ cao điểm mua sắm, áp dụng kỹ thuật sinh mẫu nhân tạo hoặc lọc bớt các phiên trống không phát sinh chuyển đổi để nâng tỷ lệ nhãn dương của tập xếp hạng từ $0.09\%$ lên khoảng $1\% - 2\%$, giúp cây quyết định LightGBM học được nhiều phân ngưỡng phân nhánh tối ưu hơn.
+    \item \textbf{Cách ly dữ liệu đánh giá Recall (Recall Evaluation Isolation):} Thực hiện phân chia tập dữ liệu huấn luyện và kiểm thử theo thời gian (Time-based Splitting) tách biệt hoàn toàn cho cả giai đoạn Recall ban đầu, đo lường Hit Rate trên tập test độc lập để kiểm chứng khách quan năng lực tổng quát hóa của embeddings.
+\end{itemize}
+
+\subsection{Kế hoạch nâng cấp Hệ thống (System Improvement Plan)}
+\begin{itemize}
+    \item \textbf{Huấn luyện Recall bằng BPR Loss (Bayesian Personalized Ranking):} Chuyển từ tối ưu phân loại độc lập từng mẫu (Focal Loss) sang tối ưu hóa thứ tự ưu tiên cặp tương quan (Pairwise Ranking) để đảm bảo sản phẩm đã tương tác luôn có điểm dot product cao hơn sản phẩm chưa tương tác, nâng cao chất lượng lọc thô của bộ triệu hồi.
+    \item \textbf{Tối ưu hóa chỉ mục FAISS HNSW:} Khi quy mô sản phẩm vượt ngưỡng 100,000+, chuyển đổi sang chỉ mục xấp xỉ phân tầng HNSW để duy trì tốc độ tìm kiếm vector KNN dưới 5ms.
+    \item \textbf{Tích hợp Feast Feature Store:} Triển khai Feast Feature Store chuyên dụng chuẩn công nghiệp để quản lý đồng bộ Online Feature Store (cho API phục vụ) và Offline Feature Store (cho đường ống huấn luyện), tự động hóa luồng cập nhật đặc trưng động.
+\end{itemize}

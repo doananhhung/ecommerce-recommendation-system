@@ -1,0 +1,13 @@
+\addcontentsline{toc}{chapter}{Tóm tắt nghiên cứu}
+
+\begin{center}
+    \Large{\textbf{Tóm tắt nghiên cứu}}
+\end{center}
+\vspace{1cm}
+
+Đồ án này tập trung nghiên cứu, thiết kế và phát triển hệ thống gợi ý sản phẩm thương mại điện tử hai giai đoạn (Two-Stage Recommender System) quy mô lớn đạt độ trễ cực thấp ($<50$ms) và độ chính xác cá nhân hóa cao. Hệ thống kết hợp cơ chế Triệu hồi song song hai kênh (Dual-Channel Recall) trên nền tảng học sâu Matrix Factorization của PyTorch cùng tìm kiếm vector lân cận gần nhất siêu tốc bằng thư viện FAISS, với giai đoạn xếp hạng chi tiết bằng thuật toán học máy dạng cây LightGBM. Để loại bỏ hiện tượng rò rỉ dữ liệu tương lai, chúng em áp dụng nguyên lý trích xuất đặc trưng Point-in-time lũy tiến. Ngoài ra, lỗi lệch phân phối dữ liệu (Train-Test Distribution Mismatch) của giai đoạn xếp hạng được giải quyết triệt để thông qua kịch bản huấn luyện trên ứng viên thực tế (Train-on-Recall). Kết quả thử nghiệm cho thấy mô hình cải tiến giúp tăng vọt chỉ số Validation AUC lên 0.9601 (+50.6\%) và NDCG@10 lên 0.0653 (+31.9\%) trong môi trường dữ liệu cực kỳ thưa thớt thực tế.
+
+\vspace{1cm}
+\noindent \textbf{Từ khóa:} Hệ thống gợi ý hai giai đoạn, Triệu hồi hai kênh, Matrix Factorization, FAISS, LightGBM, Point-in-time, Train-on-Recall.
+
+\pagebreak 

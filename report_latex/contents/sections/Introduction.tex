@@ -1,0 +1,34 @@
+\chapter{Phần Mở đầu}
+
+\section{Bối cảnh bài toán và lý do thực hiện dự án}
+Trong thời đại số hóa, thương mại điện tử (e-commerce) đã trở thành một phần không thể thiếu trong đời sống tiêu dùng toàn cầu. Với hàng triệu sản phẩm đa dạng trên các kệ hàng trực tuyến, khách hàng thường xuyên rơi vào trạng thái quá tải thông tin (information overload) khi tìm kiếm sản phẩm phù hợp. Ngược lại, doanh nghiệp cũng gặp khó khăn trong việc tiếp cận và giới thiệu đúng sản phẩm đến đối tượng khách hàng tiềm năng.
+
+Hệ thống gợi ý (Recommender Systems) ra đời như một giải pháp đột phá giải quyết mâu thuẫn này. Tuy nhiên, việc xây dựng một hệ thống gợi ý quy mô lớn trong môi trường công nghiệp thực tế đòi hỏi phải xử lý đồng thời hai thách thức:
+\begin{enumerate}
+    \item \textbf{Độ trễ phục vụ cực thấp ($<50$ms):} Đảm bảo trải nghiệm lướt ứng dụng mượt mà, không gián đoạn cho người dùng dưới điều kiện tải cao.
+    \item \textbf{Độ chính xác cá nhân hóa cao:} Khai thác hiệu quả hành vi tương tác lịch sử và bối cảnh tức thì của phiên mua sắm.
+\end{enumerate}
+Dự án nghiên cứu này được thực hiện nhằm xây dựng một hệ thống gợi ý hai giai đoạn kết hợp triệu hồi song song và xếp hạng chi tiết để giải quyết trọn vẹn hai yêu cầu khắt khe trên.
+
+\section{Mục tiêu của hệ thống gợi ý}
+Mục tiêu cụ thể của dự án bao gồm:
+\begin{itemize}
+    \item \textbf{Về mặt kiến trúc:} Thiết kế hệ thống hai giai đoạn (Two-Stage Architecture) tiêu chuẩn công nghiệp nhằm chia tách hiệu quả bài toán lọc thô (Recall) và xếp hạng chi tiết (Ranking).
+    \item \textbf{Về mặt thuật toán:} 
+        \begin{itemize}
+            \item Huấn luyện mô hình học sâu Matrix Factorization trên PyTorch kết hợp chỉ mục FAISS tìm kiếm KNN siêu tốc để thu hẹp không gian ứng viên thô.
+            \item Huấn luyện mô hình cây quyết định LightGBM chấm điểm xác suất chuyển đổi chính xác.
+        \end{itemize}
+    \item \textbf{Về mặt kỹ thuật dữ liệu:} Triển khai cơ chế trích xuất đặc trưng lũy kế Point-in-time triệt tiêu hoàn toàn rò rỉ dữ liệu tương lai và áp dụng giải pháp Train-on-Recall xóa bỏ lỗi lệch phân phối dữ liệu (Train-Test Distribution Shift).
+    \item \textbf{Về mặt triển khai serving:} Xây dựng API FastAPI hiệu năng cao, tải sẵn dữ liệu lên RAM, phản hồi trực tuyến với độ trễ thấp ($<25$ms) và có tính kháng lỗi cao.
+\end{itemize}
+
+\section{Phạm vi áp dụng và giới hạn của dự án}
+\begin{itemize}
+    \item \textbf{Phạm vi áp dụng:} Hệ thống được thiết kế tối ưu cho các nền tảng thương mại điện tử quy mô vừa đến lớn, nơi có lượng sản phẩm từ hàng chục nghìn đến hàng triệu và hành vi người dùng đa dạng (Xem, Thêm giỏ, Mua hàng).
+    \item \textbf{Giới hạn của dự án:} 
+        \begin{itemize}
+            \item Tập trung tối ưu hóa các tương tác dạng bảng và lịch sử hành vi (implicit feedback), chưa khai thác chuyên sâu dữ liệu phi cấu trúc như hình ảnh sản phẩm hoặc ngôn ngữ tự nhiên mô tả chi tiết sản phẩm.
+            \item Đánh giá offline được thực hiện trên tập snapshot dữ liệu tương tác thực tế, các đánh giá online (A/B Testing) cần được triển khai kiểm chứng thực tế khi tích hợp vào môi trường doanh nghiệp.
+        \end{itemize}
+\end{itemize}

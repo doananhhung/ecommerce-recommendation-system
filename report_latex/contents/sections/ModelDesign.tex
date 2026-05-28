@@ -1,0 +1,56 @@
+\chapter{Thiết kế và Huấn luyện Mô hình}
+
+\section{Kiến trúc tổng thể của hệ thống}
+Hệ thống được thiết kế theo kiến trúc gợi ý hai giai đoạn tích hợp triệu hồi Dual-Channel song song thời gian thực và xếp hạng lại bằng LightGBM. Mô hình triệu hồi PyTorch Matrix Factorization và FAISS Index FlatIP thực hiện sàng lọc thô cực nhanh để lọc ra 200 ứng viên từ 63,000+ sản phẩm. Sau đó, mô hình xếp hạng LightGBM chấm điểm CTR chi tiết, sắp xếp và trả về Top 20 sản phẩm tối ưu.
+
+\section{Xây dựng và tối ưu mô hình Recall}
+Mô hình Recall được xây dựng bằng mạng học sâu Matrix Factorization trên PyTorch:
+\begin{itemize}
+    \item \textbf{Cấu trúc mô hình:} Lớp nhúng (\texttt{nn.Embedding}) ánh xạ các ID thô của User và Item thành các vector ẩn 64 chiều. Trọng số embeddings được khởi tạo bằng phương pháp \textbf{Xavier Uniform} giúp đảm bảo tính ổn định và tốc độ hội tụ nhanh.
+    \item \textbf{Negative Sampling 1:4:} Với mỗi tương tác dương lịch sử (label 1), chúng em lấy mẫu ngẫu nhiên 4 sản phẩm người dùng chưa từng tương tác làm mẫu âm (label 0) để cân bằng dữ liệu huấn luyện.
+    \item \textbf{Hàm tổn thất Focal Loss:} Để giải quyết mất cân bằng lớp cực đoan (View chiếm 96.8\% lượt tương tác), chúng em phát triển lớp \texttt{FocalLoss} tùy chỉnh với $\alpha=0.25$ và $\gamma=2.0$:
+        \begin{equation}
+            \text{FL}(p_t) = -\alpha_t (1 - p_t)^\gamma \log(p_t)
+        \end{equation}
+        Focal Loss chủ động dập giảm lỗi từ các mẫu xem dễ dự đoán ($p_t \approx 0.9$), ép mô hình tập trung dồn gradient học các tương tác hiếm và quan trọng như Cart (Thêm giỏ) và Purchase (Mua hàng).
+    \item \textbf{Chỉ mục FAISS Index FlatIP:} Tải 63,322 vector nhúng sản phẩm đã huấn luyện lên RAM để dựng chỉ mục tích vô hướng FAISS KNN FlatIP siêu tốc, cho phép quét 100 sản phẩm tương quan nhất dưới 0.02 mili-giây.
+\end{itemize}
+
+\section{Xây dựng và huấn luyện mô hình Ranking}
+Mô hình xếp hạng LightGBM GBDT được thiết lập để chấm điểm chi tiết xác suất CTR:
+\begin{itemize}
+    \item \textbf{Phân chia tập dữ liệu Time-based Splitting:} Sắp xếp các tương tác theo thời gian và phân chia theo tỷ lệ \textbf{80\% Train / 20\% Test} dựa trên mốc \texttt{event\_time}, đảm bảo mô phỏng chính xác quá trình phục vụ trực tuyến.
+    \item \textbf{Tham số cấu hình LightGBM:} Thiết lập siêu tham số \texttt{is\_unbalance=True}, \texttt{num\_leaves=31}, \texttt{learning\_rate=0.05} và \texttt{num\_boost\_round=100}.
+    \item \textbf{Trọng số mẫu (Sample Weights):} Truyền trực tiếp trọng số tương tác implicit ngầm (\texttt{view=0.1}, \texttt{cart=0.5}, \texttt{purchase=1.0}) vào \texttt{lgb.Dataset} để nhấn mạnh hành vi mua hàng.
+\end{itemize}
+
+\section{Giải pháp Train-on-Recall và Kết quả thử nghiệm}
+Trong mô hình cơ sở (Baseline), LightGBM được huấn luyện trên toàn bộ dữ liệu tĩnh, dẫn đến lỗi lệch phân phối dữ liệu huấn luyện xếp hạng (Train-Test Distribution Mismatch). 
+
+Để giải quyết triệt để, chúng em phát triển giải pháp cải tiến cực hạn \textbf{Train-on-Recall} (\texttt{train\_on\_recall.py}):
+\begin{enumerate}
+    \item Duyệt qua 20,000 phiên, gọi mô hình PyTorch Recall và FAISS triệu hồi ra 200 ứng viên (giống hệt 100\% môi trường Serving thực tế).
+    \item Gán nhãn ứng viên: Trở thành nhãn dương (1) nếu trùng khớp với tương tác thực tế của phiên, và nhãn âm (0) (với sample weight 0.1) cho các ứng viên không tương tác.
+    \item Huấn luyện LightGBM trên chính không gian ứng viên triệu hồi này kết hợp với hai cờ chỉ thị nguồn gốc triệu hồi nhị phân \texttt{recalled\_by\_long\_term} và \texttt{recalled\_by\_session}.
+\end{enumerate}
+
+Kết quả thử nghiệm ngoại tuyến (Offline Evaluation) cho thấy sự vượt trội kinh ngạc của mô hình cải tiến:
+
+\begin{table}[H]
+\centering
+\caption{Bảng so sánh hiệu năng xếp hạng giữa Baseline và mô hình cải tiến Train-on-Recall}
+\label{tab:ranking_comparison_design}
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{12pt}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Độ đo đánh giá (Metrics)} & \textbf{Mô hình Baseline} & \textbf{Mô hình Train-on-Recall} & \textbf{Mức cải thiện} \\
+\midrule
+\textbf{Validation AUC} & 0.6375 & \textbf{0.9601} & \textbf{+50.6\%} \\
+\textbf{NDCG@10} & 0.0495 & \textbf{0.0653} & \textbf{+31.9\%} \\
+\textbf{MRR} & 0.0458 & \textbf{0.0572} & \textbf{+24.9\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Chỉ số AUC tăng vọt đột biến lên \textbf{0.9601} chứng tỏ cây quyết định LightGBM đã học được cách phân biệt cực kỳ chính xác giữa tương tác thực tế và các sản phẩm bị người dùng bỏ qua (True Negatives) trong không gian ứng viên thô của FAISS. Sự bổ sung cờ triệu hồi Kênh phiên giúp NDCG@10 tăng vọt \textbf{31.9\%} và MRR tăng \textbf{24.9\%}.

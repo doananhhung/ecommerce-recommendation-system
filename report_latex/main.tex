@@ -1,0 +1,95 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[vietnamese]{babel}
+\usepackage{tocloft,calc}
+\usepackage[top=3.5cm, bottom=3.0cm, left=3.5cm, right=2.0cm]{geometry} % Căn lề chuẩn đồ án Phenikaa/KLTN
+
+\usepackage{amsmath,latexsym,amscd,amsfonts,mathrsfs,enumerate}
+\usepackage{upgreek}
+\usepackage[thref,thmmarks,standard,amsmath,hyperref]{ntheorem}
+\newcommand{\mc}[1]{\mathcal{#1}}
+\newcommand{\szo}{\{0,1\}}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage[mathscr]{eucal}
+\usepackage[unicode,colorlinks=true, bookmarks=true, pdfstartview=FitH]{hyperref}
+\hypersetup{
+  pdftitle={Báo Cáo Tiểu Luận: Hệ Thống Gợi Ý Thương Mại Điện Tử},
+  pdfauthor={Nguyễn Tuấn Anh},
+  colorlinks = true,
+  linkcolor = magenta,
+  citecolor = blue,
+}
+
+\usepackage{fontspec}
+\setmainfont{Times New Roman}
+\usepackage{pifont}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{mathtools}
+\usepackage{fancyhdr}
+\setlength{\headheight}{16.0pt}
+\usepackage{graphicx}
+\usepackage{fancybox,cite}
+\allowdisplaybreaks
+\usepackage{setspace}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
+\usepackage{pdfpages}
+
+\onehalfspacing
+
+% Cấu hình header/footer dùng fancyhdr
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\it Tiểu luận Nghiên cứu Hệ thống Gợi ý Thương mại điện tử}
+\rhead{}
+\cfoot{\thepage}
+
+\begin{document}
+
+% --- TRANG BÌA: KHÔNG ĐÁNH SỐ ---
+\pagenumbering{gobble} % ẩn số trang
+\input{contents/phenikaa_template_cover}
+\clearpage
+
+% --- FRONT MATTER: La Mã ---
+\pagenumbering{roman}
+\setcounter{page}{1}
+
+\input{contents/acknowledgement}
+\clearpage
+\input{contents/pledge}
+\clearpage
+\input{contents/abstract}
+\clearpage
+
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\listoftables
+\clearpage
+
+% --- MAIN MATTER: Ả RẬP, reset về 1 ---
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{contents/sections/Introduction}
+\clearpage
+\input{contents/sections/Theory}
+\clearpage
+\input{contents/sections/DataProcessing}
+\clearpage
+\input{contents/sections/ModelDesign}
+\clearpage
+\input{contents/sections/ServingPipeline}
+\clearpage
+\input{contents/sections/Conclusion}
+\clearpage
+
+\bibliographystyle{unsrt}
+\bibliography{recommender}
+
+\end{document}

@@ -1,0 +1,43 @@
+\chapter{Quy trình Xử lý và Phân tích Dữ liệu}
+
+\section{Phân tích Dữ liệu Khám phá (Exploratory Data Analysis - EDA)}
+Để có chiến lược xử lý dữ liệu và thiết kế mô hình chính xác, chúng em thực hiện khảo sát dữ liệu thô \texttt{2019-Oct.csv}. Tập dữ liệu chứa thông tin chi tiết về các tương tác của khách hàng (User) lên sản phẩm (Item) theo thời gian thực bao gồm: \texttt{event\_time}, \texttt{event\_type}, \texttt{product\_id}, \texttt{category\_id}, \texttt{category\_code}, \texttt{brand}, \texttt{price}, \texttt{user\_id}, \texttt{user\_session}.
+
+Kết quả phân tích khám phá chỉ ra hai đặc điểm vô cùng quan trọng:
+\begin{enumerate}
+    \item \textbf{Độ thưa thớt ma trận (Sparsity) cực đoan:} Ma trận tương tác thưa tới \textbf{99.99\%}. Tức là bình quân một khách hàng chỉ tương tác với $0.01\%$ lượng sản phẩm có trên hệ thống, đòi hỏi phương pháp học embedding biểu diễn ẩn của Matrix Factorization.
+    \item \textbf{Phân phối lệch lớp hành vi:} Views chiếm \textbf{96.8\%}, Carts chiếm \textbf{2.3\%}, và Purchases chỉ chiếm \textbf{0.9\%}. Do đó, mô hình rất dễ bị bão hòa bởi lượt xem thông thường nếu không áp dụng hàm Focal Loss hoặc Sample Weights để nhấn mạnh các hành vi chuyển đổi.
+    \item \textbf{Phân phối lệch phải của Price:} Giá cả sản phẩm tập trung ở phân khúc thấp nhưng có đuôi rất dài về phía phải. Ta cần áp dụng phép biến đổi Log-Transform: $y = \log(x + 1)$ để kéo phân phối giá về dạng phân phối chuẩn, giúp mô hình học cây quyết định hội tụ nhanh và ổn định hơn.
+\end{enumerate}
+
+\section{Xử lý luồng dữ liệu (Data Pipeline) và cơ chế Sessionizer}
+Đường ống xử lý dữ liệu (Data Pipeline) được xây dựng theo kiến trúc tự động hóa tuần tự để chế biến dữ liệu thô thành dữ liệu huấn luyện và Feature Store phục vụ Serving:
+\begin{itemize}
+    \item \textbf{Cơ chế Sessionizer (\texttt{sessionizer.py}):} Phân chia luồng tương tác của cùng một người dùng thành các phiên mua sắm độc lập. Một phiên mua sắm kết thúc khi không phát sinh thêm bất kỳ tương tác nào trong vòng \textbf{30 phút}.
+    \item \textbf{Luồng thực thi tuần tự (\texttt{run\_pipeline.py}):} 
+        \begin{enumerate}
+            \item Tiền xử lý dữ liệu: Fill NaN, ép kiểu dữ liệu và thực hiện Log-Transform Price.
+            \item Chạy bộ Sessionizer phân chia và gắn mã \texttt{custom\_session\_id}.
+            \item Thực hiện trích xuất Feature Store snapshot tĩnh cho User và Item lưu thành Parquet.
+            \item Trích xuất đặc trưng động Point-in-time lũy kế và gán nhãn implicit feedback lưu đĩa.
+        \end{enumerate}
+\end{itemize}
+
+\section{Kỹ thuật trích xuất đặc trưng (Feature Engineering)}
+Để ngăn chặn triệt để hiện tượng nghiêm trọng \textit{Time-Travel Leakage} (Rò rỉ dữ liệu tương lai), chúng em áp dụng nguyên lý thiết kế đặc trưng lũy kế Point-in-time. Mọi đặc trưng chỉ được đếm và cộng dồn lũy kế dựa trên các sự kiện xảy ra TRƯỚC mốc $event\_time$ hiện tại:
+\begin{itemize}
+    \item \textbf{Đặc trưng User:} \texttt{user\_total\_interactions} (tổng tương tác lịch sử) và \texttt{user\_total\_sessions} (tổng số phiên hoạt động).
+    \item \textbf{Đặc trưng Item:} \texttt{item\_total\_interactions} (sức hút của sản phẩm), \texttt{item\_unique\_users} (tập khách hàng quan tâm) và \texttt{item\_avg\_price} (mức giá trung bình lũy kế).
+    \item \textbf{Đặc trưng Phiên động (Serving):} \texttt{user\_session\_interaction\_count} (số tương tác của user trong phiên hiện tại tính đến thời điểm $t$) và \texttt{item\_session\_popularity} (độ thịnh hành sản phẩm dựa trên số lượng phiên độc nhất).
+\end{itemize}
+
+\section{Gán nhãn tương tác ngầm (Pseudo-Labeling)}
+Do dữ liệu thương mại điện tử không có nhãn đúng/sai rõ ràng, chúng em sử dụng kỹ thuật Pseudo-Labeling để quy đổi hành vi implicit feedback thành thang điểm chất lượng lũy tiến. Trong mỗi phiên, chúng em gom nhóm theo người dùng và sản phẩm, giữ lại hành động có giá trị lớn nhất làm nhãn huấn luyện mục tiêu:
+\begin{equation}
+    \text{Label}(x) = 
+    \begin{cases}
+        1 & \text{nếu } x \in \{\text{View, Cart, Purchase}\} \\
+        0 & \text{cho các mẫu âm tính ngẫu nhiên (Negative Samples)}
+    \end{cases}
+\end{equation}
+Đồng thời gán \texttt{sample\_weight} cho từng dòng dữ liệu: View nhận trọng số 0.1, Cart nhận trọng số 0.5, và Purchase nhận trọng số 1.0 để nhấn mạnh hành vi chuyển đổi của doanh nghiệp trong lúc tối ưu hàm Loss của LightGBM.

@@ -1,0 +1,47 @@
+\chapter{Cơ sở Lý thuyết}
+
+\section{Tổng quan về Hệ thống Gợi ý (Recommender Systems)}
+Hệ thống gợi ý (Recommender Systems) là một nhánh quan trọng của Trí tuệ Nhân tạo và Học máy, được thiết kế nhằm dự đoán mức độ quan tâm của người dùng đối với một sản phẩm hoặc nội dung cụ thể.
+Các phương pháp gợi ý truyền thống phổ biến bao gồm:
+\begin{itemize}
+    \item \textbf{Lọc dựa trên nội dung (Content-based Filtering):} Gợi ý sản phẩm tương đồng về đặc tính (thương hiệu, chất liệu, danh mục) với các mặt hàng người dùng đã thích trong quá khứ. Hạn chế lớn là khó mở rộng và không gợi ý được các mặt hàng nằm ngoài gu cũ (vấn đề quá chuyên biệt).
+    \item \textbf{Lọc cộng tác (Collaborative Filtering):} Dựa trên giả định rằng những người dùng có chung hành vi trong quá khứ sẽ có xu hướng lựa chọn giống nhau trong tương lai. Lọc cộng tác chia làm hai dạng: User-based (so khớp độ tương đồng giữa các user) và Item-based (so khớp tương đồng giữa các sản phẩm dựa trên lượt đánh giá của chung người dùng).
+\end{itemize}
+
+\section{Kiến trúc Hệ thống Gợi ý 2 giai đoạn (Two-Stage Architecture)}
+Khi số lượng sản phẩm tăng lên hàng triệu, việc tính toán chi tiết độ tương thích giữa một người dùng với từng sản phẩm bằng các mô hình học máy phức tạp trở nên bất khả thi do giới hạn độ trễ phục vụ trực tuyến. Để giải quyết bài toán quy mô lớn này, kiến trúc gợi ý Hai Giai Đoạn được đề xuất và áp dụng rộng rãi:
+\begin{enumerate}
+    \item \textbf{Giai đoạn Triệu hồi (Candidate Generation / Recall):} Thực hiện sàng lọc thô siêu tốc. Từ hàng triệu sản phẩm, sử dụng các thuật toán đơn giản hoặc tìm kiếm vector KNN để trích xuất ra một tập nhỏ ứng viên tiềm năng nhất (khoảng 100 đến 200 ứng viên) trong thời gian vài mili-giây.
+    \item \textbf{Giai đoạn Xếp hạng chi tiết (Ranking Stage):} Sử dụng các mô hình học máy mạnh mẽ với hàng chục đặc trưng phức tạp để chấm điểm chính xác xác suất chuyển đổi cho từng sản phẩm trong tập ứng viên thô, sắp xếp và trả về Top-N sản phẩm tốt nhất.
+\end{enumerate}
+
+\section{Các phương pháp Candidate Generation (Recall Model)}
+Các mô hình triệu hồi phổ biến bao gồm:
+\begin{itemize}
+    \item \textbf{Matrix Factorization (Phân rã ma trận):} Biến đổi ma trận tương tác User-Item thưa thớt thành tích vô hướng của hai ma trận embedding có số chiều ẩn thấp ($d = 64$).
+    \item \textbf{Deep Learning-based Recall:} Sử dụng các mạng thần kinh (như mạng hai tháp Two-Tower DSSM) để học vector nhúng biểu diễn ẩn cho User và Item.
+    \item \textbf{Session-based Recall:} Khai thác các tương tác tức thì của người dùng trong phiên mua sắm hiện tại để tính toán vector bối cảnh, thực hiện triệu hồi các sản phẩm tương thích.
+\end{itemize}
+
+\section{Các phương pháp Ranking (Ranking Model) và thuật toán LightGBM}
+Giai đoạn xếp hạng đòi hỏi mô hình phải có khả năng xử lý các đặc trưng dạng bảng phi tuyến phức tạp (giá, tần suất, bối cảnh thời gian) với tốc độ thực thi nhanh.
+\begin{itemize}
+    \item \textbf{Các phương pháp xếp hạng:} Trực quan hóa điểm số CTR bằng Logistic Regression, Deep \& Cross Networks (DCN), hoặc Gradient Boosting Decision Trees (GBDT).
+    \item \textbf{Thuật toán LightGBM:} Khung thuật toán GBDT phát triển bởi Microsoft. LightGBM tối ưu hóa sự phân nhánh cây quyết định theo chiều dọc (Leaf-wise), kết hợp kỹ thuật lấy mẫu dựa trên gradient một bên (GOSS) và bó các đặc trưng loại trừ lẫn nhau (EFB), mang lại tốc độ huấn luyện siêu tốc và độ chính xác phân loại nhị phân cực tốt trên dữ liệu lớn.
+\end{itemize}
+
+\section{Các chỉ số đánh giá hiệu suất (Evaluation Metrics)}
+\begin{itemize}
+    \item \textbf{Hit Rate@K (Tỷ lệ bao phủ):} Đo lường xem sản phẩm khách hàng thực sự tương tác có xuất hiện trong tập Top-K ứng viên triệu hồi hay không:
+        \begin{equation}
+            \text{Hit Rate@K} = \frac{1}{|U|} \sum_{u \in U} I(\text{Target}_u \in \text{Recall}_u^K)
+        \end{equation}
+    \item \textbf{NDCG@K (Normalized Discounted Cumulative Gain):} Đo lường độ chính xác của thứ tự xếp hạng, phạt nặng nếu sản phẩm mua sắm bị xếp ở cuối danh sách gợi ý:
+        \begin{equation}
+            \text{NDCG@K} = \frac{\text{DCG@K}}{\text{IDCG@K}} \quad \text{với} \quad \text{DCG@K} = \sum_{i=1}^K \frac{2^{rel_i} - 1}{\log_2(i + 1)}
+        \end{equation}
+    \item \textbf{MRR (Mean Reciprocal Rank):} Tính nghịch đảo vị trí của sản phẩm có tương tác đầu tiên, phản ánh nỗ lực cuộn trang của người dùng:
+        \begin{equation}
+            \text{MRR} = \frac{1}{|U|} \sum_{u \in U} \frac{1}{rank_u}
+        \end{equation}
+\end{itemize}
