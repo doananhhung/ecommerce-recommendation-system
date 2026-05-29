@@ -36,6 +36,10 @@ htmlcov/
 .ipynb_checkpoints/
 *.nbconvert.ipynb
 
+# LaTeX report build artifacts
+report_latex/main.*
+!report_latex/main.tex
+
 # Project data and generated ML artifacts
 data/
 models_store/
