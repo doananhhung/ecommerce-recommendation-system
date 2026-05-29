@@ -7,7 +7,7 @@
 \contentsline {section}{\numberline {1.4}Công nghệ sử dụng}{2}{section.1.4}%
 \contentsline {chapter}{\numberline {2}Cơ sở lý thuyết}{4}{chapter.2}%
 \contentsline {section}{\numberline {2.1}Bài toán gợi ý sản phẩm trong thương mại điện tử}{4}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Phản hồi ẩn}{5}{section.2.2}%
+\contentsline {section}{\numberline {2.2}Phản hồi ẩn}{4}{section.2.2}%
 \contentsline {section}{\numberline {2.3}Kiến trúc hệ gợi ý hai giai đoạn}{5}{section.2.3}%
 \contentsline {section}{\numberline {2.4}Các kỹ thuật chính}{6}{section.2.4}%
 \contentsline {section}{\numberline {2.5}Các chỉ số đánh giá}{6}{section.2.5}%

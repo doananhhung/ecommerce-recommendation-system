@@ -3,16 +3,16 @@
 Chương này trình bày cách dự án xây dựng hai thành phần mô hình chính của hệ thống gợi ý: Recall và Ranking. Phần Recall chịu trách nhiệm tạo tập ứng viên nhanh bằng Matrix Factorization và FAISS, trong khi phần Ranking sử dụng LightGBM để chấm điểm và sắp xếp lại các ứng viên theo mức độ phù hợp.
 
 \section{Mô hình Recall}
-Trong kiến trúc hệ gợi ý hai giai đoạn, mô hình Recall có nhiệm vụ lọc nhanh một tập sản phẩm ứng viên từ toàn bộ danh mục sản phẩm. Đây là bước đầu tiên trong quá trình gợi ý, giúp giảm đáng kể không gian tìm kiếm trước khi chuyển sang giai đoạn Ranking. Nếu hệ thống có hàng chục nghìn hoặc hàng triệu sản phẩm, việc đưa toàn bộ sản phẩm vào mô hình Ranking sẽ tốn nhiều chi phí tính toán và không phù hợp với yêu cầu phản hồi nhanh.
+Trong kiến trúc hệ gợi ý hai giai đoạn, mô hình Recall đóng vai trò thu hẹp không gian tìm kiếm bằng cách lấy ra một tập sản phẩm ứng viên từ toàn bộ danh mục. Đây là bước đầu tiên trong quá trình gợi ý và có ảnh hưởng trực tiếp đến chi phí suy luận của giai đoạn Ranking. Nếu hệ thống có hàng chục nghìn hoặc hàng triệu sản phẩm, việc đưa toàn bộ sản phẩm vào mô hình Ranking sẽ tốn nhiều chi phí tính toán và không phù hợp với yêu cầu phản hồi nhanh \cite{covington2016deep}.
 \medskip
 
-Mục tiêu của Recall không phải là sắp xếp chính xác tuyệt đối tất cả sản phẩm, mà là bảo đảm các sản phẩm có khả năng phù hợp cao với người dùng được giữ lại trong tập ứng viên. Nói cách khác, Recall cần có khả năng bao phủ tốt các sản phẩm tiềm năng. Sau đó, mô hình Ranking sẽ tiếp tục phân tích chi tiết hơn và quyết định thứ tự cuối cùng của các sản phẩm trong danh sách gợi ý.
+Ở giai đoạn này, mục tiêu chính không phải là tạo ra thứ tự cuối cùng hoàn hảo cho tất cả sản phẩm, mà là giữ lại đủ nhiều ứng viên có khả năng phù hợp. Nói cách khác, Recall ưu tiên độ bao phủ của các sản phẩm tiềm năng. Sau đó, mô hình Ranking sẽ phân tích chi tiết hơn và quyết định thứ tự cuối cùng của danh sách gợi ý.
 \medskip
 
 Trong dự án này, Recall được xây dựng dựa trên Matrix Factorization \cite{koren2009matrix} và được triển khai bằng PyTorch \cite{paszke2019pytorch}. Mô hình học biểu diễn vector cho người dùng và sản phẩm từ dữ liệu tương tác lịch sử. Khi cần gợi ý, hệ thống sử dụng vector của người dùng hoặc vector đại diện cho phiên hiện tại để tìm các sản phẩm gần nhất trong không gian embedding.
 
 \section{Matrix Factorization bằng PyTorch}
-Matrix Factorization là một phương pháp phổ biến trong hệ thống gợi ý, đặc biệt phù hợp với dữ liệu tương tác người dùng-sản phẩm (user-item) có độ thưa cao. Ý tưởng chính của phương pháp này là biểu diễn mỗi người dùng và mỗi sản phẩm bằng một vector trong không gian ẩn có số chiều nhỏ hơn nhiều so với số lượng người dùng và sản phẩm ban đầu. Các vector này được học thông qua quá trình huấn luyện sao cho người dùng và sản phẩm có quan hệ phù hợp sẽ có vector gần nhau hơn.
+Matrix Factorization là một phương pháp nền tảng trong hệ thống gợi ý, đặc biệt phù hợp với dữ liệu tương tác người dùng-sản phẩm (user-item) có độ thưa cao \cite{koren2009matrix}. Thay vì biểu diễn trực tiếp từng cặp người dùng-sản phẩm trong một ma trận lớn, phương pháp này học các vector ẩn có số chiều nhỏ hơn cho người dùng và sản phẩm. Quá trình huấn luyện điều chỉnh các vector này để những cặp có tương tác phù hợp nhận được điểm dự đoán cao hơn.
 \medskip
 
 Trong mã nguồn của dự án, mô hình Matrix Factorization được định nghĩa bằng PyTorch. Mô hình gồm hai lớp embedding: một lớp cho người dùng và một lớp cho sản phẩm. Với mỗi cặp người dùng-sản phẩm, mô hình lấy vector tương ứng của người dùng và sản phẩm, sau đó tính tích vô hướng giữa hai vector này. Giá trị tích vô hướng được đưa qua hàm sigmoid để tạo ra điểm dự đoán trong khoảng từ 0 đến 1, biểu diễn khả năng người dùng quan tâm đến sản phẩm. Cơ chế tính điểm này được khái quát trong Hình~\ref{fig:matrix_factorization}.
@@ -44,7 +44,7 @@ Trong mã nguồn của dự án, mô hình Matrix Factorization được địn
 Hình~\ref{fig:matrix_factorization} cho thấy phần lõi của Recall là phép so khớp trong không gian embedding. Vì đầu ra của mô hình là điểm phù hợp cho từng cặp người dùng-sản phẩm, cùng một ma trận embedding sản phẩm có thể được tái sử dụng ở giai đoạn phục vụ để xây dựng chỉ mục FAISS và truy hồi ứng viên nhanh hơn.
 \medskip
 
-Kích thước embedding trong cấu hình hiện tại là 64. Đây là lựa chọn cân bằng giữa khả năng biểu diễn và chi phí tính toán. Nếu số chiều quá nhỏ, vector có thể không đủ khả năng biểu diễn sở thích đa dạng của người dùng và đặc trưng tiềm ẩn của sản phẩm. Ngược lại, nếu số chiều quá lớn, mô hình có thể tốn nhiều bộ nhớ hơn và dễ bị quá khớp.
+Kích thước embedding trong cấu hình hiện tại là 64. Đây là lựa chọn thực nghiệm nhằm cân bằng giữa khả năng biểu diễn và chi phí tính toán. Nếu số chiều quá nhỏ, vector có thể không đủ khả năng biểu diễn sở thích đa dạng của người dùng và đặc trưng tiềm ẩn của sản phẩm. Ngược lại, nếu số chiều quá lớn, mô hình có thể tốn nhiều bộ nhớ hơn và dễ bị quá khớp.
 
 \section{Huấn luyện Recall và tìm kiếm vector bằng FAISS}
 Dữ liệu huấn luyện cho mô hình Recall được lấy từ tập \texttt{labeled\_sessions.parquet}. Trước khi huấn luyện, hệ thống tách các mẫu tích cực và tiêu cực dựa trên nhãn đã tạo ở bước gán nhãn giả (*pseudo-labeling*). Vì dữ liệu thương mại điện tử có số lượng hành vi yếu và không tích cực lớn hơn nhiều so với hành vi tích cực, dự án áp dụng lấy mẫu âm (negative sampling) để cân bằng dữ liệu huấn luyện. Cụ thể, với mỗi mẫu tích cực, hệ thống lấy tối đa bốn mẫu tiêu cực, tương ứng với tỷ lệ 1 mẫu tích cực và 4 mẫu tiêu cực.
@@ -103,13 +103,13 @@ Sau khi giai đoạn Recall tạo ra tập ứng viên, mô hình Ranking có nh
 Dự án sử dụng LightGBM làm mô hình Ranking \cite{ke2017lightgbm}. Về bản chất, mô hình được huấn luyện như một bộ chấm điểm nhị phân (binary scorer), dự đoán xác suất một ứng viên là sản phẩm có tương tác tích cực với người dùng. Tuy không phải là mô hình xếp hạng theo cặp hoặc theo danh sách đúng nghĩa, cách tiếp cận này vẫn phù hợp với phạm vi dự án vì LightGBM xử lý tốt dữ liệu dạng bảng, hỗ trợ trọng số mẫu và có tốc độ suy luận nhanh.
 \medskip
 
-Đầu vào của LightGBM gồm nhiều nhóm đặc trưng. Nhóm đặc trưng người dùng phản ánh mức độ hoạt động và lịch sử tương tác của người dùng. Nhóm đặc trưng sản phẩm phản ánh độ phổ biến, số lượng người dùng từng tương tác, giá trung bình và thông tin phân loại như thương hiệu hoặc danh mục. Nhóm đặc trưng phiên giúp mô hình nắm bắt ngữ cảnh ngắn hạn, còn nhóm đặc trưng nguồn recall cho biết ứng viên được lấy ra từ kênh sở thích dài hạn, kênh phiên hiện tại hoặc cả hai.
+Đầu vào của LightGBM gồm nhiều nhóm đặc trưng được tạo từ pipeline dữ liệu của dự án. Nhóm đặc trưng người dùng phản ánh mức độ hoạt động và lịch sử tương tác của người dùng. Nhóm đặc trưng sản phẩm mô tả độ phổ biến, số lượng người dùng từng tương tác, giá trung bình và thông tin phân loại như thương hiệu hoặc danh mục. Nhóm đặc trưng phiên giúp mô hình nắm bắt ngữ cảnh ngắn hạn, còn nhóm đặc trưng nguồn Recall cho biết ứng viên được lấy ra từ kênh sở thích dài hạn, kênh phiên hiện tại hoặc cả hai.
 
 \section{Huấn luyện Ranking và Train-on-Recall}
 Dữ liệu huấn luyện Ranking được tạo bằng cách ghép dữ liệu tương tác đã gán nhãn với các bảng đặc trưng người dùng và sản phẩm. Trước khi huấn luyện, các cột phân loại như \texttt{category\_code} và \texttt{brand} được xử lý giá trị thiếu bằng nhãn \texttt{<UNKNOWN>} và chuyển sang kiểu category. Các cột số bị thiếu được điền bằng 0 để bảo đảm dữ liệu đầu vào không gây lỗi cho LightGBM.
 \medskip
 
-Một điểm quan trọng trong quá trình huấn luyện là cách chia tập huấn luyện và tập kiểm thử. Thay vì chia ngẫu nhiên, dự án sắp xếp dữ liệu theo \texttt{event\_time} và sử dụng cách chia theo thời gian (time-based split) với tỷ lệ 80\% cho huấn luyện và 20\% cho kiểm thử. Cách chia này phù hợp hơn với bài toán gợi ý vì mô hình trong thực tế luôn được huấn luyện trên dữ liệu quá khứ và dự đoán cho các hành vi xảy ra sau đó.
+Một điểm quan trọng trong quá trình huấn luyện là cách chia tập huấn luyện và tập kiểm thử. Thay vì chia ngẫu nhiên, dự án sắp xếp dữ liệu theo \texttt{event\_time} và sử dụng cách chia theo thời gian (time-based split) với tỷ lệ 80\% cho huấn luyện và 20\% cho kiểm thử. Cách chia này mô phỏng tốt hơn bối cảnh triển khai, trong đó mô hình được học từ dữ liệu quá khứ và dự đoán cho các hành vi xảy ra sau đó.
 \medskip
 
 Phiên bản Ranking cơ sở (baseline) được huấn luyện trực tiếp trên dữ liệu tương tác đã gán nhãn. Cách làm này đơn giản, nhưng có một hạn chế quan trọng: dữ liệu huấn luyện của Ranking có thể khác với dữ liệu mà mô hình gặp khi phục vụ suy luận. Trong thực tế, Ranking không chấm điểm toàn bộ dữ liệu tương tác gốc, mà chỉ chấm điểm các ứng viên do Recall sinh ra. Sự khác biệt này được gọi là lệch phân phối giữa huấn luyện và phục vụ (train-serving mismatch).
