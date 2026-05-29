@@ -1,6 +1,6 @@
 ﻿\chapter{Kết quả thực nghiệm và đánh giá}
 
-Chương này tổng hợp các kết quả thực nghiệm được ghi nhận trong tài liệu kết quả của dự án, bao gồm kết quả của pipeline dữ liệu, mô hình Recall, mô hình Ranking và pipeline phục vụ suy luận. Các số liệu trong chương được dùng để phản ánh kết quả đã được ghi nhận trước đó, không phải số liệu suy diễn từ hình minh họa. Khi cần tái lập kết quả trên một môi trường mới, cần chạy lại đầy đủ pipeline dữ liệu, huấn luyện Recall, huấn luyện Ranking và kiểm thử API theo các lệnh ở Phụ lục.
+Chương này tổng hợp các kết quả thực nghiệm sau khi chạy lại pipeline trong môi trường cục bộ của dự án, bao gồm kết quả của pipeline dữ liệu, mô hình Recall, mô hình Ranking và pipeline phục vụ suy luận. Các số liệu trong chương là kết quả ghi nhận từ quá trình chạy lệnh thực tế, không phải số liệu suy diễn từ hình minh họa. Khi cần tái lập kết quả trên một môi trường mới, cần chạy lại đầy đủ pipeline dữ liệu, huấn luyện Recall, huấn luyện Ranking và kiểm thử API theo các lệnh ở Phụ lục.
 
 \section{Kết quả pipeline dữ liệu}
 Sau khi chạy pipeline dữ liệu, dữ liệu thô được chuyển đổi thành các tập dữ liệu phục vụ huấn luyện và phục vụ suy luận. Pipeline thực hiện lần lượt các bước đọc dữ liệu, biến đổi giá sản phẩm, chia phiên người dùng, tạo snapshot đặc trưng, tạo đặc trưng theo thời điểm (point-in-time features) và gán nhãn cho dữ liệu tương tác. Kết quả đầu ra chính gồm \texttt{labeled\_sessions.parquet}, \texttt{user\_features.parquet} và \texttt{item\_features.parquet}.
@@ -22,16 +22,16 @@ Theo kết quả thực nghiệm được ghi nhận trong tài liệu của d�
 \caption{Kết quả huấn luyện và đánh giá mô hình Recall}
 \label{tab:recall_result}
 \renewcommand{\arraystretch}{1.25}
-\begin{tabularx}{\textwidth}{lcl}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.24\textwidth} >{\centering\arraybackslash}p{0.18\textwidth} X}
 \toprule
 \textbf{Chỉ số} & \textbf{Giá trị} & \textbf{Nhận xét} \\
 \midrule
 Loss epoch 1 & 0.0433 & Mô hình bắt đầu học quan hệ người dùng-sản phẩm \\
 Loss epoch 2 & 0.0320 & Loss tiếp tục giảm \\
-Loss epoch 3 & 0.0097 & Mô hình hội tụ nhanh hơn \\
+Loss epoch 3 & 0.0098 & Mô hình hội tụ nhanh hơn \\
 Loss epoch 4 & 0.0022 & Loss tiến gần mức thấp \\
 Loss epoch 5 & 0.0010 & Loss tiếp tục giảm trên dữ liệu huấn luyện \\
-Hit Rate@50 & 97.88\% & Ghi nhận 601/614 tương tác tích cực trong đánh giá \\
+Hit Rate@50 & 98.21\% & Ghi nhận 603/614 tương tác tích cực trong đánh giá \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -49,9 +49,9 @@ Hit Rate@50 & 97.88\% & Ghi nhận 601/614 tương tác tích cực trong đánh
         \node[left] at (0,\y) {\small \label};
     }
     \draw[blue!70!black, very thick] plot coordinates {
-        (1,0.0433) (2,0.0320) (3,0.0097) (4,0.0022) (5,0.0010)
+        (1,0.0433) (2,0.0320) (3,0.0098) (4,0.0022) (5,0.0010)
     };
-    \foreach \x/\y/\v in {1/0.0433/0.0433,2/0.0320/0.0320,3/0.0097/0.0097,4/0.0022/0.0022,5/0.0010/0.0010} {
+    \foreach \x/\y/\v in {1/0.0433/0.0433,2/0.0320/0.0320,3/0.0098/0.0098,4/0.0022/0.0022,5/0.0010/0.0010} {
         \fill[blue!70!black] (\x,\y) circle (1.8pt);
         \node[above] at (\x,\y) {\scriptsize \v};
     }
@@ -60,7 +60,7 @@ Hit Rate@50 & 97.88\% & Ghi nhận 601/614 tương tác tích cực trong đánh
 \label{fig:recall_loss_curve}
 \end{figure}
 
-Hình~\ref{fig:recall_loss_curve} cho thấy loss giảm mạnh nhất trong ba epoch đầu và tiếp tục giảm ở hai epoch cuối với biên độ nhỏ hơn. Kết quả Hit Rate@50 đạt 97.88\%, tương ứng 601 trên 614 tương tác tích cực được tìm thấy trong Top-50 ứng viên theo tài liệu ghi nhận của dự án. Chỉ số này cho thấy mô hình Recall có khả năng bao phủ tốt các sản phẩm liên quan trong điều kiện đánh giá đã ghi nhận. Tuy nhiên, cần lưu ý rằng kết quả Recall rất cao cũng có thể phản ánh nguy cơ đánh giá lạc quan vì hàm \texttt{evaluate\_recall()} trong \texttt{src/recall\_model/run\_recall.py} đang đánh giá trên các tương tác dương lấy từ cùng tập dữ liệu đã dùng để tạo vocabulary và huấn luyện, chưa phải một tập kiểm thử Recall tách biệt theo thời gian. Vì vậy, khi phát triển tiếp, nên đánh giá Recall trên tập kiểm thử tách theo thời gian để phản ánh chính xác hơn khả năng khái quát.
+Hình~\ref{fig:recall_loss_curve} cho thấy loss giảm mạnh nhất trong ba epoch đầu và tiếp tục giảm ở hai epoch cuối với biên độ nhỏ hơn. Kết quả Hit Rate@50 đạt 98.21\%, tương ứng 603 trên 614 tương tác tích cực được tìm thấy trong Top-50 ứng viên khi chạy lại thực nghiệm trong môi trường cục bộ. Chỉ số này cho thấy mô hình Recall có khả năng bao phủ tốt các sản phẩm liên quan trong điều kiện đánh giá đã ghi nhận. Tuy nhiên, cần lưu ý rằng kết quả Recall rất cao cũng có thể phản ánh nguy cơ đánh giá lạc quan vì hàm \texttt{evaluate\_recall()} trong \texttt{src/recall\_model/run\_recall.py} đang đánh giá trên các tương tác dương lấy từ cùng tập dữ liệu đã dùng để tạo vocabulary và huấn luyện, chưa phải một tập kiểm thử Recall tách biệt theo thời gian. Vì vậy, khi phát triển tiếp, nên đánh giá Recall trên tập kiểm thử tách theo thời gian để phản ánh chính xác hơn khả năng khái quát.
 
 \section{Kết quả Ranking}
 Mô hình Ranking được đánh giá bằng ba chỉ số chính: AUC, NDCG@10 và MRR. AUC phản ánh khả năng phân biệt giữa mẫu tích cực và mẫu không tích cực \cite{fawcett2006roc}. NDCG@10 đánh giá chất lượng thứ tự của 10 sản phẩm đầu tiên, trong đó các sản phẩm phù hợp xuất hiện ở vị trí cao sẽ có đóng góp lớn hơn \cite{jarvelin2002cumulated}. MRR đo vị trí của sản phẩm phù hợp đầu tiên trong danh sách, từ đó phản ánh mức độ nhanh chóng mà người dùng có thể nhìn thấy sản phẩm liên quan \cite{craswell2009mrr}.
@@ -79,41 +79,49 @@ Dự án có hai hướng huấn luyện Ranking: mô hình cơ sở (baseline) 
 \textbf{Mô hình} & \textbf{AUC} & \textbf{NDCG@10} & \textbf{MRR} \\
 \midrule
 Baseline & 0.6375 & 0.0495 & 0.0458 \\
-Train-on-Recall & \textbf{0.9601} & \textbf{0.0653} & \textbf{0.0572} \\
+Train-on-Recall & \textbf{0.9673} & \textbf{0.0653} & \textbf{0.0572} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[x=2.15cm,y=4.0cm]
-    \draw[->] (0,0) -- (4.2,0) node[right] {Chỉ số};
-    \draw[->] (0,0) -- (0,1.08) node[above] {Giá trị};
-    \foreach \y in {0.2,0.4,0.6,0.8,1.0} {
-        \draw[gray!30] (0,\y) -- (3.8,\y);
-        \node[left] at (0,\y) {\small \y};
+\begin{tikzpicture}[x=10cm,y=1.12cm]
+    \draw[->] (0,0) -- (1.08,0) node[right] {Giá trị};
+    \foreach \x/\label in {0.0/0.0,0.2/0.2,0.4/0.4,0.6/0.6,0.8/0.8,1.0/1.0} {
+        \draw[gray!25] (\x,0) -- (\x,3.45);
+        \node[below] at (\x,0) {\scriptsize \label};
     }
-    \foreach \x/\name/\b/\t in {
-        0.9/AUC/0.6375/0.9601,
-        2.0/NDCG@10/0.0495/0.0653,
-        3.1/MRR/0.0458/0.0572
-    } {
-        \fill[gray!55] (\x-0.22,0) rectangle (\x-0.02,\b);
-        \fill[blue!70!black] (\x+0.02,0) rectangle (\x+0.22,\t);
-        \node[below] at (\x,0) {\small \name};
-        \node[above] at (\x-0.12,\b) {\scriptsize \b};
-        \node[above] at (\x+0.12,\t) {\scriptsize \t};
-    }
-    \fill[gray!55] (1.05,1.02) rectangle (1.25,1.07);
-    \node[right] at (1.28,1.045) {\small Baseline};
-    \fill[blue!70!black] (2.1,1.02) rectangle (2.3,1.07);
-    \node[right] at (2.33,1.045) {\small Train-on-Recall};
+
+    \node[left] at (0,2.85) {\small AUC};
+    \node[left] at (0,1.70) {\small NDCG@10};
+    \node[left] at (0,0.55) {\small MRR};
+
+    \fill[gray!55] (0,3.01) rectangle (0.6375,3.29);
+    \fill[blue!70!black] (0,2.61) rectangle (0.9673,2.89);
+    \node[right] at (0.6375,3.15) {\scriptsize 0.6375};
+    \node[right] at (0.9673,2.75) {\scriptsize 0.9673};
+
+    \fill[gray!55] (0,1.86) rectangle (0.0495,2.14);
+    \fill[blue!70!black] (0,1.46) rectangle (0.0653,1.74);
+    \node[right] at (0.0495,2.00) {\scriptsize 0.0495};
+    \node[right] at (0.0653,1.60) {\scriptsize 0.0653};
+
+    \fill[gray!55] (0,0.71) rectangle (0.0458,0.99);
+    \fill[blue!70!black] (0,0.31) rectangle (0.0572,0.59);
+    \node[right] at (0.0458,0.85) {\scriptsize 0.0458};
+    \node[right] at (0.0572,0.45) {\scriptsize 0.0572};
+
+    \fill[gray!55] (0.20,3.65) rectangle (0.24,3.82);
+    \node[right] at (0.245,3.735) {\small Baseline};
+    \fill[blue!70!black] (0.48,3.65) rectangle (0.52,3.82);
+    \node[right] at (0.525,3.735) {\small Train-on-Recall};
 \end{tikzpicture}
 \caption{So sánh AUC, NDCG@10 và MRR giữa Baseline và Train-on-Recall}
 \label{fig:ranking_metrics_comparison}
 \end{figure}
 
-Kết quả trong Hình~\ref{fig:ranking_metrics_comparison} cho thấy Train-on-Recall cải thiện đáng kể so với baseline. AUC tăng từ 0.6375 lên 0.9601, cho thấy mô hình phân biệt tốt hơn giữa ứng viên có tương tác và ứng viên không có tương tác. NDCG@10 tăng từ 0.0495 lên 0.0653, còn MRR tăng từ 0.0458 lên 0.0572. Mức tăng của NDCG và MRR cho thấy thứ tự hiển thị của danh sách gợi ý đã được cải thiện, dù giá trị tuyệt đối vẫn chưa cao.
+Kết quả trong Hình~\ref{fig:ranking_metrics_comparison} cho thấy Train-on-Recall cải thiện đáng kể so với baseline. AUC tăng từ 0.6375 lên 0.9673, cho thấy mô hình phân biệt tốt hơn giữa ứng viên có tương tác và ứng viên không có tương tác. NDCG@10 tăng từ 0.0495 lên 0.0653, còn MRR tăng từ 0.0458 lên 0.0572. Mức tăng của NDCG và MRR cho thấy thứ tự hiển thị của danh sách gợi ý đã được cải thiện, dù giá trị tuyệt đối vẫn chưa cao.
 \medskip
 
 Việc NDCG@10 và MRR còn thấp là điều có thể giải thích được trong bối cảnh dữ liệu thương mại điện tử. Dữ liệu có độ thưa cao và tỷ lệ mẫu tích cực trong tập kiểm thử rất nhỏ. Khi nhiều nhóm người dùng hoặc phiên không có mẫu tích cực, các chỉ số xếp hạng trung bình sẽ bị kéo xuống. Do đó, các giá trị NDCG và MRR cần được đọc cùng với bối cảnh mất cân bằng dữ liệu, thay vì chỉ đánh giá theo độ lớn tuyệt đối.
@@ -122,7 +130,7 @@ Việc NDCG@10 và MRR còn thấp là điều có thể giải thích được 
 Kết quả phục vụ suy luận được đánh giá thông qua thời gian khởi tạo pipeline và độ trễ khi xử lý request gợi ý. Khi API khởi động, hệ thống cần nạp kho đặc trưng, encoder, item embedding, FAISS index, trọng số mô hình Recall và mô hình LightGBM. Đây là chi phí xảy ra một lần khi server khởi động, không phải chi phí của từng request.
 \medskip
 
-Đối với request gợi ý, hệ thống ghi nhận độ trễ của từng thành phần trong pipeline. Các thành phần chính gồm lấy user embedding, truy vấn FAISS, tra cứu kho đặc trưng, chấm điểm LightGBM, sắp xếp kết quả và tạo response. Tài liệu thực nghiệm của dự án ghi nhận độ trễ tổng hợp khoảng 22.5 ms trong môi trường cục bộ. Bảng~\ref{tab:serving_latency} và Hình~\ref{fig:serving_latency_breakdown} trình bày cách phân rã độ trễ theo từng thành phần.
+Đối với request gợi ý, hệ thống ghi nhận độ trễ của từng thành phần trong pipeline. Các thành phần chính gồm lấy user embedding, truy vấn FAISS, tra cứu kho đặc trưng, chấm điểm LightGBM, sắp xếp kết quả và tạo response. Khi chạy lại kiểm thử cục bộ với truy vấn hai kênh sau bước khởi động, độ trễ trung bình của 10 request đạt khoảng 19.3 ms. Bảng~\ref{tab:serving_latency} và Hình~\ref{fig:serving_latency_breakdown} trình bày cách phân rã độ trễ theo từng thành phần.
 
 \begin{table}[H]
 \centering
@@ -134,43 +142,47 @@ Kết quả phục vụ suy luận được đánh giá thông qua thời gian k
 \toprule
 \textbf{Thành phần} & \textbf{Thời gian} & \textbf{Tỷ trọng} \\
 \midrule
-Tra cứu đặc trưng & 2.8 ms & 12.4\% \\
-Tìm kiếm FAISS & 4.5 ms & 20.0\% \\
-Xếp hạng LightGBM & 12.2 ms & 54.2\% \\
-Sắp xếp và tạo phản hồi & 3.0 ms & 13.4\% \\
+Lấy user embedding & 0.1 ms & 0.5\% \\
+Tìm kiếm FAISS & 1.2 ms & 6.2\% \\
+Tra cứu đặc trưng & 5.1 ms & 26.4\% \\
+Xếp hạng LightGBM & 5.8 ms & 30.1\% \\
+Sắp xếp và phần còn lại & 7.1 ms & 36.8\% \\
 \midrule
-\textbf{Tổng độ trễ} & \textbf{22.5 ms} & \textbf{100\%} \\
+\textbf{Tổng độ trễ} & \textbf{19.3 ms} & \textbf{100\%} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[x=1.65cm,y=0.22cm]
-    \draw[->] (0,0) -- (5.6,0) node[right] {Thành phần};
-    \draw[->] (0,0) -- (0,14.2) node[above] {ms};
-    \foreach \y in {0,3,6,9,12} {
-        \draw[gray!30] (0,\y) -- (5.2,\y);
+\begin{tikzpicture}[x=1.35cm,y=0.34cm]
+    \draw[->] (0,0) -- (6.9,0) node[right] {Thành phần};
+    \draw[->] (0,0) -- (0,8.0) node[above] {ms};
+    \foreach \y in {0,2,4,6,8} {
+        \draw[gray!30] (0,\y) -- (6.4,\y);
         \node[left] at (0,\y) {\small \y};
     }
-    \fill[green!55!black] (0.52,0) rectangle (1.08,2.8);
-    \node[align=center, below] at (0.8,0) {\scriptsize Tra cứu\\\scriptsize đặc trưng};
-    \node[above] at (0.8,2.8) {\scriptsize 2.8 ms};
-    \fill[blue!65] (1.72,0) rectangle (2.28,4.5);
-    \node[align=center, below] at (2.0,0) {\scriptsize FAISS};
-    \node[above] at (2.0,4.5) {\scriptsize 4.5 ms};
-    \fill[purple!65] (2.92,0) rectangle (3.48,12.2);
-    \node[align=center, below] at (3.2,0) {\scriptsize LightGBM};
-    \node[above] at (3.2,12.2) {\scriptsize 12.2 ms};
-    \fill[orange!75] (4.12,0) rectangle (4.68,3.0);
-    \node[align=center, below] at (4.4,0) {\scriptsize Sắp xếp\\\scriptsize phản hồi};
-    \node[above] at (4.4,3.0) {\scriptsize 3.0 ms};
+    \fill[gray!55] (0.42,0) rectangle (0.88,0.1);
+    \node[align=center, below] at (0.65,0) {\scriptsize User\\\scriptsize emb};
+    \node[above] at (0.65,0.1) {\scriptsize 0.1};
+    \fill[blue!65] (1.52,0) rectangle (1.98,1.2);
+    \node[align=center, below] at (1.75,0) {\scriptsize FAISS};
+    \node[above] at (1.75,1.2) {\scriptsize 1.2};
+    \fill[green!55!black] (2.62,0) rectangle (3.08,5.1);
+    \node[align=center, below] at (2.85,0) {\scriptsize Tra cứu\\\scriptsize đặc trưng};
+    \node[above] at (2.85,5.1) {\scriptsize 5.1};
+    \fill[purple!65] (3.72,0) rectangle (4.18,5.8);
+    \node[align=center, below] at (3.95,0) {\scriptsize LightGBM};
+    \node[above] at (3.95,5.8) {\scriptsize 5.8};
+    \fill[orange!75] (4.82,0) rectangle (5.28,7.1);
+    \node[align=center, below] at (5.05,0) {\scriptsize Phần\\\scriptsize còn lại};
+    \node[above] at (5.05,7.1) {\scriptsize 7.1};
 \end{tikzpicture}
 \caption{Biểu đồ phân rã độ trễ theo bảng tổng hợp pipeline phục vụ}
 \label{fig:serving_latency_breakdown}
 \end{figure}
 
-Hình~\ref{fig:serving_latency_breakdown} cho thấy giai đoạn xếp hạng bằng LightGBM có thể chiếm tỷ trọng đáng kể trong tổng thời gian xử lý vì mô hình phải chấm điểm nhiều ứng viên cùng lúc. Tuy nhiên, các benchmark cho từng yêu cầu cụ thể trong tài liệu dự án cũng ghi nhận rằng tỷ trọng từng thành phần có thể thay đổi theo kịch bản. Với truy vấn chỉ dùng kênh dài hạn, tổng độ trễ được ghi nhận khoảng 35.23 ms; với truy vấn hai kênh có \texttt{session\_items}, tổng độ trễ được ghi nhận khoảng 16.97 ms. Trong các lần đo này, thời gian tra cứu đặc trưng có thể lớn hơn thời gian chấm điểm LightGBM. Vì vậy, có thể kết luận rằng API đạt mục tiêu dưới 50 ms trong các kịch bản thử nghiệm cục bộ đã ghi nhận, còn nút thắt hiệu năng cụ thể phụ thuộc vào dữ liệu, trạng thái bộ nhớ và loại yêu cầu.
+Hình~\ref{fig:serving_latency_breakdown} cho thấy giai đoạn xếp hạng bằng LightGBM và tra cứu đặc trưng chiếm tỷ trọng đáng kể trong tổng thời gian xử lý vì mô hình phải chấm điểm nhiều ứng viên cùng lúc và ghép đặc trưng cho từng ứng viên. Trong lần chạy kiểm thử cục bộ, truy vấn hai kênh có \texttt{session\_items} đạt trung bình khoảng 19.3 ms sau giai đoạn warm-up. Vì vậy, có thể kết luận rằng API đạt mục tiêu dưới 50 ms trong kịch bản thử nghiệm cục bộ đã ghi nhận, còn nút thắt hiệu năng cụ thể phụ thuộc vào dữ liệu, trạng thái bộ nhớ và loại yêu cầu.
 
 \section{Nhận xét và hạn chế}
 Từ các kết quả thực nghiệm, có thể thấy hệ thống đã xây dựng được một pipeline gợi ý tương đối hoàn chỉnh. Mô hình Recall giúp thu hẹp nhanh không gian tìm kiếm sản phẩm, trong khi FAISS bảo đảm quá trình truy hồi ứng viên diễn ra với độ trễ thấp. Mô hình Ranking giúp cải thiện chất lượng danh sách cuối cùng bằng cách sắp xếp lại các ứng viên theo nhiều nhóm đặc trưng khác nhau.
