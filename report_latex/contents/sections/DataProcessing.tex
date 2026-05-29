@@ -32,12 +32,12 @@ Kết quả phân tích khám phá chỉ ra hai đặc điểm vô cùng quan tr
 \end{itemize}
 
 \section{Gán nhãn tương tác ngầm (Pseudo-Labeling)}
-Do dữ liệu thương mại điện tử không có nhãn đúng/sai rõ ràng, chúng em sử dụng kỹ thuật Pseudo-Labeling để quy đổi hành vi implicit feedback thành thang điểm chất lượng lũy tiến. Trong mỗi phiên, chúng em gom nhóm theo người dùng và sản phẩm, giữ lại hành động có giá trị lớn nhất làm nhãn huấn luyện mục tiêu:
+Do dữ liệu thương mại điện tử không có nhãn đúng/sai rõ ràng, chúng em sử dụng kỹ thuật Pseudo-Labeling để quy đổi hành vi implicit feedback thành nhãn mục tiêu nhị phân nhằm phân tách rõ nét giữa ý định xem sản phẩm đơn thuần và hành vi chuyển đổi có giá trị cao. Trong mỗi phiên, chúng em gom nhóm theo người dùng và sản phẩm, giữ lại hành động có mức độ cam kết lớn nhất làm nhãn huấn luyện mục tiêu:
 \begin{equation}
     \text{Label}(x) = 
     \begin{cases}
-        1 & \text{nếu } x \in \{\text{View, Cart, Purchase}\} \\
-        0 & \text{cho các mẫu âm tính ngẫu nhiên (Negative Samples)}
+        1 & \text{nếu } x \in \{\text{Cart, Purchase}\} \\
+        0 & \text{nếu } x \in \{\text{View}\} \text{ hoặc mẫu âm tính ngẫu nhiên (Negative Samples)}
     \end{cases}
 \end{equation}
-Đồng thời gán \texttt{sample\_weight} cho từng dòng dữ liệu: View nhận trọng số 0.1, Cart nhận trọng số 0.5, và Purchase nhận trọng số 1.0 để nhấn mạnh hành vi chuyển đổi của doanh nghiệp trong lúc tối ưu hàm Loss của LightGBM.
+Đồng thời gán \texttt{sample\_weight} cho từng dòng dữ liệu: View nhận trọng số 0.1, Cart nhận trọng số 0.5, và Purchase nhận trọng số 1.0 để nhấn mạnh tầm quan trọng của hành vi chuyển đổi trong quá trình tối ưu hóa hàm tổn thất.
