@@ -2,6 +2,21 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Phân phối loại hành vi theo phân tích EDA của dự án}}{9}{figure.3.1}%
+\contentsline {figure}{\numberline {3.2}{\ignorespaces Pipeline tiền xử lý dữ liệu}}{10}{figure.3.2}%
+\contentsline {figure}{\numberline {3.3}{\ignorespaces Minh họa nguyên tắc point-in-time khi tạo đặc trưng huấn luyện}}{12}{figure.3.3}%
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Kiến trúc tổng thể của hệ thống gợi ý hai giai đoạn}}{14}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Workflow vận hành thời gian thực}}{15}{figure.4.2}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {5.1}{\ignorespaces Sơ đồ Matrix Factorization}}{18}{figure.5.1}%
+\contentsline {figure}{\numberline {5.2}{\ignorespaces Cơ chế Dual-Channel Recall}}{20}{figure.5.2}%
+\contentsline {figure}{\numberline {5.3}{\ignorespaces Quy trình tạo dữ liệu Train-on-Recall}}{21}{figure.5.3}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {6.1}{\ignorespaces Luồng xử lý một yêu cầu gợi ý trong API FastAPI}}{24}{figure.6.1}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {7.1}{\ignorespaces Đường giảm loss của mô hình Recall qua 5 epoch}}{27}{figure.7.1}%
+\contentsline {figure}{\numberline {7.2}{\ignorespaces So sánh AUC, NDCG@10 và MRR giữa Baseline và Train-on-Recall}}{29}{figure.7.2}%
+\contentsline {figure}{\numberline {7.3}{\ignorespaces Biểu đồ phân rã độ trễ theo bảng tổng hợp pipeline phục vụ}}{30}{figure.7.3}%
 \addvspace {10\p@ }
 \addvspace {10\p@ }

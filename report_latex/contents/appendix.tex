@@ -1,0 +1,73 @@
+\chapter{Phụ lục}
+
+Phụ lục cung cấp các thông tin hỗ trợ để người đọc có thể kiểm tra và chạy lại các thành phần chính của dự án. Các nội dung bao gồm lệnh chạy chương trình, ví dụ yêu cầu API, cấu trúc phản hồi JSON và bảng siêu tham số được sử dụng trong hệ thống.
+
+\section{Lệnh chạy chương trình}
+Các lệnh dưới đây được sử dụng để cài đặt môi trường, chạy pipeline huấn luyện và khởi động API phục vụ gợi ý:
+
+\begin{verbatim}
+uv sync
+uv run python main_train.py
+uv run python -m src.ranking_model.train_on_recall
+uv run python main_serve.py
+\end{verbatim}
+
+\section{Ví dụ yêu cầu API}
+Sau khi FastAPI server được khởi động, có thể kiểm tra endpoint gợi ý bằng các request sau:
+
+\begin{verbatim}
+curl "http://127.0.0.1:8000/recommend/10005"
+curl "http://127.0.0.1:8000/recommend/10005?\
+session_items=5700030,5700140"
+\end{verbatim}
+
+\section{Ví dụ phản hồi JSON}
+Đoạn dưới đây chỉ minh họa cấu trúc phản hồi JSON của API, không phải kết quả đo thực nghiệm hay một phản hồi được ghi nhận cố định từ hệ thống:
+
+\begin{verbatim}
+{
+  "user_id": 10005,
+  "user_idx": 10,
+  "recommendations": [
+    {
+      "product_id": 5700030,
+      "item_idx": 123,
+      "score": 0.8123
+    }
+  ],
+  "latency_metrics": {
+    "user_emb_time_ms": 0.0,
+    "faiss_search_time_ms": 0.0,
+    "feature_lookup_time_ms": 0.0,
+    "ranking_time_ms": 0.0,
+    "sort_time_ms": 0.0,
+    "total_latency_ms": 0.0
+  }
+}
+\end{verbatim}
+
+\section{Bảng siêu tham số}
+\begin{table}[H]
+\centering
+\caption{Một số tham số cấu hình chính của hệ thống}
+\label{tab:hyperparameters}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\textwidth}{lll}
+\toprule
+\textbf{Nhóm} & \textbf{Tham số} & \textbf{Giá trị} \\
+\midrule
+Pipeline dữ liệu & Ngưỡng chia phiên & 30 phút \\
+Recall & Số chiều embedding & 64 \\
+Recall & Kích thước batch & 4096 \\
+Recall & Số epoch & 5 \\
+Recall & Learning rate & 0.01 \\
+Recall & Tỷ lệ lấy mẫu âm & 1:4 \\
+Ranking & Learning rate & 0.05 \\
+Ranking & Số lá & 31 \\
+Ranking & Số vòng boosting & 100 \\
+Phục vụ & Top-K long-term recall & 100 \\
+Phục vụ & Top-K session recall & 100 \\
+Phục vụ & Top-N ranking & 20 \\
+\bottomrule
+\end{tabularx}
+\end{table}

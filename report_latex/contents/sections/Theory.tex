@@ -1,47 +1,51 @@
-\chapter{Cơ sở Lý thuyết}
+﻿\chapter{Cơ sở lý thuyết}
 
-\section{Tổng quan về Hệ thống Gợi ý (Recommender Systems)}
-Hệ thống gợi ý (Recommender Systems) là một nhánh quan trọng của Trí tuệ Nhân tạo và Học máy, được thiết kế nhằm dự đoán mức độ quan tâm của người dùng đối với một sản phẩm hoặc nội dung cụ thể.
-Các phương pháp gợi ý truyền thống phổ biến bao gồm:
-\begin{itemize}
-    \item \textbf{Lọc dựa trên nội dung (Content-based Filtering):} Gợi ý sản phẩm tương đồng về đặc tính (thương hiệu, chất liệu, danh mục) với các mặt hàng người dùng đã thích trong quá khứ. Hạn chế lớn là khó mở rộng và không gợi ý được các mặt hàng nằm ngoài gu cũ (vấn đề quá chuyên biệt).
-    \item \textbf{Lọc cộng tác (Collaborative Filtering):} Dựa trên giả định rằng những người dùng có chung hành vi trong quá khứ sẽ có xu hướng lựa chọn giống nhau trong tương lai. Lọc cộng tác chia làm hai dạng: User-based (so khớp độ tương đồng giữa các user) và Item-based (so khớp tương đồng giữa các sản phẩm dựa trên lượt đánh giá của chung người dùng).
-\end{itemize}
+Chương này trình bày các khái niệm nền tảng cần thiết để hiểu cách hệ thống gợi ý trong dự án được thiết kế. Các nội dung được triển khai theo thứ tự từ bài toán gợi ý sản phẩm, phản hồi ẩn, kiến trúc hai giai đoạn, các kỹ thuật chính cho đến các chỉ số đánh giá mô hình.
 
-\section{Kiến trúc Hệ thống Gợi ý 2 giai đoạn (Two-Stage Architecture)}
-Khi số lượng sản phẩm tăng lên hàng triệu, việc tính toán chi tiết độ tương thích giữa một người dùng với từng sản phẩm bằng các mô hình học máy phức tạp trở nên bất khả thi do giới hạn độ trễ phục vụ trực tuyến. Để giải quyết bài toán quy mô lớn này, kiến trúc gợi ý Hai Giai Đoạn được đề xuất và áp dụng rộng rãi:
-\begin{enumerate}
-    \item \textbf{Giai đoạn Triệu hồi (Candidate Generation / Recall):} Thực hiện sàng lọc thô siêu tốc. Từ hàng triệu sản phẩm, sử dụng các thuật toán đơn giản hoặc tìm kiếm vector KNN để trích xuất ra một tập nhỏ ứng viên tiềm năng nhất (khoảng 100 đến 200 ứng viên) trong thời gian vài mili-giây.
-    \item \textbf{Giai đoạn Xếp hạng chi tiết (Ranking Stage):} Sử dụng các mô hình học máy mạnh mẽ với hàng chục đặc trưng phức tạp để chấm điểm chính xác xác suất chuyển đổi cho từng sản phẩm trong tập ứng viên thô, sắp xếp và trả về Top-N sản phẩm tốt nhất.
-\end{enumerate}
+\section{Bài toán gợi ý sản phẩm trong thương mại điện tử}
+Bài toán gợi ý sản phẩm trong thương mại điện tử xuất phát từ nhu cầu hỗ trợ người dùng tìm được sản phẩm phù hợp trong một tập sản phẩm rất lớn. Trên các nền tảng mua sắm trực tuyến, mỗi người dùng có sở thích, nhu cầu và hành vi khác nhau. Nếu chỉ dựa vào tìm kiếm thủ công hoặc danh sách sản phẩm phổ biến chung cho tất cả người dùng, hệ thống khó đáp ứng được tính cá nhân hóa và có thể làm giảm trải nghiệm mua sắm.
+\medskip
 
-\section{Các phương pháp Candidate Generation (Recall Model)}
-Các mô hình triệu hồi phổ biến bao gồm:
-\begin{itemize}
-    \item \textbf{Matrix Factorization (Phân rã ma trận):} Biến đổi ma trận tương tác User-Item thưa thớt thành tích vô hướng của hai ma trận embedding có số chiều ẩn thấp ($d = 64$).
-    \item \textbf{Deep Learning-based Recall:} Sử dụng các mạng thần kinh (như mạng hai tháp Two-Tower DSSM) để học vector nhúng biểu diễn ẩn cho User và Item.
-    \item \textbf{Session-based Recall:} Khai thác các tương tác tức thì của người dùng trong phiên mua sắm hiện tại để tính toán vector bối cảnh, thực hiện triệu hồi các sản phẩm tương thích.
-\end{itemize}
+Mục tiêu của hệ thống gợi ý là khai thác dữ liệu hành vi trong quá khứ để dự đoán những sản phẩm mà người dùng có khả năng quan tâm trong tương lai \cite{covington2016deep}. Với một người dùng cụ thể, hệ thống cần đưa ra danh sách Top-N sản phẩm phù hợp nhất. Danh sách này có thể được sử dụng ở nhiều vị trí trong ứng dụng thương mại điện tử như trang chủ cá nhân hóa, trang chi tiết sản phẩm, giỏ hàng hoặc các chiến dịch tiếp thị.
+\medskip
 
-\section{Các phương pháp Ranking (Ranking Model) và thuật toán LightGBM}
-Giai đoạn xếp hạng đòi hỏi mô hình phải có khả năng xử lý các đặc trưng dạng bảng phi tuyến phức tạp (giá, tần suất, bối cảnh thời gian) với tốc độ thực thi nhanh.
-\begin{itemize}
-    \item \textbf{Các phương pháp xếp hạng:} Trực quan hóa điểm số CTR bằng Logistic Regression, Deep \& Cross Networks (DCN), hoặc Gradient Boosting Decision Trees (GBDT).
-    \item \textbf{Thuật toán LightGBM:} Khung thuật toán GBDT phát triển bởi Microsoft. LightGBM tối ưu hóa sự phân nhánh cây quyết định theo chiều dọc (Leaf-wise), kết hợp kỹ thuật lấy mẫu dựa trên gradient một bên (GOSS) và bó các đặc trưng loại trừ lẫn nhau (EFB), mang lại tốc độ huấn luyện siêu tốc và độ chính xác phân loại nhị phân cực tốt trên dữ liệu lớn.
-\end{itemize}
+Trong phạm vi dự án này, dữ liệu đầu vào là lịch sử tương tác giữa người dùng và sản phẩm. Mỗi tương tác thể hiện một hành vi như xem sản phẩm, thêm vào giỏ hàng hoặc mua hàng. Từ dữ liệu đó, hệ thống xây dựng mô hình học máy nhằm học được mối quan hệ giữa người dùng và sản phẩm, sau đó sử dụng mô hình để sinh ra danh sách sản phẩm gợi ý.
 
-\section{Các chỉ số đánh giá hiệu suất (Evaluation Metrics)}
-\begin{itemize}
-    \item \textbf{Hit Rate@K (Tỷ lệ bao phủ):} Đo lường xem sản phẩm khách hàng thực sự tương tác có xuất hiện trong tập Top-K ứng viên triệu hồi hay không:
-        \begin{equation}
-            \text{Hit Rate@K} = \frac{1}{|U|} \sum_{u \in U} I(\text{Target}_u \in \text{Recall}_u^K)
-        \end{equation}
-    \item \textbf{NDCG@K (Normalized Discounted Cumulative Gain):} Đo lường độ chính xác của thứ tự xếp hạng, phạt nặng nếu sản phẩm mua sắm bị xếp ở cuối danh sách gợi ý:
-        \begin{equation}
-            \text{NDCG@K} = \frac{\text{DCG@K}}{\text{IDCG@K}} \quad \text{với} \quad \text{DCG@K} = \sum_{i=1}^K \frac{2^{rel_i} - 1}{\log_2(i + 1)}
-        \end{equation}
-    \item \textbf{MRR (Mean Reciprocal Rank):} Tính nghịch đảo vị trí của sản phẩm có tương tác đầu tiên, phản ánh nỗ lực cuộn trang của người dùng:
-        \begin{equation}
-            \text{MRR} = \frac{1}{|U|} \sum_{u \in U} \frac{1}{rank_u}
-        \end{equation}
-\end{itemize}
+\section{Phản hồi ẩn}
+Trong các hệ thống gợi ý, dữ liệu phản hồi của người dùng có thể được chia thành hai nhóm chính: phản hồi tường minh (explicit feedback) và phản hồi ẩn (implicit feedback). Phản hồi tường minh là các phản hồi trực tiếp như đánh giá sao, lượt thích hoặc bình luận. Tuy nhiên, trong thương mại điện tử, không phải người dùng nào cũng để lại đánh giá trực tiếp. Do đó, nhiều hệ thống phải dựa chủ yếu vào phản hồi ẩn, tức là các tín hiệu gián tiếp được suy ra từ hành vi của người dùng.
+\medskip
+
+Trong dự án này, phản hồi ẩn được biểu diễn thông qua các sự kiện hành vi gồm \colorbox{gray!15}{\texttt{view}}, \colorbox{gray!15}{\texttt{cart}} và \colorbox{gray!15}{\texttt{purchase}}. Hành vi \colorbox{gray!15}{\texttt{view}} cho thấy người dùng đã quan tâm ở mức độ thấp vì họ chỉ xem sản phẩm. Hành vi \colorbox{gray!15}{\texttt{cart}} thể hiện mức độ quan tâm cao hơn vì người dùng đã đưa sản phẩm vào giỏ hàng. Hành vi \colorbox{gray!15}{\texttt{purchase}} là tín hiệu mạnh nhất, cho thấy người dùng thực sự có nhu cầu và đã hoàn tất giao dịch.
+\medskip
+
+Một đặc điểm quan trọng của phản hồi ẩn là nó không phản ánh trực tiếp việc người dùng không thích một sản phẩm. Nếu người dùng chưa tương tác với một sản phẩm, không thể kết luận chắc chắn rằng họ không quan tâm đến sản phẩm đó; có thể đơn giản là họ chưa nhìn thấy sản phẩm. Vì vậy, việc gán nhãn và lấy mẫu âm cần được thiết kế cẩn thận để tránh làm sai lệch quá trình học mô hình.
+
+\section{Kiến trúc hệ gợi ý hai giai đoạn}
+Trong các hệ thống thương mại điện tử thực tế, số lượng sản phẩm có thể rất lớn. Nếu hệ thống trực tiếp chấm điểm toàn bộ sản phẩm cho từng người dùng, chi phí tính toán sẽ cao và khó đáp ứng yêu cầu thời gian thực. Vì vậy, nhiều hệ thống gợi ý hiện đại sử dụng kiến trúc hai giai đoạn (Two-Stage Recommender System) \cite{covington2016deep}.
+\medskip
+
+Giai đoạn đầu tiên là tạo ứng viên (Recall/Candidate Generation). Nhiệm vụ của giai đoạn này là lọc nhanh một tập ứng viên nhỏ hơn từ toàn bộ tập sản phẩm. Recall không cần sắp xếp hoàn hảo tất cả sản phẩm, nhưng cần bảo đảm rằng các sản phẩm có khả năng phù hợp cao được giữ lại trong tập ứng viên. Trong dự án này, Recall được xây dựng bằng mô hình Matrix Factorization sử dụng PyTorch \cite{paszke2019pytorch}. Sau khi huấn luyện, vector embedding của sản phẩm được đưa vào FAISS để hỗ trợ tìm kiếm nhanh các sản phẩm gần nhất trong không gian vector.
+\medskip
+
+Giai đoạn thứ hai là xếp hạng (Ranking). Sau khi Recall đã thu hẹp không gian tìm kiếm, Ranking sẽ chấm điểm chi tiết từng ứng viên dựa trên nhiều đặc trưng hơn, bao gồm đặc trưng người dùng, đặc trưng sản phẩm, đặc trưng phiên và thông tin nguồn Recall. Trong dự án này, mô hình Ranking sử dụng LightGBM để dự đoán mức độ phù hợp của từng ứng viên, sau đó sắp xếp theo điểm giảm dần và trả về danh sách Top-N sản phẩm.
+
+\section{Các kỹ thuật chính}
+Matrix Factorization là một kỹ thuật quan trọng trong dự án. Kỹ thuật này biểu diễn người dùng và sản phẩm dưới dạng các vector có số chiều thấp hơn so với ma trận tương tác ban đầu \cite{koren2009matrix}. Thay vì lưu trực tiếp toàn bộ ma trận người dùng-sản phẩm rất thưa, mô hình học một vector embedding cho mỗi người dùng và mỗi sản phẩm. Mức độ phù hợp giữa người dùng và sản phẩm được tính thông qua phép nhân vô hướng giữa hai vector.
+\medskip
+
+Dữ liệu thương mại điện tử thường mất cân bằng mạnh, trong đó phần lớn tương tác là lượt xem, còn hành vi mua hàng chiếm tỷ lệ nhỏ. Để giảm ảnh hưởng của mất cân bằng dữ liệu, dự án sử dụng Focal Loss trong quá trình huấn luyện mô hình Recall \cite{lin2017focal}. Focal Loss giúp mô hình tập trung nhiều hơn vào các mẫu khó và giảm ảnh hưởng của những mẫu dễ, từ đó phù hợp với bối cảnh có nhiều tín hiệu yếu và ít tín hiệu mạnh.
+\medskip
+
+FAISS được sử dụng để tìm kiếm vector tốc độ cao \cite{johnson2019billion}. Sau khi mô hình Recall học được item embedding, các vector này được lưu lại và xây dựng thành chỉ mục tìm kiếm. Khi cần gợi ý cho một người dùng, hệ thống chỉ cần lấy vector đại diện cho người dùng hoặc phiên hiện tại, sau đó truy vấn FAISS để lấy ra các sản phẩm gần nhất.
+\medskip
+
+LightGBM được sử dụng ở giai đoạn Ranking \cite{ke2017lightgbm}. Đây là mô hình Gradient Boosting Decision Trees có khả năng xử lý tốt dữ liệu dạng bảng và các đặc trưng hỗn hợp. Trong dự án này, LightGBM nhận đầu vào là các đặc trưng đã được tạo từ pipeline dữ liệu và kho đặc trưng (feature store), sau đó dự đoán điểm phù hợp cho từng sản phẩm ứng viên.
+
+\section{Các chỉ số đánh giá}
+Để đánh giá hệ thống gợi ý, dự án sử dụng nhiều nhóm chỉ số khác nhau vì mỗi giai đoạn có mục tiêu riêng. Đối với giai đoạn Recall, chỉ số quan trọng là Recall@K hoặc Hit Rate@K. Chỉ số này phản ánh khả năng của mô hình trong việc giữ lại các sản phẩm liên quan trong Top-K ứng viên.
+\medskip
+
+Đối với giai đoạn Ranking, AUC được sử dụng để đánh giá khả năng phân biệt giữa mẫu tích cực và mẫu không tích cực \cite{fawcett2006roc}. Tuy nhiên, vì bài toán gợi ý quan tâm nhiều đến thứ tự hiển thị, các chỉ số xếp hạng như NDCG@K và MRR cũng rất quan trọng. NDCG@K đánh giá chất lượng thứ tự của danh sách Top-K, trong đó các sản phẩm phù hợp xuất hiện ở vị trí cao sẽ đóng góp nhiều hơn vào điểm số \cite{jarvelin2002cumulated}. MRR đo vị trí của sản phẩm phù hợp đầu tiên trong danh sách, qua đó phản ánh mức độ nhanh chóng mà người dùng có thể nhìn thấy một sản phẩm liên quan \cite{craswell2009mrr}.
+\medskip
+
+Bên cạnh chất lượng gợi ý, hệ thống còn cần được đánh giá về hiệu năng phục vụ. Chỉ số độ trễ (latency) cho biết thời gian hệ thống cần để xử lý một request và trả về kết quả. Trong hệ thống gợi ý trực tuyến, latency là yếu tố quan trọng vì thời gian phản hồi chậm có thể ảnh hưởng trực tiếp đến trải nghiệm người dùng.

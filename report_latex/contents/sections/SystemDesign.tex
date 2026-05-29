@@ -1,0 +1,115 @@
+﻿\chapter{Thiết kế hệ thống}
+
+Chương này mô tả thiết kế tổng thể của hệ thống sau khi dữ liệu và yêu cầu bài toán đã được xác định. Nội dung tập trung vào kiến trúc hai giai đoạn, luồng xử lý đầu cuối, cấu trúc mã nguồn và các artifact được tạo ra để kết nối giữa huấn luyện mô hình và phục vụ API.
+
+\section{Tổng quan kiến trúc}
+Hệ thống được thiết kế theo kiến trúc gợi ý hai giai đoạn, bao gồm giai đoạn xử lý dữ liệu, giai đoạn huấn luyện mô hình và giai đoạn phục vụ gợi ý thông qua API. Cách tổ chức này giúp tách biệt rõ ràng giữa phần chuẩn bị dữ liệu, phần học mô hình và phần suy luận trực tuyến, từ đó làm cho hệ thống dễ mở rộng, dễ kiểm thử và dễ thay thế từng thành phần khi cần cải tiến.
+\medskip
+
+Ở mức tổng quan, dữ liệu thô được đưa vào quy trình xử lý dữ liệu (Data Pipeline) để thực hiện các bước tiền xử lý, chia phiên, tạo đặc trưng và gán nhãn. Kết quả của pipeline được lưu lại dưới dạng các tập dữ liệu Parquet, bao gồm dữ liệu huấn luyện và các bảng đặc trưng dùng cho giai đoạn phục vụ suy luận. Các bảng đặc trưng này đóng vai trò như một kho đặc trưng (feature store) đơn giản, cho phép hệ thống tra cứu nhanh thông tin người dùng và sản phẩm trong quá trình phục vụ gợi ý.
+\medskip
+
+Sau khi dữ liệu đã được xử lý, hệ thống huấn luyện mô hình Recall bằng Matrix Factorization. Mô hình này học biểu diễn vector cho người dùng và sản phẩm. Vector sản phẩm sau huấn luyện được lưu thành file embedding và đưa vào FAISS để xây dựng chỉ mục tìm kiếm vector. Khi cần sinh gợi ý, FAISS giúp truy hồi nhanh một tập ứng viên sản phẩm thay vì phải xét toàn bộ danh mục. Hình~\ref{fig:system_architecture} tóm tắt các thành phần chính và quan hệ giữa chúng ở mức kiến trúc.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1.3cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=3.2cm, minimum height=0.9cm},
+    arrow/.style={-{Latex[length=2mm]}, thick}
+]
+    \node[box] (raw) {Dữ liệu thô\\hành vi người dùng};
+    \node[box, right=of raw] (pipeline) {Pipeline dữ liệu\\Phiên + đặc trưng};
+    \node[box, right=of pipeline] (recall) {Mô hình Recall\\PyTorch MF};
+    \node[box, below=of recall] (faiss) {FAISS Index\\Vector Search};
+    \node[box, right=of recall] (rank) {Mô hình Ranking\\LightGBM};
+    \node[box, right=of rank] (api) {FastAPI\\Top-N gợi ý};
+
+    \draw[arrow] (raw) -- (pipeline);
+    \draw[arrow] (pipeline) -- (recall);
+    \draw[arrow] (recall) -- (rank);
+    \draw[arrow] (recall) -- (faiss);
+    \draw[arrow] (faiss) -- (rank);
+    \draw[arrow] (rank) -- (api);
+\end{tikzpicture}
+}
+\caption{Kiến trúc tổng thể của hệ thống gợi ý hai giai đoạn}
+\label{fig:system_architecture}
+\end{figure}
+
+Từ Hình~\ref{fig:system_architecture}, có thể thấy kiến trúc được tách thành ba vùng trách nhiệm rõ ràng: chuẩn bị dữ liệu, huấn luyện mô hình và phục vụ gợi ý. Cách tách này phù hợp với cấu trúc mã nguồn của dự án, trong đó mỗi nhóm thư mục đảm nhiệm một phần riêng nhưng vẫn dùng chung các artifact đã được sinh ra từ pipeline.
+
+\section{Luồng xử lý đầu cuối}
+Luồng xử lý đầu cuối (end-to-end) của hệ thống bắt đầu từ dữ liệu hành vi thô và kết thúc ở danh sách sản phẩm gợi ý được trả về cho người dùng. Bước phân đoạn phiên (Sessionization) có nhiệm vụ chia các hành vi liên tiếp của người dùng thành các phiên mua sắm. Đây là bước quan trọng vì hành vi trong cùng một phiên thường phản ánh nhu cầu ngắn hạn của người dùng. Sau đó, bước trích xuất đặc trưng (Feature Engineering) tạo ra các đặc trưng mô tả người dùng, sản phẩm và phiên. Các đặc trưng này được sử dụng trong cả quá trình huấn luyện và phục vụ mô hình.
+\medskip
+
+Gán nhãn giả (*Pseudo-Labeling*) chuyển đổi dữ liệu hành vi thành nhãn huấn luyện. Thay vì chỉ lưu lại loại sự kiện ban đầu, hệ thống ánh xạ các hành vi thành nhãn và trọng số mẫu để mô hình có thể học được mức độ quan tâm của người dùng. Dữ liệu đã gán nhãn được dùng để huấn luyện mô hình Recall và Ranking.
+\medskip
+
+Sau khi mô hình Recall được huấn luyện, hệ thống xuất item embedding và xây dựng FAISS index. Đây là thành phần hỗ trợ truy hồi ứng viên tốc độ cao. Ở giai đoạn Ranking, LightGBM được huấn luyện trên các đặc trưng đã tạo để học cách sắp xếp các sản phẩm ứng viên. Khi triển khai API, pipeline gợi ý sẽ kết hợp FAISS, kho đặc trưng và LightGBM để trả về danh sách sản phẩm cuối cùng. Quy trình vận hành trực tuyến này được mô tả cụ thể hơn trong Hình~\ref{fig:runtime_workflow}.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.9cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=3.0cm, minimum height=0.9cm},
+    decision/.style={diamond, draw, align=center, aspect=2.1, inner sep=1pt},
+    arrow/.style={-{Latex[length=2mm]}, thick}
+]
+    \node[box] (request) {Yêu cầu\\\texttt{user\_id}\\\texttt{session\_items}};
+    \node[decision, right=1.1cm of request] (recall) {Triệu hồi\\hai kênh};
+    \node[box, above right=0.75cm and 1.15cm of recall] (longterm) {Kênh 1\\User embedding\\sở thích dài hạn};
+    \node[box, below right=0.75cm and 1.15cm of recall] (session) {Kênh 2\\Average item embedding\\nhu cầu phiên};
+    \node[box, right=1.3cm of longterm] (faiss1) {FAISS\\Top 100\\ứng viên};
+    \node[box, right=1.3cm of session] (faiss2) {FAISS\\Top 100\\ứng viên};
+    \node[box, right=1.1cm of recall, xshift=5.9cm] (merge) {Gộp ứng viên\\và loại trùng};
+    \node[box, right=of merge] (features) {Tra cứu đặc trưng\\snapshot + động\\số tương tác phiên};
+    \node[box, right=of features] (ranker) {LightGBM Ranker\\chấm điểm + sắp xếp};
+    \node[box, right=of ranker] (response) {Phản hồi JSON\\Top-N\\gợi ý};
+
+    \draw[arrow] (request) -- (recall);
+    \draw[arrow] (recall) -- (longterm);
+    \draw[arrow] (recall) -- (session);
+    \draw[arrow] (longterm) -- (faiss1);
+    \draw[arrow] (session) -- (faiss2);
+    \draw[arrow] (faiss1) -- (merge);
+    \draw[arrow] (faiss2) -- (merge);
+    \draw[arrow] (merge) -- (features);
+    \draw[arrow] (features) -- (ranker);
+    \draw[arrow] (ranker) -- (response);
+\end{tikzpicture}
+}
+\caption[Workflow vận hành thời gian thực]{Workflow vận hành thời gian thực của hệ thống, được trực quan hóa từ sơ đồ Architecture Workflow trong README}
+\label{fig:runtime_workflow}
+\end{figure}
+
+Hình~\ref{fig:runtime_workflow} làm rõ điểm khác biệt giữa kiến trúc tổng thể và luồng vận hành khi có request thực tế. Ở thời điểm phục vụ, hệ thống không chạy lại toàn bộ pipeline dữ liệu mà sử dụng các artifact đã có sẵn để truy hồi ứng viên qua hai kênh, bổ sung đặc trưng, chấm điểm bằng LightGBM và trả về danh sách Top-N dưới dạng JSON.
+
+\section{Cấu trúc mã nguồn}
+Mã nguồn của dự án được tổ chức theo hướng mô-đun, trong đó mỗi thư mục chịu trách nhiệm cho một phần riêng của hệ thống. Cách tổ chức này giúp quá trình phát triển và kiểm thử rõ ràng hơn, đồng thời phản ánh đúng các giai đoạn chính trong pipeline gợi ý.
+\medskip
+
+File \texttt{src/config.py} đóng vai trò là nơi cấu hình tập trung của dự án. File này khai báo các đường dẫn dữ liệu, đường dẫn lưu mô hình, siêu tham số (hyperparameters) cho Recall và Ranking, cũng như danh sách đặc trưng số và đặc trưng phân loại được sử dụng trong mô hình. Việc tập trung cấu hình tại một nơi giúp hạn chế sai lệch giữa các giai đoạn xử lý dữ liệu, huấn luyện và phục vụ suy luận.
+\medskip
+
+Thư mục \texttt{src/data\_pipeline} chứa các thành phần xử lý dữ liệu. Trong đó, module sessionizer thực hiện chia phiên người dùng dựa trên khoảng cách thời gian giữa các sự kiện, module featurizer tạo các đặc trưng theo thời điểm (point-in-time features) và snapshot đặc trưng, còn module pseudo-label chuyển đổi hành vi người dùng thành nhãn và trọng số huấn luyện. File điều phối pipeline chịu trách nhiệm chạy toàn bộ các bước này để tạo ra dữ liệu đầu ra phục vụ các giai đoạn tiếp theo.
+\medskip
+
+Thư mục \texttt{src/recall\_model} chứa phần xây dựng mô hình Recall. Mô hình Matrix Factorization được định nghĩa trong \texttt{model.py}, quá trình huấn luyện và hàm mất mát được triển khai trong \texttt{trainer.py}, còn \texttt{run\_recall.py} thực hiện toàn bộ quy trình đọc dữ liệu, lấy mẫu âm, mã hóa định danh, huấn luyện mô hình và lưu các artifact.
+\medskip
+
+Thư mục \texttt{src/ranking\_model} phụ trách mô hình Ranking. File \texttt{lgbm\_train.py} định nghĩa lớp huấn luyện LightGBM, \texttt{metrics.py} triển khai các chỉ số đánh giá như NDCG và MRR, còn \texttt{run\_ranking.py} huấn luyện mô hình Ranking baseline từ dữ liệu đã xử lý. Ngoài ra, \texttt{train\_on\_recall.py} triển khai hướng cải tiến bằng cách huấn luyện Ranking trên chính các ứng viên được sinh ra từ Recall.
+\medskip
+
+Thư mục \texttt{src/serving} chứa các thành phần phục vụ gợi ý. \texttt{faiss\_index.py} quản lý việc tải item embedding và xây dựng FAISS index. \texttt{ranker.py} tải mô hình LightGBM và thực hiện dự đoán điểm cho các ứng viên. \texttt{pipeline.py} là thành phần điều phối chính, kết hợp Recall, tra cứu đặc trưng, Ranking và xử lý fallback để tạo danh sách gợi ý cuối cùng.
+
+\section{Các artifact đầu ra}
+Sau khi chạy đầy đủ pipeline, hệ thống tạo ra nhiều artifact phục vụ cho cả huấn luyện và suy luận. Tập \texttt{labeled\_sessions.parquet} chứa dữ liệu tương tác đã được chia phiên, bổ sung đặc trưng và gán nhãn. Đây là tập dữ liệu chính dùng để huấn luyện mô hình Recall và Ranking. Hai tập \texttt{user\_features.parquet} và \texttt{item\_features.parquet} là các bảng snapshot đặc trưng cho người dùng và sản phẩm. Trong quá trình phục vụ suy luận, các bảng này được nạp vào bộ nhớ để tra cứu nhanh khi cần chấm điểm các ứng viên.
+\medskip
+
+Đối với mô hình Recall, hệ thống lưu trọng số mô hình vào \texttt{recall\_weights.pth}, lưu vector biểu diễn sản phẩm vào \texttt{item\_embeddings.npy}, đồng thời lưu encoder ánh xạ giữa định danh gốc và chỉ số nội bộ vào \texttt{user\_encoder.joblib} và \texttt{item\_encoder.joblib}. Các file này cần được đồng bộ với nhau, vì FAISS index, embedding và mapping sản phẩm phải sử dụng cùng một thứ tự item.
+\medskip
+
+Đối với mô hình Ranking, artifact quan trọng nhất là \texttt{ranker\_model.txt}, chứa mô hình LightGBM đã huấn luyện. Khi API khởi động, LightGBMRanker tải file này và đọc danh sách đặc trưng mà mô hình yêu cầu. Nhờ đó, pipeline phục vụ suy luận có thể tự động căn chỉnh đặc trưng đầu vào, bổ sung các cột bị thiếu và đảm bảo thứ tự cột phù hợp với mô hình đã huấn luyện.

@@ -11,11 +11,11 @@
 \usepackage{multirow}
 \usepackage{multicol}
 \usepackage{booktabs}
+\usepackage{tabularx}
 \usepackage[mathscr]{eucal}
 \usepackage[unicode,colorlinks=true, bookmarks=true, pdfstartview=FitH]{hyperref}
 \hypersetup{
   pdftitle={Báo Cáo Tiểu Luận: Hệ Thống Gợi Ý Thương Mại Điện Tử},
-  pdfauthor={Nguyễn Tuấn Anh},
   colorlinks = true,
   linkcolor = magenta,
   citecolor = blue,
@@ -35,15 +35,16 @@
 \usepackage{setspace}
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{arrows.meta, positioning}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric}
 \usepackage{pdfpages}
 
 \onehalfspacing
+\emergencystretch=2em
 
 % Cấu hình header/footer dùng fancyhdr
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\it Tiểu luận Nghiên cứu Hệ thống Gợi ý Thương mại điện tử}
+\lhead{\it Hệ thống Gợi ý Thương mại điện tử}
 \rhead{}
 \cfoot{\thepage}
 
@@ -58,10 +59,6 @@
 \pagenumbering{roman}
 \setcounter{page}{1}
 
-\input{contents/acknowledgement}
-\clearpage
-\input{contents/pledge}
-\clearpage
 \input{contents/abstract}
 \clearpage
 
@@ -82,14 +79,22 @@
 \clearpage
 \input{contents/sections/DataProcessing}
 \clearpage
+\input{contents/sections/SystemDesign}
+\clearpage
 \input{contents/sections/ModelDesign}
 \clearpage
 \input{contents/sections/ServingPipeline}
+\clearpage
+\input{contents/sections/Evaluation}
 \clearpage
 \input{contents/sections/Conclusion}
 \clearpage
 
 \bibliographystyle{unsrt}
 \bibliography{recommender}
+
+\clearpage
+\appendix
+\input{contents/appendix}
 
 \end{document}

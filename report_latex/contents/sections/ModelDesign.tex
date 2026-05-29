@@ -1,56 +1,146 @@
-\chapter{Thiết kế và Huấn luyện Mô hình}
+﻿\chapter{Xây dựng mô hình gợi ý}
 
-\section{Kiến trúc tổng thể của hệ thống}
-Hệ thống được thiết kế theo kiến trúc gợi ý hai giai đoạn tích hợp triệu hồi Dual-Channel song song thời gian thực và xếp hạng lại bằng LightGBM. Mô hình triệu hồi PyTorch Matrix Factorization và FAISS Index FlatIP thực hiện sàng lọc thô cực nhanh để lọc ra 200 ứng viên từ 63,000+ sản phẩm. Sau đó, mô hình xếp hạng LightGBM chấm điểm CTR chi tiết, sắp xếp và trả về Top 20 sản phẩm tối ưu.
+Chương này trình bày cách dự án xây dựng hai thành phần mô hình chính của hệ thống gợi ý: Recall và Ranking. Phần Recall chịu trách nhiệm tạo tập ứng viên nhanh bằng Matrix Factorization và FAISS, trong khi phần Ranking sử dụng LightGBM để chấm điểm và sắp xếp lại các ứng viên theo mức độ phù hợp.
 
-\section{Xây dựng và tối ưu mô hình Recall}
-Mô hình Recall được xây dựng bằng mạng học sâu Matrix Factorization trên PyTorch:
-\begin{itemize}
-    \item \textbf{Cấu trúc mô hình:} Lớp nhúng (\texttt{nn.Embedding}) ánh xạ các ID thô của User và Item thành các vector ẩn 64 chiều. Trọng số embeddings được khởi tạo bằng phương pháp \textbf{Xavier Uniform} giúp đảm bảo tính ổn định và tốc độ hội tụ nhanh.
-    \item \textbf{Negative Sampling 1:4:} Với mỗi tương tác dương lịch sử (label 1), chúng em lấy mẫu ngẫu nhiên 4 sản phẩm người dùng chưa từng tương tác làm mẫu âm (label 0) để cân bằng dữ liệu huấn luyện.
-    \item \textbf{Hàm tổn thất Focal Loss:} Để giải quyết mất cân bằng lớp cực đoan (View chiếm 96.8\% lượt tương tác), chúng em phát triển lớp \texttt{FocalLoss} tùy chỉnh với $\alpha=0.25$ và $\gamma=2.0$:
-        \begin{equation}
-            \text{FL}(p_t) = -\alpha_t (1 - p_t)^\gamma \log(p_t)
-        \end{equation}
-        Focal Loss chủ động dập giảm lỗi từ các mẫu xem dễ dự đoán ($p_t \approx 0.9$), ép mô hình tập trung dồn gradient học các tương tác hiếm và quan trọng như Cart (Thêm giỏ) và Purchase (Mua hàng).
-    \item \textbf{Chỉ mục FAISS Index FlatIP:} Tải 63,322 vector nhúng sản phẩm đã huấn luyện lên RAM để dựng chỉ mục tích vô hướng FAISS KNN FlatIP siêu tốc, cho phép quét 100 sản phẩm tương quan nhất dưới 0.02 mili-giây.
-\end{itemize}
+\section{Mô hình Recall}
+Trong kiến trúc hệ gợi ý hai giai đoạn, mô hình Recall có nhiệm vụ lọc nhanh một tập sản phẩm ứng viên từ toàn bộ danh mục sản phẩm. Đây là bước đầu tiên trong quá trình gợi ý, giúp giảm đáng kể không gian tìm kiếm trước khi chuyển sang giai đoạn Ranking. Nếu hệ thống có hàng chục nghìn hoặc hàng triệu sản phẩm, việc đưa toàn bộ sản phẩm vào mô hình Ranking sẽ tốn nhiều chi phí tính toán và không phù hợp với yêu cầu phản hồi nhanh.
+\medskip
 
-\section{Xây dựng và huấn luyện mô hình Ranking}
-Mô hình xếp hạng LightGBM GBDT được thiết lập để chấm điểm chi tiết xác suất CTR:
-\begin{itemize}
-    \item \textbf{Phân chia tập dữ liệu Time-based Splitting:} Sắp xếp các tương tác theo thời gian và phân chia theo tỷ lệ \textbf{80\% Train / 20\% Test} dựa trên mốc \texttt{event\_time}, đảm bảo mô phỏng chính xác quá trình phục vụ trực tuyến.
-    \item \textbf{Tham số cấu hình LightGBM:} Thiết lập siêu tham số \texttt{is\_unbalance=True}, \texttt{num\_leaves=31}, \texttt{learning\_rate=0.05} và \texttt{num\_boost\_round=100}.
-    \item \textbf{Trọng số mẫu (Sample Weights):} Truyền trực tiếp trọng số tương tác implicit ngầm (\texttt{view=0.1}, \texttt{cart=0.5}, \texttt{purchase=1.0}) vào \texttt{lgb.Dataset} để nhấn mạnh hành vi mua hàng.
-\end{itemize}
+Mục tiêu của Recall không phải là sắp xếp chính xác tuyệt đối tất cả sản phẩm, mà là bảo đảm các sản phẩm có khả năng phù hợp cao với người dùng được giữ lại trong tập ứng viên. Nói cách khác, Recall cần có khả năng bao phủ tốt các sản phẩm tiềm năng. Sau đó, mô hình Ranking sẽ tiếp tục phân tích chi tiết hơn và quyết định thứ tự cuối cùng của các sản phẩm trong danh sách gợi ý.
+\medskip
 
-\section{Giải pháp Train-on-Recall và Kết quả thử nghiệm}
-Trong mô hình cơ sở (Baseline), LightGBM được huấn luyện trên toàn bộ dữ liệu tĩnh, dẫn đến lỗi lệch phân phối dữ liệu huấn luyện xếp hạng (Train-Test Distribution Mismatch). 
+Trong dự án này, Recall được xây dựng dựa trên Matrix Factorization \cite{koren2009matrix} và được triển khai bằng PyTorch \cite{paszke2019pytorch}. Mô hình học biểu diễn vector cho người dùng và sản phẩm từ dữ liệu tương tác lịch sử. Khi cần gợi ý, hệ thống sử dụng vector của người dùng hoặc vector đại diện cho phiên hiện tại để tìm các sản phẩm gần nhất trong không gian embedding.
 
-Để giải quyết triệt để, chúng em phát triển giải pháp cải tiến cực hạn \textbf{Train-on-Recall} (\texttt{train\_on\_recall.py}):
-\begin{enumerate}
-    \item Duyệt qua 20,000 phiên, gọi mô hình PyTorch Recall và FAISS triệu hồi ra 200 ứng viên (giống hệt 100\% môi trường Serving thực tế).
-    \item Gán nhãn ứng viên: Trở thành nhãn dương (1) nếu trùng khớp với tương tác thực tế của phiên, và nhãn âm (0) (với sample weight 0.1) cho các ứng viên không tương tác.
-    \item Huấn luyện LightGBM trên chính không gian ứng viên triệu hồi này kết hợp với hai cờ chỉ thị nguồn gốc triệu hồi nhị phân \texttt{recalled\_by\_long\_term} và \texttt{recalled\_by\_session}.
-\end{enumerate}
+\section{Matrix Factorization bằng PyTorch}
+Matrix Factorization là một phương pháp phổ biến trong hệ thống gợi ý, đặc biệt phù hợp với dữ liệu tương tác người dùng-sản phẩm (user-item) có độ thưa cao. Ý tưởng chính của phương pháp này là biểu diễn mỗi người dùng và mỗi sản phẩm bằng một vector trong không gian ẩn có số chiều nhỏ hơn nhiều so với số lượng người dùng và sản phẩm ban đầu. Các vector này được học thông qua quá trình huấn luyện sao cho người dùng và sản phẩm có quan hệ phù hợp sẽ có vector gần nhau hơn.
+\medskip
 
-Kết quả thử nghiệm ngoại tuyến (Offline Evaluation) cho thấy sự vượt trội kinh ngạc của mô hình cải tiến:
+Trong mã nguồn của dự án, mô hình Matrix Factorization được định nghĩa bằng PyTorch. Mô hình gồm hai lớp embedding: một lớp cho người dùng và một lớp cho sản phẩm. Với mỗi cặp người dùng-sản phẩm, mô hình lấy vector tương ứng của người dùng và sản phẩm, sau đó tính tích vô hướng giữa hai vector này. Giá trị tích vô hướng được đưa qua hàm sigmoid để tạo ra điểm dự đoán trong khoảng từ 0 đến 1, biểu diễn khả năng người dùng quan tâm đến sản phẩm. Cơ chế tính điểm này được khái quát trong Hình~\ref{fig:matrix_factorization}.
 
-\begin{table}[H]
+\begin{figure}[H]
 \centering
-\caption{Bảng so sánh hiệu năng xếp hạng giữa Baseline và mô hình cải tiến Train-on-Recall}
-\label{tab:ranking_comparison_design}
-\renewcommand{\arraystretch}{1.3}
-\setlength{\tabcolsep}{12pt}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Độ đo đánh giá (Metrics)} & \textbf{Mô hình Baseline} & \textbf{Mô hình Train-on-Recall} & \textbf{Mức cải thiện} \\
-\midrule
-\textbf{Validation AUC} & 0.6375 & \textbf{0.9601} & \textbf{+50.6\%} \\
-\textbf{NDCG@10} & 0.0495 & \textbf{0.0653} & \textbf{+31.9\%} \\
-\textbf{MRR} & 0.0458 & \textbf{0.0572} & \textbf{+24.9\%} \\
-\bottomrule
-\end{tabular}
-\end{table}
+\resizebox{0.92\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1.1cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=2.8cm, minimum height=0.9cm},
+    arrow/.style={-{Latex[length=2mm]}, thick}
+]
+    \node[box] (user) {\texttt{user\_idx}\\Embedding người dùng};
+    \node[box, below=of user] (item) {\texttt{item\_idx}\\Embedding sản phẩm};
+    \node[box, right=2.0cm of user, yshift=-0.65cm] (dot) {Tích vô hướng\\$u \cdot i$};
+    \node[box, right=of dot] (sigmoid) {Sigmoid\\$p(y=1)$};
+    \node[box, right=of sigmoid] (score) {Điểm phù hợp\\người dùng-sản phẩm};
 
-Chỉ số AUC tăng vọt đột biến lên \textbf{0.9601} chứng tỏ cây quyết định LightGBM đã học được cách phân biệt cực kỳ chính xác giữa tương tác thực tế và các sản phẩm bị người dùng bỏ qua (True Negatives) trong không gian ứng viên thô của FAISS. Sự bổ sung cờ triệu hồi Kênh phiên giúp NDCG@10 tăng vọt \textbf{31.9\%} và MRR tăng \textbf{24.9\%}.
+    \draw[arrow] (user) -- (dot);
+    \draw[arrow] (item) -- (dot);
+    \draw[arrow] (dot) -- (sigmoid);
+    \draw[arrow] (sigmoid) -- (score);
+\end{tikzpicture}
+}
+\caption[Sơ đồ Matrix Factorization]{Cách mô hình Matrix Factorization trong \texttt{src/recall\_model/model.py} tính điểm cho một cặp người dùng-sản phẩm}
+\label{fig:matrix_factorization}
+\end{figure}
+
+Hình~\ref{fig:matrix_factorization} cho thấy phần lõi của Recall là phép so khớp trong không gian embedding. Vì đầu ra của mô hình là điểm phù hợp cho từng cặp người dùng-sản phẩm, cùng một ma trận embedding sản phẩm có thể được tái sử dụng ở giai đoạn phục vụ để xây dựng chỉ mục FAISS và truy hồi ứng viên nhanh hơn.
+\medskip
+
+Kích thước embedding trong cấu hình hiện tại là 64. Đây là lựa chọn cân bằng giữa khả năng biểu diễn và chi phí tính toán. Nếu số chiều quá nhỏ, vector có thể không đủ khả năng biểu diễn sở thích đa dạng của người dùng và đặc trưng tiềm ẩn của sản phẩm. Ngược lại, nếu số chiều quá lớn, mô hình có thể tốn nhiều bộ nhớ hơn và dễ bị quá khớp.
+
+\section{Huấn luyện Recall và tìm kiếm vector bằng FAISS}
+Dữ liệu huấn luyện cho mô hình Recall được lấy từ tập \texttt{labeled\_sessions.parquet}. Trước khi huấn luyện, hệ thống tách các mẫu tích cực và tiêu cực dựa trên nhãn đã tạo ở bước gán nhãn giả (*pseudo-labeling*). Vì dữ liệu thương mại điện tử có số lượng hành vi yếu và không tích cực lớn hơn nhiều so với hành vi tích cực, dự án áp dụng lấy mẫu âm (negative sampling) để cân bằng dữ liệu huấn luyện. Cụ thể, với mỗi mẫu tích cực, hệ thống lấy tối đa bốn mẫu tiêu cực, tương ứng với tỷ lệ 1 mẫu tích cực và 4 mẫu tiêu cực.
+\medskip
+
+Sau bước lấy mẫu, \texttt{user\_id} và \texttt{product\_id} được mã hóa thành các chỉ số số nguyên bằng LabelEncoder. Việc mã hóa này là cần thiết vì lớp embedding của PyTorch không làm việc trực tiếp với định danh gốc, mà cần các chỉ số liên tiếp từ 0 đến số lượng user hoặc item tương ứng. Các encoder này được lưu lại để sử dụng trong quá trình phục vụ suy luận.
+\medskip
+
+Mô hình được huấn luyện với kích thước batch là 4096, learning rate là 0.01 và số epoch là 5. Hàm mất mát được sử dụng là Focal Loss \cite{lin2017focal}. So với Binary Cross Entropy thông thường, Focal Loss giảm ảnh hưởng của các mẫu dễ và tập trung nhiều hơn vào các mẫu khó. Điều này phù hợp với dữ liệu phản hồi ẩn vì phần lớn tương tác có tín hiệu yếu, trong khi các hành vi có giá trị cao như thêm vào giỏ hàng hoặc mua hàng xuất hiện ít hơn.
+\medskip
+
+Sau khi mô hình Recall được huấn luyện, vector embedding của sản phẩm được lưu thành file \texttt{item\_embeddings.npy}. Đây là ma trận trong đó mỗi dòng tương ứng với vector biểu diễn của một sản phẩm. Để truy hồi sản phẩm nhanh, dự án sử dụng FAISS để xây dựng chỉ mục tìm kiếm vector từ ma trận embedding này \cite{johnson2019billion}. Chỉ mục được sử dụng là \texttt{IndexFlatIP}, tức là tìm kiếm dựa trên tích vô hướng.
+
+\section{Dual-channel Recall}
+Một điểm đáng chú ý trong hệ thống là cơ chế Dual-Channel Recall, tức là truy hồi ứng viên từ hai nguồn tín hiệu khác nhau. Kênh thứ nhất là sở thích dài hạn (long-term preference), sử dụng user embedding để biểu diễn sở thích dài hạn của người dùng. Vector này được học từ lịch sử tương tác trước đó, do đó phù hợp với trường hợp người dùng quay lại hệ thống và chưa có nhiều hành vi trong phiên hiện tại.
+\medskip
+
+Kênh thứ hai là sở thích theo phiên (session-based preference), sử dụng thông tin từ các sản phẩm người dùng đang tương tác trong phiên hiện tại. Nếu yêu cầu API có truyền tham số \texttt{session\_items}, hệ thống sẽ ánh xạ các \texttt{product\_id} này sang item index, lấy embedding tương ứng của từng sản phẩm và tính vector trung bình. Vector trung bình này được xem là biểu diễn cho nhu cầu tức thời của người dùng trong phiên. Sau đó, hệ thống sử dụng vector này để truy vấn FAISS và lấy ra các sản phẩm tương đồng với bối cảnh hiện tại. Quan hệ giữa hai kênh truy hồi được trình bày trong Hình~\ref{fig:dual_channel_recall}.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=1.0cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=3.1cm, minimum height=0.9cm},
+    arrow/.style={-{Latex[length=2mm]}, thick}
+]
+    \node[box] (userid) {\texttt{user\_id}\\đã có encoder};
+    \node[box, below=of userid] (sessionitems) {\texttt{session\_items}\\sản phẩm trong phiên};
+    \node[box, right=of userid] (uemb) {Embedding người dùng\\long-term};
+    \node[box, right=of sessionitems] (semb) {Embedding sản phẩm trung bình\\session-based};
+    \node[box, right=of uemb] (faiss1) {FAISS search\\Top-K long-term};
+    \node[box, right=of semb] (faiss2) {FAISS search\\Top-K session};
+    \node[box, right=1.1cm of faiss1, yshift=-0.65cm] (merge) {Gộp ứng viên\\loại trùng};
+    \node[box, right=of merge] (flags) {Gán cờ nguồn\\\texttt{recalled\_by\_*}};
+
+    \draw[arrow] (userid) -- (uemb);
+    \draw[arrow] (sessionitems) -- (semb);
+    \draw[arrow] (uemb) -- (faiss1);
+    \draw[arrow] (semb) -- (faiss2);
+    \draw[arrow] (faiss1) -- (merge);
+    \draw[arrow] (faiss2) -- (merge);
+    \draw[arrow] (merge) -- (flags);
+\end{tikzpicture}
+}
+\caption[Cơ chế Dual-Channel Recall]{Cơ chế Dual-Channel Recall được triển khai trong \texttt{src/serving/pipeline.py}}
+\label{fig:dual_channel_recall}
+\end{figure}
+
+Hình~\ref{fig:dual_channel_recall} cho thấy hai kênh Recall bổ sung cho nhau thay vì thay thế nhau. Kênh long-term giúp hệ thống khai thác sở thích ổn định của người dùng trong quá khứ, trong khi kênh session-based giúp phản ánh nhu cầu đang thay đổi trong phiên hiện tại. Sau khi truy hồi từ hai kênh, hệ thống gộp danh sách ứng viên và loại bỏ sản phẩm trùng lặp. Mỗi ứng viên được gán thêm hai đặc trưng \texttt{recalled\_by\_long\_term} và \texttt{recalled\_by\_session} để thể hiện nguồn gốc truy hồi.
+
+\section{Mô hình Ranking}
+Sau khi giai đoạn Recall tạo ra tập ứng viên, mô hình Ranking có nhiệm vụ chấm điểm chi tiết và sắp xếp lại các sản phẩm này. Nếu Recall tập trung vào tốc độ và khả năng bao phủ, Ranking tập trung vào chất lượng thứ tự của danh sách cuối cùng. Đây là giai đoạn quyết định sản phẩm nào sẽ được hiển thị ở các vị trí đầu tiên cho người dùng.
+\medskip
+
+Dự án sử dụng LightGBM làm mô hình Ranking \cite{ke2017lightgbm}. Về bản chất, mô hình được huấn luyện như một bộ chấm điểm nhị phân (binary scorer), dự đoán xác suất một ứng viên là sản phẩm có tương tác tích cực với người dùng. Tuy không phải là mô hình xếp hạng theo cặp hoặc theo danh sách đúng nghĩa, cách tiếp cận này vẫn phù hợp với phạm vi dự án vì LightGBM xử lý tốt dữ liệu dạng bảng, hỗ trợ trọng số mẫu và có tốc độ suy luận nhanh.
+\medskip
+
+Đầu vào của LightGBM gồm nhiều nhóm đặc trưng. Nhóm đặc trưng người dùng phản ánh mức độ hoạt động và lịch sử tương tác của người dùng. Nhóm đặc trưng sản phẩm phản ánh độ phổ biến, số lượng người dùng từng tương tác, giá trung bình và thông tin phân loại như thương hiệu hoặc danh mục. Nhóm đặc trưng phiên giúp mô hình nắm bắt ngữ cảnh ngắn hạn, còn nhóm đặc trưng nguồn recall cho biết ứng viên được lấy ra từ kênh sở thích dài hạn, kênh phiên hiện tại hoặc cả hai.
+
+\section{Huấn luyện Ranking và Train-on-Recall}
+Dữ liệu huấn luyện Ranking được tạo bằng cách ghép dữ liệu tương tác đã gán nhãn với các bảng đặc trưng người dùng và sản phẩm. Trước khi huấn luyện, các cột phân loại như \texttt{category\_code} và \texttt{brand} được xử lý giá trị thiếu bằng nhãn \texttt{<UNKNOWN>} và chuyển sang kiểu category. Các cột số bị thiếu được điền bằng 0 để bảo đảm dữ liệu đầu vào không gây lỗi cho LightGBM.
+\medskip
+
+Một điểm quan trọng trong quá trình huấn luyện là cách chia tập huấn luyện và tập kiểm thử. Thay vì chia ngẫu nhiên, dự án sắp xếp dữ liệu theo \texttt{event\_time} và sử dụng cách chia theo thời gian (time-based split) với tỷ lệ 80\% cho huấn luyện và 20\% cho kiểm thử. Cách chia này phù hợp hơn với bài toán gợi ý vì mô hình trong thực tế luôn được huấn luyện trên dữ liệu quá khứ và dự đoán cho các hành vi xảy ra sau đó.
+\medskip
+
+Phiên bản Ranking cơ sở (baseline) được huấn luyện trực tiếp trên dữ liệu tương tác đã gán nhãn. Cách làm này đơn giản, nhưng có một hạn chế quan trọng: dữ liệu huấn luyện của Ranking có thể khác với dữ liệu mà mô hình gặp khi phục vụ suy luận. Trong thực tế, Ranking không chấm điểm toàn bộ dữ liệu tương tác gốc, mà chỉ chấm điểm các ứng viên do Recall sinh ra. Sự khác biệt này được gọi là lệch phân phối giữa huấn luyện và phục vụ (train-serving mismatch).
+\medskip
+
+Để giảm vấn đề trên, dự án bổ sung hướng huấn luyện Train-on-Recall. Ý tưởng của phương pháp này là mô phỏng chính xác hơn pipeline phục vụ suy luận trong quá trình tạo dữ liệu huấn luyện cho Ranking. Cụ thể, hệ thống khởi tạo pipeline gợi ý, duyệt qua các phiên người dùng, sử dụng mô hình Recall và FAISS để sinh danh sách ứng viên giống như khi phục vụ API. Sau đó, các ứng viên này được gán nhãn dựa trên việc người dùng có thực sự tương tác với sản phẩm trong phiên hay không. Quy trình tạo tập huấn luyện này được minh họa trong Hình~\ref{fig:train_on_recall}.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.9cm,
+    box/.style={rectangle, draw, rounded corners, align=center, minimum width=3.1cm, minimum height=0.9cm},
+    arrow/.style={-{Latex[length=2mm]}, thick}
+]
+    \node[box] (sessions) {Phiên đã gán nhãn\\\texttt{labeled\_sessions}};
+    \node[box, right=of sessions] (pipeline) {Pipeline\\gợi ý};
+    \node[box, right=of pipeline] (candidates) {Ứng viên từ\\Recall + FAISS};
+    \node[box, right=of candidates] (label) {Đối chiếu tương tác\\thật trong phiên};
+    \node[box, right=of label] (dataset) {Tập huấn luyện\\Train-on-Recall};
+    \node[box, right=of dataset] (lgbm) {LightGBM\\Ranking};
+
+    \draw[arrow] (sessions) -- (pipeline);
+    \draw[arrow] (pipeline) -- (candidates);
+    \draw[arrow] (candidates) -- (label);
+    \draw[arrow] (label) -- (dataset);
+    \draw[arrow] (dataset) -- (lgbm);
+\end{tikzpicture}
+}
+\caption[Quy trình tạo dữ liệu Train-on-Recall]{Quy trình tạo dữ liệu Train-on-Recall trong \texttt{src/ranking\_model/train\_on\_recall.py}}
+\label{fig:train_on_recall}
+\end{figure}
+
+Hình~\ref{fig:train_on_recall} cho thấy Train-on-Recall tạo ra tập huấn luyện Ranking gần với dữ liệu thực tế hơn. Các mẫu âm trong tập này không phải là các sản phẩm ngẫu nhiên hoàn toàn, mà là những sản phẩm đã được Recall xem là có tiềm năng nhưng người dùng không tương tác. Đây là các mẫu âm khó hơn và có giá trị huấn luyện cao hơn cho mô hình Ranking.

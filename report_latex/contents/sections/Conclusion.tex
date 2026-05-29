@@ -1,29 +1,30 @@
-\chapter{Kết luận và Hướng phát triển}
+﻿\chapter{Kết luận và hướng phát triển}
 
-\section{Tổng kết các kết quả đạt được}
-Dự án nghiên cứu xây dựng \textbf{Hệ thống Gợi ý Hai Giai Đoạn tiêu chuẩn công nghiệp} đã hoàn thành trọn vẹn và đạt được các kết quả xuất sắc về mặt học thuật lẫn thực chiến công nghiệp:
-1.  \textbf{Kiến trúc Two-Stage vững chắc:} Triển khai thành công phễu lọc thô triệu hồi PyTorch + FAISS song song hai kênh (gu lâu dài \& bối cảnh phiên tức thì) cùng khâu xếp hạng chi tiết LightGBM GBDT, đảm bảo phản hồi trực tuyến siêu tốc \textbf{22.5 ms} (vượt xa yêu cầu công nghiệp $<50$ms).
-2.  \textbf{Cơ chế kháng rò rỉ Point-in-time:} Loại bỏ hoàn toàn lỗi Data Leakage nghiêm trọng bằng đường ống trích xuất đặc trưng lũy kế progressive Point-in-time.
-3.  \textbf{Giải quyết lệch phân phối Train-on-Recall:} Xóa bỏ triệt để lỗi Train-Test Distribution Mismatch thông qua kịch bản huấn luyện xếp hạng trên chính không gian ứng viên triệu hồi thực tế, giúp tăng vọt Validation AUC lên \textbf{0.9601} (+50.6\%) và NDCG@10 tăng \textbf{31.9\%}.
-4.  \textbf{Serving kháng lỗi tối ưu:} Xây dựng API FastAPI in-memory hiệu năng cao tích hợp cơ chế tự động bù đặc trưng thiếu và Cold-Start Fallback, đảm bảo API vận hành bền bỉ 24/7.
+Chương cuối cùng tổng kết những nội dung đã thực hiện trong dự án và chỉ ra các hướng cải tiến có thể triển khai trong tương lai. Phần kết luận tập trung vào mức độ hoàn thiện của hệ thống hiện tại, còn phần hướng phát triển nêu các cải tiến về thuật toán, đặc trưng và hạ tầng phục vụ.
 
-\section{Phân tích các vấn đề dữ liệu còn tồn đọng (Data Issues)}
-Mặc dù hệ thống đạt được hiệu năng và độ chính xác vô cùng ấn tượng, quá trình audit codebase đã phát hiện một số vấn đề dữ liệu còn tồn đọng cần được giải quyết trong giai đoạn tiếp theo:
-*   \textbf{Tính chất mất cân bằng lớp cực đoan:} Tỷ lệ chuyển đổi dương (label 1) chỉ chiếm vỏn vẹn $0.09\%$ trong tập kiểm thử xếp hạng (299 tương tác chuyển đổi trên 320,000+ dòng dữ liệu). Hầu hết các phiên kiểm thử không chứa hành vi mua hàng thực tế làm NDCG trung bình toàn hệ thống bị kéo thấp xuống.
-*   \textbf{Đánh giá Recall chưa cách ly hoàn toàn:} Giai đoạn triệu hồi thô hiện tại đang đo lường Hit Rate@50 trực tiếp trên cùng tập dữ liệu huấn luyện do kích thước dữ liệu snapshot hạn chế. Điều này tạo ra một khoảng trống đánh giá (Evaluation Gap), có nguy cơ quá khớp (overfitting) ma trận nhúng của người dùng và sản phẩm.
+\section{Kết luận}
+Trong bài tập lớn này, đề tài đã xây dựng một hệ thống gợi ý sản phẩm thương mại điện tử theo kiến trúc hai giai đoạn. Hệ thống bắt đầu từ dữ liệu hành vi người dùng, thực hiện các bước tiền xử lý, chia phiên, gán nhãn, tạo đặc trưng, huấn luyện mô hình và cuối cùng triển khai API để trả về danh sách sản phẩm gợi ý. Qua đó, dự án thể hiện được một luồng xử lý tương đối đầy đủ của một hệ thống gợi ý, từ dữ liệu thô đến kết quả phục vụ người dùng.
+\medskip
 
-\section{Kế hoạch cải thiện dữ liệu và hệ thống (Data Improvement Plan)}
-Để tiếp tục nâng cao hiệu năng hệ thống lên tầm cao mới, chúng em đề xuất kế hoạch cải thiện dữ liệu và nâng cấp hệ thống chi tiết bao gồm:
+Ở giai đoạn xử lý dữ liệu, hệ thống đã chuyển đổi dữ liệu hành vi thành tập dữ liệu có cấu trúc phù hợp cho học máy. Các hành vi như xem sản phẩm, thêm vào giỏ hàng và mua hàng được ánh xạ thành nhãn và trọng số mẫu, giúp mô hình phân biệt được mức độ quan trọng của từng loại tương tác. Các đặc trưng người dùng, sản phẩm và phiên được xây dựng theo hướng point-in-time nhằm hạn chế rò rỉ dữ liệu tương lai và làm cho quá trình huấn luyện gần hơn với điều kiện thực tế.
+\medskip
 
-\subsection{Kế hoạch cải thiện Dữ liệu (Data Improvement Plan)}
-\begin{itemize}
-    \item \textbf{Tăng cường tập mẫu dương (Positive Sampling Augmentation):} Thu thập thêm dữ liệu tương tác trong các khung giờ cao điểm mua sắm, áp dụng kỹ thuật sinh mẫu nhân tạo hoặc lọc bớt các phiên trống không phát sinh chuyển đổi để nâng tỷ lệ nhãn dương của tập xếp hạng từ $0.09\%$ lên khoảng $1\% - 2\%$, giúp cây quyết định LightGBM học được nhiều phân ngưỡng phân nhánh tối ưu hơn.
-    \item \textbf{Cách ly dữ liệu đánh giá Recall (Recall Evaluation Isolation):} Thực hiện phân chia tập dữ liệu huấn luyện và kiểm thử theo thời gian (Time-based Splitting) tách biệt hoàn toàn cho cả giai đoạn Recall ban đầu, đo lường Hit Rate trên tập test độc lập để kiểm chứng khách quan năng lực tổng quát hóa của embeddings.
-\end{itemize}
+Ở giai đoạn mô hình, hệ thống sử dụng Matrix Factorization bằng PyTorch để học biểu diễn vector cho người dùng và sản phẩm. Các item embedding sau huấn luyện được đưa vào FAISS để hỗ trợ truy hồi ứng viên nhanh. Trên tập ứng viên này, mô hình LightGBM được sử dụng để chấm điểm và xếp hạng lại sản phẩm dựa trên nhiều nhóm đặc trưng khác nhau. Cách kết hợp Recall và Ranking giúp hệ thống cân bằng giữa tốc độ truy hồi và chất lượng danh sách gợi ý.
+\medskip
 
-\subsection{Kế hoạch nâng cấp Hệ thống (System Improvement Plan)}
-\begin{itemize}
-    \item \textbf{Huấn luyện Recall bằng BPR Loss (Bayesian Personalized Ranking):} Chuyển từ tối ưu phân loại độc lập từng mẫu (Focal Loss) sang tối ưu hóa thứ tự ưu tiên cặp tương quan (Pairwise Ranking) để đảm bảo sản phẩm đã tương tác luôn có điểm dot product cao hơn sản phẩm chưa tương tác, nâng cao chất lượng lọc thô của bộ triệu hồi.
-    \item \textbf{Tối ưu hóa chỉ mục FAISS HNSW:} Khi quy mô sản phẩm vượt ngưỡng 100,000+, chuyển đổi sang chỉ mục xấp xỉ phân tầng HNSW để duy trì tốc độ tìm kiếm vector KNN dưới 5ms.
-    \item \textbf{Tích hợp Feast Feature Store:} Triển khai Feast Feature Store chuyên dụng chuẩn công nghiệp để quản lý đồng bộ Online Feature Store (cho API phục vụ) và Offline Feature Store (cho đường ống huấn luyện), tự động hóa luồng cập nhật đặc trưng động.
-\end{itemize}
+Ở giai đoạn phục vụ, dự án triển khai API bằng FastAPI. Pipeline phục vụ suy luận nạp sẵn kho đặc trưng, mô hình Recall, FAISS index và mô hình Ranking vào bộ nhớ khi server khởi động. Khi nhận request, hệ thống có thể gợi ý theo sở thích dài hạn của người dùng và bổ sung thêm thông tin phiên hiện tại thông qua cơ chế Dual-Channel Recall. Ngoài ra, hệ thống cũng có cơ chế dự phòng cho người dùng mới và cơ chế tự căn chỉnh đặc trưng đầu vào cho LightGBM, giúp API ổn định hơn trong quá trình suy luận.
+\medskip
+
+Theo các kết quả thực nghiệm được ghi nhận trong tài liệu của dự án, hướng tiếp cận hai giai đoạn là phù hợp với bài toán gợi ý sản phẩm. Mô hình Recall có khả năng lọc nhanh các sản phẩm ứng viên, mô hình Ranking cải thiện thứ tự hiển thị, còn API đạt độ trễ dưới 50 ms trong các kịch bản thử nghiệm cục bộ đã ghi nhận. Dù vậy, hệ thống vẫn còn một số hạn chế liên quan đến kho đặc trưng, cập nhật dữ liệu thời gian thực và phương pháp đánh giá. Đây là cơ sở để tiếp tục cải tiến trong các phiên bản sau.
+
+\section{Hướng phát triển}
+Trong các hướng phát triển tiếp theo, mô hình Recall có thể được cải tiến bằng cách sử dụng BPR Loss thay cho cách học pointwise hiện tại \cite{rendle2009bpr}. BPR Loss phù hợp hơn với bản chất của bài toán gợi ý vì trực tiếp tối ưu quan hệ thứ tự giữa sản phẩm tích cực và sản phẩm tiêu cực của cùng một người dùng. Việc áp dụng phương pháp này có thể giúp tập ứng viên Recall có chất lượng tốt hơn.
+\medskip
+
+Đối với mô hình Ranking, hệ thống có thể chuyển từ binary objective sang các objective tối ưu trực tiếp cho xếp hạng như LambdaRank hoặc LambdaMART \cite{burges2010lambdamart}. Những phương pháp này được thiết kế để cải thiện các chỉ số như NDCG, do đó phù hợp hơn với mục tiêu đưa sản phẩm liên quan lên các vị trí đầu danh sách. Ngoài ra, mô hình Ranking cũng có thể được bổ sung các đặc trưng tương tác chéo như mức độ yêu thích của người dùng với từng danh mục, thương hiệu hoặc phân khúc giá.
+\medskip
+
+Về mặt hạ tầng, kho đặc trưng hiện tại mới được triển khai đơn giản bằng các file Parquet nạp vào RAM \cite{apacheparquet2026docs}. Khi dữ liệu lớn hơn hoặc cần cập nhật thường xuyên hơn, hệ thống nên chuyển sang một giải pháp feature store chuyên dụng, chẳng hạn Feast, để đồng bộ tốt hơn giữa đặc trưng offline dùng cho huấn luyện và đặc trưng online dùng cho phục vụ suy luận \cite{feast2026docs}. Bên cạnh đó, FAISS index hiện sử dụng \texttt{IndexFlatIP}, phù hợp với quy mô thử nghiệm nhưng có thể cần thay bằng HNSW hoặc IVF khi số lượng sản phẩm tăng lên rất lớn.
+\medskip
+
+Cuối cùng, hệ thống cần được đánh giá trong môi trường gần thực tế hơn. Ngoài các chỉ số offline như AUC, NDCG và MRR, nên bổ sung đánh giá trực tuyến (online evaluation) hoặc A/B testing để đo lường tác động của hệ thống đối với hành vi người dùng thật. Đây là bước cần thiết nếu muốn đưa hệ thống từ mức bài tập lớn hoặc thử nghiệm cục bộ sang môi trường sản phẩm thực tế.

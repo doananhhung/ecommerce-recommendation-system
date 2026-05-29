@@ -1,34 +1,33 @@
-\chapter{Phần Mở đầu}
+﻿\chapter{Mở đầu}
 
-\section{Bối cảnh bài toán và lý do thực hiện dự án}
-Trong thời đại số hóa, thương mại điện tử (e-commerce) đã trở thành một phần không thể thiếu trong đời sống tiêu dùng toàn cầu. Với hàng triệu sản phẩm đa dạng trên các kệ hàng trực tuyến, khách hàng thường xuyên rơi vào trạng thái quá tải thông tin (information overload) khi tìm kiếm sản phẩm phù hợp. Ngược lại, doanh nghiệp cũng gặp khó khăn trong việc tiếp cận và giới thiệu đúng sản phẩm đến đối tượng khách hàng tiềm năng.
+Chương mở đầu trình bày bối cảnh hình thành đề tài, mục tiêu thực hiện, phạm vi triển khai và các công nghệ chính được sử dụng trong dự án. Nội dung của chương này giúp xác định rõ bài toán mà hệ thống cần giải quyết trước khi đi vào phần lý thuyết, dữ liệu, mô hình và triển khai kỹ thuật ở các chương sau.
 
-Hệ thống gợi ý (Recommender Systems) ra đời như một giải pháp đột phá giải quyết mâu thuẫn này. Tuy nhiên, việc xây dựng một hệ thống gợi ý quy mô lớn trong môi trường công nghiệp thực tế đòi hỏi phải xử lý đồng thời hai thách thức:
-\begin{enumerate}
-    \item \textbf{Độ trễ phục vụ cực thấp ($<50$ms):} Đảm bảo trải nghiệm lướt ứng dụng mượt mà, không gián đoạn cho người dùng dưới điều kiện tải cao.
-    \item \textbf{Độ chính xác cá nhân hóa cao:} Khai thác hiệu quả hành vi tương tác lịch sử và bối cảnh tức thì của phiên mua sắm.
-\end{enumerate}
-Dự án nghiên cứu này được thực hiện nhằm xây dựng một hệ thống gợi ý hai giai đoạn kết hợp triệu hồi song song và xếp hạng chi tiết để giải quyết trọn vẹn hai yêu cầu khắt khe trên.
+\section{Lý do chọn đề tài}
+Trong những năm gần đây, thương mại điện tử phát triển mạnh mẽ và trở thành một trong những kênh mua sắm phổ biến nhất. Số lượng sản phẩm trên các nền tảng trực tuyến ngày càng lớn, trong khi nhu cầu, sở thích và hành vi của mỗi người dùng lại khác nhau. Điều này khiến người dùng dễ gặp khó khăn trong việc tìm kiếm sản phẩm phù hợp, còn hệ thống thương mại điện tử cần có cơ chế hỗ trợ cá nhân hóa để nâng cao trải nghiệm mua sắm.
+\medskip
 
-\section{Mục tiêu của hệ thống gợi ý}
-Mục tiêu cụ thể của dự án bao gồm:
-\begin{itemize}
-    \item \textbf{Về mặt kiến trúc:} Thiết kế hệ thống hai giai đoạn (Two-Stage Architecture) tiêu chuẩn công nghiệp nhằm chia tách hiệu quả bài toán lọc thô (Recall) và xếp hạng chi tiết (Ranking).
-    \item \textbf{Về mặt thuật toán:} 
-        \begin{itemize}
-            \item Huấn luyện mô hình học sâu Matrix Factorization trên PyTorch kết hợp chỉ mục FAISS tìm kiếm KNN siêu tốc để thu hẹp không gian ứng viên thô.
-            \item Huấn luyện mô hình cây quyết định LightGBM chấm điểm xác suất chuyển đổi chính xác.
-        \end{itemize}
-    \item \textbf{Về mặt kỹ thuật dữ liệu:} Triển khai cơ chế trích xuất đặc trưng lũy kế Point-in-time triệt tiêu hoàn toàn rò rỉ dữ liệu tương lai và áp dụng giải pháp Train-on-Recall xóa bỏ lỗi lệch phân phối dữ liệu (Train-Test Distribution Shift).
-    \item \textbf{Về mặt triển khai serving:} Xây dựng API FastAPI hiệu năng cao, tải sẵn dữ liệu lên RAM, phản hồi trực tuyến với độ trễ thấp ($<25$ms) và có tính kháng lỗi cao.
-\end{itemize}
+Hệ thống gợi ý sản phẩm là một giải pháp quan trọng cho vấn đề trên. Thay vì yêu cầu người dùng tự tìm kiếm trong một tập sản phẩm rất lớn, hệ thống có thể phân tích lịch sử tương tác như xem sản phẩm, thêm vào giỏ hàng hoặc mua hàng để đưa ra danh sách sản phẩm có khả năng phù hợp nhất. Một hệ thống gợi ý tốt không chỉ giúp người dùng tiết kiệm thời gian mà còn hỗ trợ doanh nghiệp tăng tỷ lệ chuyển đổi, cải thiện mức độ hài lòng của khách hàng và khai thác hiệu quả hơn dữ liệu hành vi.
+\medskip
 
-\section{Phạm vi áp dụng và giới hạn của dự án}
-\begin{itemize}
-    \item \textbf{Phạm vi áp dụng:} Hệ thống được thiết kế tối ưu cho các nền tảng thương mại điện tử quy mô vừa đến lớn, nơi có lượng sản phẩm từ hàng chục nghìn đến hàng triệu và hành vi người dùng đa dạng (Xem, Thêm giỏ, Mua hàng).
-    \item \textbf{Giới hạn của dự án:} 
-        \begin{itemize}
-            \item Tập trung tối ưu hóa các tương tác dạng bảng và lịch sử hành vi (implicit feedback), chưa khai thác chuyên sâu dữ liệu phi cấu trúc như hình ảnh sản phẩm hoặc ngôn ngữ tự nhiên mô tả chi tiết sản phẩm.
-            \item Đánh giá offline được thực hiện trên tập snapshot dữ liệu tương tác thực tế, các đánh giá online (A/B Testing) cần được triển khai kiểm chứng thực tế khi tích hợp vào môi trường doanh nghiệp.
-        \end{itemize}
-\end{itemize}
+Tuy nhiên, bài toán gợi ý trong thương mại điện tử có nhiều thách thức. Dữ liệu tương tác giữa người dùng và sản phẩm thường rất thưa, phần lớn hành vi chỉ là xem sản phẩm, trong khi các hành vi có giá trị cao như thêm vào giỏ hàng hoặc mua hàng chiếm tỷ lệ nhỏ. Ngoài ra, hệ thống cần đưa ra kết quả trong thời gian ngắn để có thể sử dụng trong môi trường trực tuyến. Vì vậy, đề tài này lựa chọn xây dựng hệ thống gợi ý sản phẩm hai giai đoạn (Two-Stage Recommender System), kết hợp mô hình tạo ứng viên (Recall/Candidate Generation) để lọc nhanh ứng viên và mô hình xếp hạng (Ranking) để sắp xếp lại danh sách sản phẩm gợi ý.
+
+\section{Mục tiêu của dự án}
+Mục tiêu chính của dự án là xây dựng một hệ thống gợi ý sản phẩm cho thương mại điện tử có khả năng xử lý dữ liệu hành vi người dùng, huấn luyện mô hình học máy và phục vụ kết quả gợi ý thông qua API. Hệ thống được thiết kế theo kiến trúc hai giai đoạn nhằm cân bằng giữa tốc độ xử lý và chất lượng gợi ý.
+\medskip
+
+Ở giai đoạn dữ liệu, dự án xây dựng quy trình xử lý dữ liệu (Data Pipeline) từ dữ liệu thô, chia phiên truy cập của người dùng dựa trên khoảng cách thời gian giữa các hành vi, đồng thời gán nhãn và trọng số cho các loại tương tác như \colorbox{gray!15}{\texttt{view}}, \colorbox{gray!15}{\texttt{cart}}, \colorbox{gray!15}{\texttt{purchase}}. Từ dữ liệu đã xử lý, hệ thống tạo ra các đặc trưng mô tả người dùng, sản phẩm và phiên truy cập để phục vụ quá trình huấn luyện mô hình.
+\medskip
+
+Ở giai đoạn mô hình, dự án xây dựng mô hình Recall bằng Matrix Factorization nhằm lọc nhanh các sản phẩm ứng viên từ tập sản phẩm lớn. Các vector biểu diễn sản phẩm sau đó được đưa vào FAISS để hỗ trợ tìm kiếm tương đồng tốc độ cao. Trên tập ứng viên này, mô hình Ranking bằng LightGBM được sử dụng để chấm điểm và sắp xếp lại danh sách sản phẩm. Cuối cùng, hệ thống được triển khai thông qua FastAPI để trả về danh sách Top-N sản phẩm gợi ý cho từng người dùng.
+
+\section{Phạm vi thực hiện}
+Trong phạm vi bài tập lớn, dự án tập trung vào việc xây dựng một hệ thống gợi ý hoàn chỉnh ở mức thực nghiệm, bao gồm các bước từ xử lý dữ liệu, huấn luyện mô hình đến triển khai API phục vụ gợi ý. Dữ liệu được sử dụng là dữ liệu hành vi thương mại điện tử dạng offline, bao gồm các tương tác của người dùng với sản phẩm theo thời gian.
+\medskip
+
+Hệ thống tập trung vào bài toán gợi ý sản phẩm dựa trên hành vi người dùng và chưa đi sâu vào các thành phần hạ tầng phức tạp như xử lý dữ liệu streaming, cập nhật mô hình liên tục theo thời gian thực, kho đặc trưng (feature store) chuyên dụng hoặc A/B testing trên người dùng thật. Các kết quả đánh giá trong báo cáo chủ yếu dựa trên đánh giá offline và kiểm thử API trong môi trường cục bộ.
+
+\section{Công nghệ sử dụng}
+Dự án được xây dựng bằng ngôn ngữ Python và sử dụng nhiều thư viện phục vụ xử lý dữ liệu, học máy và triển khai API. pandas và NumPy được dùng để xử lý dữ liệu dạng bảng, tính toán đặc trưng và thao tác với mảng số. scikit-learn được sử dụng cho các bước hỗ trợ như mã hóa định danh người dùng và sản phẩm.
+\medskip
+
+Ở phần mô hình, PyTorch được dùng để xây dựng và huấn luyện mô hình Matrix Factorization cho giai đoạn Recall \cite{paszke2019pytorch}, trong khi FAISS hỗ trợ xây dựng chỉ mục vector và tìm kiếm sản phẩm tương đồng tốc độ cao \cite{johnson2019billion}. LightGBM được sử dụng ở giai đoạn Ranking để chấm điểm và sắp xếp lại các ứng viên \cite{ke2017lightgbm}. Đối với phần triển khai, FastAPI và Uvicorn được dùng để xây dựng API phục vụ gợi ý sản phẩm \cite{fastapi2026docs}. Ngoài ra, dự án sử dụng Parquet để lưu trữ dữ liệu dạng cột \cite{apacheparquet2026docs} và joblib để lưu encoder, artifact của mô hình; công cụ uv được dùng để quản lý môi trường và chạy các lệnh trong dự án.

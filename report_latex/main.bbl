@@ -1,0 +1,86 @@
+\begin{thebibliography}{10}
+
+\bibitem{paszke2019pytorch}
+Adam Paszke, Sam Gross, Francisco Massa, Adam Lerer, James Bradbury, Gregory
+  Chanan, Trevor Killeen, Zeming Lin, Natalia Gimelshein, Luca Antiga, Alban
+  Desmaison, Andreas Kopf, Edward Yang, Zachary DeVito, Martin Raison, Alykhan
+  Tejani, Sasank Chilamkurthy, Benoit Steiner, Lu~Fang, Junjie Bai, and Soumith
+  Chintala.
+\newblock Pytorch: An imperative style, high-performance deep learning library.
+\newblock In {\em Advances in Neural Information Processing Systems},
+  volume~32, 2019.
+
+\bibitem{johnson2019billion}
+Jeff Johnson, Matthijs Douze, and Herv{\'e} J{\'e}gou.
+\newblock Billion-scale similarity search with gpus.
+\newblock {\em IEEE Transactions on Big Data}, 7(3):535--547, 2019.
+
+\bibitem{ke2017lightgbm}
+Guolin Ke, Qi~Meng, Thomas Finley, Taifeng Wang, Wei Chen, Wipeng Ma, Qiwei Ye,
+  and Tie-Yan Liu.
+\newblock Lightgbm: A highly efficient gradient boosting decision tree.
+\newblock In {\em Advances in neural information processing systems}, pages
+  3146--3154, 2017.
+
+\bibitem{fastapi2026docs}
+{FastAPI}.
+\newblock Fastapi documentation.
+\newblock \url{https://fastapi.tiangolo.com/}, 2026.
+\newblock Truy cập ngày 28/05/2026.
+
+\bibitem{apacheparquet2026docs}
+{Apache Software Foundation}.
+\newblock Apache parquet documentation.
+\newblock \url{https://parquet.apache.org/docs/}, 2026.
+\newblock Truy cập ngày 28/05/2026.
+
+\bibitem{covington2016deep}
+Paul Covington, Jay Adams, and Emre Sargin.
+\newblock Deep neural networks for youtube recommendations.
+\newblock In {\em Proceedings of the 10th ACM conference on recommender
+  systems}, pages 191--198, 2016.
+
+\bibitem{koren2009matrix}
+Yehuda Koren, Robert Bell, and Chris Volinsky.
+\newblock Matrix factorization techniques for recommender systems.
+\newblock {\em Computer}, 42(8):30--37, 2009.
+
+\bibitem{lin2017focal}
+Tsung-Yi Lin, Priya Goyal, Ross Girshick, Kaiming He, and Piotr Dollar.
+\newblock Focal loss for dense object detection.
+\newblock In {\em Proceedings of the IEEE International Conference on Computer
+  Vision}, pages 2980--2988, 2017.
+
+\bibitem{fawcett2006roc}
+Tom Fawcett.
+\newblock An introduction to roc analysis.
+\newblock {\em Pattern Recognition Letters}, 27(8):861--874, 2006.
+
+\bibitem{jarvelin2002cumulated}
+Kalervo J{\"a}rvelin and Jaana Kek{\"a}l{\"a}inen.
+\newblock Cumulated gain-based evaluation of ir techniques.
+\newblock {\em ACM Transactions on Information Systems}, 20(4):422--446, 2002.
+
+\bibitem{craswell2009mrr}
+Nick Craswell.
+\newblock Mean reciprocal rank.
+\newblock In {\em Encyclopedia of Database Systems}, page 1703. Springer, 2009.
+
+\bibitem{rendle2009bpr}
+Steffen Rendle, Christoph Freudenthaler, Zeno Gantner, and Lars Schmidt-Thieme.
+\newblock Bpr: Bayesian personalized ranking from implicit feedback.
+\newblock In {\em Proceedings of the Twenty-Fifth Conference on Uncertainty in
+  Artificial Intelligence}, pages 452--461. AUAI Press, 2009.
+
+\bibitem{burges2010lambdamart}
+Christopher J.~C. Burges.
+\newblock From ranknet to lambdarank to lambdamart: An overview.
+\newblock Technical Report MSR-TR-2010-82, Microsoft Research, 2010.
+
+\bibitem{feast2026docs}
+{Feast Project}.
+\newblock Feast documentation.
+\newblock \url{https://docs.feast.dev/}, 2026.
+\newblock Truy cập ngày 28/05/2026.
+
+\end{thebibliography}
