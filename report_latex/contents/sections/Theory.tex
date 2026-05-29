@@ -3,7 +3,7 @@
 Chương này trình bày các khái niệm nền tảng cần thiết để hiểu cách hệ thống gợi ý trong dự án được thiết kế. Các nội dung được triển khai theo thứ tự từ bài toán gợi ý sản phẩm, phản hồi ẩn, kiến trúc hai giai đoạn, các kỹ thuật chính cho đến các chỉ số đánh giá mô hình.
 
 \section{Bài toán gợi ý sản phẩm trong thương mại điện tử}
-Bài toán gợi ý sản phẩm trong thương mại điện tử xuất phát từ nhu cầu hỗ trợ người dùng tìm được sản phẩm phù hợp trong một tập sản phẩm rất lớn. Trên các nền tảng mua sắm trực tuyến, mỗi người dùng có sở thích, nhu cầu và hành vi khác nhau. Nếu chỉ dựa vào tìm kiếm thủ công hoặc danh sách sản phẩm phổ biến chung cho tất cả người dùng, hệ thống khó đáp ứng được tính cá nhân hóa và có thể làm giảm trải nghiệm mua sắm.
+Bài toán gợi ý sản phẩm trong thương mại điện tử có thể được xem là bài toán chọn ra một danh sách sản phẩm phù hợp cho từng người dùng từ một tập sản phẩm lớn. Khác với tìm kiếm theo từ khóa, hệ thống gợi ý phải tận dụng các tín hiệu hành vi để suy ra sở thích tiềm ẩn của người dùng và cá nhân hóa danh sách hiển thị \cite{covington2016deep}.
 \medskip
 
 Mục tiêu của hệ thống gợi ý là khai thác dữ liệu hành vi trong quá khứ để dự đoán những sản phẩm mà người dùng có khả năng quan tâm trong tương lai \cite{covington2016deep}. Với một người dùng cụ thể, hệ thống cần đưa ra danh sách Top-N sản phẩm phù hợp nhất. Danh sách này có thể được sử dụng ở nhiều vị trí trong ứng dụng thương mại điện tử như trang chủ cá nhân hóa, trang chi tiết sản phẩm, giỏ hàng hoặc các chiến dịch tiếp thị.
@@ -12,13 +12,13 @@ Mục tiêu của hệ thống gợi ý là khai thác dữ liệu hành vi tron
 Trong phạm vi dự án này, dữ liệu đầu vào là lịch sử tương tác giữa người dùng và sản phẩm. Mỗi tương tác thể hiện một hành vi như xem sản phẩm, thêm vào giỏ hàng hoặc mua hàng. Từ dữ liệu đó, hệ thống xây dựng mô hình học máy nhằm học được mối quan hệ giữa người dùng và sản phẩm, sau đó sử dụng mô hình để sinh ra danh sách sản phẩm gợi ý.
 
 \section{Phản hồi ẩn}
-Trong các hệ thống gợi ý, dữ liệu phản hồi của người dùng có thể được chia thành hai nhóm chính: phản hồi tường minh (explicit feedback) và phản hồi ẩn (implicit feedback). Phản hồi tường minh là các phản hồi trực tiếp như đánh giá sao, lượt thích hoặc bình luận. Tuy nhiên, trong thương mại điện tử, không phải người dùng nào cũng để lại đánh giá trực tiếp. Do đó, nhiều hệ thống phải dựa chủ yếu vào phản hồi ẩn, tức là các tín hiệu gián tiếp được suy ra từ hành vi của người dùng.
+Trong các hệ thống gợi ý, dữ liệu phản hồi của người dùng thường được phân biệt thành phản hồi tường minh (explicit feedback) và phản hồi ẩn (implicit feedback). Phản hồi tường minh là các tín hiệu trực tiếp như đánh giá sao, lượt thích hoặc bình luận. Ngược lại, phản hồi ẩn được suy ra từ hành vi sử dụng hệ thống, chẳng hạn lượt xem, lượt thêm vào giỏ hàng hoặc lượt mua \cite{rendle2009bpr}. Trong thương mại điện tử, dạng phản hồi ẩn thường phổ biến hơn vì không phải người dùng nào cũng để lại đánh giá trực tiếp.
 \medskip
 
 Trong dự án này, phản hồi ẩn được biểu diễn thông qua các sự kiện hành vi gồm \colorbox{gray!15}{\texttt{view}}, \colorbox{gray!15}{\texttt{cart}} và \colorbox{gray!15}{\texttt{purchase}}. Hành vi \colorbox{gray!15}{\texttt{view}} cho thấy người dùng đã quan tâm ở mức độ thấp vì họ chỉ xem sản phẩm. Hành vi \colorbox{gray!15}{\texttt{cart}} thể hiện mức độ quan tâm cao hơn vì người dùng đã đưa sản phẩm vào giỏ hàng. Hành vi \colorbox{gray!15}{\texttt{purchase}} là tín hiệu mạnh nhất, cho thấy người dùng thực sự có nhu cầu và đã hoàn tất giao dịch.
 \medskip
 
-Một đặc điểm quan trọng của phản hồi ẩn là nó không phản ánh trực tiếp việc người dùng không thích một sản phẩm. Nếu người dùng chưa tương tác với một sản phẩm, không thể kết luận chắc chắn rằng họ không quan tâm đến sản phẩm đó; có thể đơn giản là họ chưa nhìn thấy sản phẩm. Vì vậy, việc gán nhãn và lấy mẫu âm cần được thiết kế cẩn thận để tránh làm sai lệch quá trình học mô hình.
+Một đặc điểm quan trọng của phản hồi ẩn là việc không có tương tác không đồng nghĩa với việc người dùng không thích sản phẩm. Người dùng có thể chưa nhìn thấy sản phẩm, hoặc sản phẩm chưa xuất hiện trong ngữ cảnh mua sắm hiện tại. Do đó, khi xây dựng dữ liệu huấn luyện từ phản hồi ẩn, bước gán nhãn và lấy mẫu âm cần được thiết kế cẩn thận để hạn chế làm sai lệch quá trình học mô hình \cite{rendle2009bpr}.
 
 \section{Kiến trúc hệ gợi ý hai giai đoạn}
 Trong các hệ thống thương mại điện tử thực tế, số lượng sản phẩm có thể rất lớn. Nếu hệ thống trực tiếp chấm điểm toàn bộ sản phẩm cho từng người dùng, chi phí tính toán sẽ cao và khó đáp ứng yêu cầu thời gian thực. Vì vậy, nhiều hệ thống gợi ý hiện đại sử dụng kiến trúc hai giai đoạn (Two-Stage Recommender System) \cite{covington2016deep}.
@@ -27,10 +27,10 @@ Trong các hệ thống thương mại điện tử thực tế, số lượng s
 Giai đoạn đầu tiên là tạo ứng viên (Recall/Candidate Generation). Nhiệm vụ của giai đoạn này là lọc nhanh một tập ứng viên nhỏ hơn từ toàn bộ tập sản phẩm. Recall không cần sắp xếp hoàn hảo tất cả sản phẩm, nhưng cần bảo đảm rằng các sản phẩm có khả năng phù hợp cao được giữ lại trong tập ứng viên. Trong dự án này, Recall được xây dựng bằng mô hình Matrix Factorization sử dụng PyTorch \cite{paszke2019pytorch}. Sau khi huấn luyện, vector embedding của sản phẩm được đưa vào FAISS để hỗ trợ tìm kiếm nhanh các sản phẩm gần nhất trong không gian vector.
 \medskip
 
-Giai đoạn thứ hai là xếp hạng (Ranking). Sau khi Recall đã thu hẹp không gian tìm kiếm, Ranking sẽ chấm điểm chi tiết từng ứng viên dựa trên nhiều đặc trưng hơn, bao gồm đặc trưng người dùng, đặc trưng sản phẩm, đặc trưng phiên và thông tin nguồn Recall. Trong dự án này, mô hình Ranking sử dụng LightGBM để dự đoán mức độ phù hợp của từng ứng viên, sau đó sắp xếp theo điểm giảm dần và trả về danh sách Top-N sản phẩm.
+Giai đoạn thứ hai là xếp hạng (Ranking). Sau khi Recall đã thu hẹp không gian tìm kiếm, Ranking sẽ chấm điểm chi tiết từng ứng viên dựa trên nhiều đặc trưng hơn, bao gồm đặc trưng người dùng, đặc trưng sản phẩm, đặc trưng phiên và thông tin nguồn Recall. Trong dự án này, mô hình Ranking sử dụng LightGBM để dự đoán mức độ phù hợp của từng ứng viên, sau đó sắp xếp theo điểm giảm dần và trả về danh sách Top-N sản phẩm \cite{ke2017lightgbm}.
 
 \section{Các kỹ thuật chính}
-Matrix Factorization là một kỹ thuật quan trọng trong dự án. Kỹ thuật này biểu diễn người dùng và sản phẩm dưới dạng các vector có số chiều thấp hơn so với ma trận tương tác ban đầu \cite{koren2009matrix}. Thay vì lưu trực tiếp toàn bộ ma trận người dùng-sản phẩm rất thưa, mô hình học một vector embedding cho mỗi người dùng và mỗi sản phẩm. Mức độ phù hợp giữa người dùng và sản phẩm được tính thông qua phép nhân vô hướng giữa hai vector.
+Matrix Factorization là một kỹ thuật quan trọng trong dự án. Kỹ thuật này biểu diễn người dùng và sản phẩm dưới dạng các vector có số chiều thấp hơn so với ma trận tương tác ban đầu \cite{koren2009matrix}. Thay vì thao tác trực tiếp trên toàn bộ ma trận người dùng-sản phẩm vốn rất thưa, mô hình học một vector embedding cho mỗi người dùng và mỗi sản phẩm. Mức độ phù hợp giữa hai đối tượng sau đó được tính thông qua phép nhân vô hướng giữa hai vector.
 \medskip
 
 Dữ liệu thương mại điện tử thường mất cân bằng mạnh, trong đó phần lớn tương tác là lượt xem, còn hành vi mua hàng chiếm tỷ lệ nhỏ. Để giảm ảnh hưởng của mất cân bằng dữ liệu, dự án sử dụng Focal Loss trong quá trình huấn luyện mô hình Recall \cite{lin2017focal}. Focal Loss giúp mô hình tập trung nhiều hơn vào các mẫu khó và giảm ảnh hưởng của những mẫu dễ, từ đó phù hợp với bối cảnh có nhiều tín hiệu yếu và ít tín hiệu mạnh.
@@ -42,7 +42,7 @@ FAISS được sử dụng để tìm kiếm vector tốc độ cao \cite{johnso
 LightGBM được sử dụng ở giai đoạn Ranking \cite{ke2017lightgbm}. Đây là mô hình Gradient Boosting Decision Trees có khả năng xử lý tốt dữ liệu dạng bảng và các đặc trưng hỗn hợp. Trong dự án này, LightGBM nhận đầu vào là các đặc trưng đã được tạo từ pipeline dữ liệu và kho đặc trưng (feature store), sau đó dự đoán điểm phù hợp cho từng sản phẩm ứng viên.
 
 \section{Các chỉ số đánh giá}
-Để đánh giá hệ thống gợi ý, dự án sử dụng nhiều nhóm chỉ số khác nhau vì mỗi giai đoạn có mục tiêu riêng. Đối với giai đoạn Recall, chỉ số quan trọng là Recall@K hoặc Hit Rate@K. Chỉ số này phản ánh khả năng của mô hình trong việc giữ lại các sản phẩm liên quan trong Top-K ứng viên.
+Để đánh giá hệ thống gợi ý, dự án sử dụng nhiều nhóm chỉ số khác nhau vì mỗi giai đoạn có mục tiêu riêng. Đối với giai đoạn Recall, chỉ số quan trọng là Recall@K hoặc Hit Rate@K. Chỉ số này phản ánh khả năng của mô hình trong việc giữ lại các sản phẩm liên quan trong Top-K ứng viên \cite{covington2016deep}.
 \medskip
 
 Đối với giai đoạn Ranking, AUC được sử dụng để đánh giá khả năng phân biệt giữa mẫu tích cực và mẫu không tích cực \cite{fawcett2006roc}. Tuy nhiên, vì bài toán gợi ý quan tâm nhiều đến thứ tự hiển thị, các chỉ số xếp hạng như NDCG@K và MRR cũng rất quan trọng. NDCG@K đánh giá chất lượng thứ tự của danh sách Top-K, trong đó các sản phẩm phù hợp xuất hiện ở vị trí cao sẽ đóng góp nhiều hơn vào điểm số \cite{jarvelin2002cumulated}. MRR đo vị trí của sản phẩm phù hợp đầu tiên trong danh sách, qua đó phản ánh mức độ nhanh chóng mà người dùng có thể nhìn thấy một sản phẩm liên quan \cite{craswell2009mrr}.
