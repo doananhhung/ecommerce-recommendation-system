@@ -1,43 +1,129 @@
-\chapter{Quy trình Xử lý và Phân tích Dữ liệu}
+﻿\chapter{Phân tích dữ liệu và tiền xử lý}
 
-\section{Phân tích Dữ liệu Khám phá (Exploratory Data Analysis - EDA)}
-Để có chiến lược xử lý dữ liệu và thiết kế mô hình chính xác, chúng em thực hiện khảo sát dữ liệu thô \texttt{2019-Oct.csv}. Tập dữ liệu chứa thông tin chi tiết về các tương tác của khách hàng (User) lên sản phẩm (Item) theo thời gian thực bao gồm: \texttt{event\_time}, \texttt{event\_type}, \texttt{product\_id}, \texttt{category\_id}, \texttt{category\_code}, \texttt{brand}, \texttt{price}, \texttt{user\_id}, \texttt{user\_session}.
+Chương này tập trung phân tích dữ liệu đầu vào và mô tả cách dự án chuyển đổi dữ liệu hành vi thô thành dữ liệu có thể sử dụng cho huấn luyện và phục vụ suy luận. Trình tự trình bày đi từ mô tả dữ liệu, nhận diện đặc điểm dữ liệu, tiền xử lý, gán nhãn đến trích xuất đặc trưng theo thời điểm.
 
-Kết quả phân tích khám phá chỉ ra hai đặc điểm vô cùng quan trọng:
-\begin{enumerate}
-    \item \textbf{Độ thưa thớt ma trận (Sparsity) cực đoan:} Ma trận tương tác thưa tới \textbf{99.99\%}. Tức là bình quân một khách hàng chỉ tương tác với $0.01\%$ lượng sản phẩm có trên hệ thống, đòi hỏi phương pháp học embedding biểu diễn ẩn của Matrix Factorization.
-    \item \textbf{Phân phối lệch lớp hành vi:} Views chiếm \textbf{96.8\%}, Carts chiếm \textbf{2.3\%}, và Purchases chỉ chiếm \textbf{0.9\%}. Do đó, mô hình rất dễ bị bão hòa bởi lượt xem thông thường nếu không áp dụng hàm Focal Loss hoặc Sample Weights để nhấn mạnh các hành vi chuyển đổi.
-    \item \textbf{Phân phối lệch phải của Price:} Giá cả sản phẩm tập trung ở phân khúc thấp nhưng có đuôi rất dài về phía phải. Ta cần áp dụng phép biến đổi Log-Transform: $y = \log(x + 1)$ để kéo phân phối giá về dạng phân phối chuẩn, giúp mô hình học cây quyết định hội tụ nhanh và ổn định hơn.
-\end{enumerate}
+\section{Mô tả dữ liệu đầu vào}
+Dữ liệu đầu vào của dự án là dữ liệu hành vi người dùng trong môi trường thương mại điện tử. Mỗi dòng dữ liệu biểu diễn một sự kiện tương tác giữa một người dùng và một sản phẩm tại một thời điểm cụ thể. Đây là dạng dữ liệu phổ biến trong các hệ thống gợi ý sản phẩm, vì nó phản ánh trực tiếp quá trình người dùng duyệt, cân nhắc và mua hàng trên nền tảng.
+\medskip
 
-\section{Xử lý luồng dữ liệu (Data Pipeline) và cơ chế Sessionizer}
-Đường ống xử lý dữ liệu (Data Pipeline) được xây dựng theo kiến trúc tự động hóa tuần tự để chế biến dữ liệu thô thành dữ liệu huấn luyện và Feature Store phục vụ Serving:
-\begin{itemize}
-    \item \textbf{Cơ chế Sessionizer (\texttt{sessionizer.py}):} Phân chia luồng tương tác của cùng một người dùng thành các phiên mua sắm độc lập. Một phiên mua sắm kết thúc khi không phát sinh thêm bất kỳ tương tác nào trong vòng \textbf{30 phút}.
-    \item \textbf{Luồng thực thi tuần tự (\texttt{run\_pipeline.py}):} 
-        \begin{enumerate}
-            \item Tiền xử lý dữ liệu: Fill NaN, ép kiểu dữ liệu và thực hiện Log-Transform Price.
-            \item Chạy bộ Sessionizer phân chia và gắn mã \texttt{custom\_session\_id}.
-            \item Thực hiện trích xuất Feature Store snapshot tĩnh cho User và Item lưu thành Parquet.
-            \item Trích xuất đặc trưng động Point-in-time lũy kế và gán nhãn implicit feedback lưu đĩa.
-        \end{enumerate}
-\end{itemize}
+Các trường dữ liệu quan trọng bao gồm \texttt{event\_time}, \texttt{event\_type}, \texttt{product\_id}, \texttt{user\_id}, \texttt{category\_code}, \texttt{brand} và \texttt{price}. Trong đó, \texttt{event\_time} cho biết thời điểm xảy ra hành vi, giúp hệ thống sắp xếp các tương tác theo trình tự thời gian và chia phiên người dùng. Trường \texttt{event\_type} mô tả loại hành vi, chẳng hạn như xem sản phẩm, thêm vào giỏ hàng hoặc mua sản phẩm. Hai trường \texttt{user\_id} và \texttt{product\_id} lần lượt định danh người dùng và sản phẩm, đóng vai trò trung tâm trong việc xây dựng ma trận tương tác người dùng-sản phẩm (user-item).
+\medskip
 
-\section{Kỹ thuật trích xuất đặc trưng (Feature Engineering)}
-Để ngăn chặn triệt để hiện tượng nghiêm trọng \textit{Time-Travel Leakage} (Rò rỉ dữ liệu tương lai), chúng em áp dụng nguyên lý thiết kế đặc trưng lũy kế Point-in-time. Mọi đặc trưng chỉ được đếm và cộng dồn lũy kế dựa trên các sự kiện xảy ra TRƯỚC mốc $event\_time$ hiện tại:
-\begin{itemize}
-    \item \textbf{Đặc trưng User:} \texttt{user\_total\_interactions} (tổng tương tác lịch sử) và \texttt{user\_total\_sessions} (tổng số phiên hoạt động).
-    \item \textbf{Đặc trưng Item:} \texttt{item\_total\_interactions} (sức hút của sản phẩm), \texttt{item\_unique\_users} (tập khách hàng quan tâm) và \texttt{item\_avg\_price} (mức giá trung bình lũy kế).
-    \item \textbf{Đặc trưng Phiên động (Serving):} \texttt{user\_session\_interaction\_count} (số tương tác của user trong phiên hiện tại tính đến thời điểm $t$) và \texttt{item\_session\_popularity} (độ thịnh hành sản phẩm dựa trên số lượng phiên độc nhất).
-\end{itemize}
+Ngoài các trường định danh và hành vi, dữ liệu còn có các thuộc tính mô tả sản phẩm như \texttt{category\_code}, \texttt{brand} và \texttt{price}. Các thuộc tính này cung cấp thêm ngữ cảnh cho mô hình Ranking, giúp mô hình không chỉ dựa vào lịch sử tương tác mà còn khai thác thông tin về danh mục, thương hiệu và mức giá của sản phẩm.
 
-\section{Gán nhãn tương tác ngầm (Pseudo-Labeling)}
-Do dữ liệu thương mại điện tử không có nhãn đúng/sai rõ ràng, chúng em sử dụng kỹ thuật Pseudo-Labeling để quy đổi hành vi implicit feedback thành thang điểm chất lượng lũy tiến. Trong mỗi phiên, chúng em gom nhóm theo người dùng và sản phẩm, giữ lại hành động có giá trị lớn nhất làm nhãn huấn luyện mục tiêu:
-\begin{equation}
-    \text{Label}(x) = 
-    \begin{cases}
-        1 & \text{nếu } x \in \{\text{View, Cart, Purchase}\} \\
-        0 & \text{cho các mẫu âm tính ngẫu nhiên (Negative Samples)}
-    \end{cases}
-\end{equation}
-Đồng thời gán \texttt{sample\_weight} cho từng dòng dữ liệu: View nhận trọng số 0.1, Cart nhận trọng số 0.5, và Purchase nhận trọng số 1.0 để nhấn mạnh hành vi chuyển đổi của doanh nghiệp trong lúc tối ưu hàm Loss của LightGBM.
+\section{Phân tích đặc điểm dữ liệu}
+Dữ liệu thương mại điện tử có một số đặc điểm gây khó khăn cho bài toán gợi ý. Đặc điểm đầu tiên là độ thưa cao của ma trận tương tác giữa người dùng và sản phẩm. Trong thực tế, mỗi người dùng chỉ tương tác với một số lượng rất nhỏ sản phẩm so với toàn bộ danh mục sản phẩm của hệ thống. Điều này khiến ma trận người dùng-sản phẩm có phần lớn giá trị trống, làm cho việc học sở thích người dùng trở nên khó khăn nếu sử dụng các phương pháp đơn giản.
+\medskip
+
+Đặc điểm thứ hai là sự mất cân bằng trong phân phối hành vi. Hành vi \colorbox{gray!15}{\texttt{view}} thường chiếm tỷ lệ lớn vì người dùng có xu hướng xem nhiều sản phẩm trước khi ra quyết định. Ngược lại, các hành vi thể hiện mức độ quan tâm cao hơn như \colorbox{gray!15}{\texttt{cart}} và \colorbox{gray!15}{\texttt{purchase}} thường xuất hiện ít hơn nhiều. Mức chênh lệch này được minh họa trong Hình~\ref{fig:event_distribution}. Nếu không xử lý vấn đề này, mô hình có thể bị thiên lệch về lớp đa số và không học tốt các tín hiệu quan trọng liên quan đến ý định mua hàng.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[x=2.1cm,y=0.055cm]
+    \draw[->] (0,0) -- (4.1,0) node[right] {Loại hành vi};
+    \draw[->] (0,0) -- (0,108) node[above] {Tỷ lệ (\%)};
+    \foreach \y in {0,20,40,60,80,100} {
+        \draw[gray!30] (0,\y) -- (3.8,\y);
+        \node[left] at (0,\y) {\small \y};
+    }
+    \fill[blue!55] (0.45,0) rectangle (0.95,96.8);
+    \fill[orange!75] (1.65,0) rectangle (2.15,2.1);
+    \fill[green!60!black] (2.85,0) rectangle (3.35,1.1);
+    \node[below] at (0.70,0) {\texttt{view}};
+    \node[below] at (1.90,0) {\texttt{cart}};
+    \node[below] at (3.10,0) {\texttt{purchase}};
+    \node[above] at (0.70,96.8) {\small 96.8\%};
+    \node[above] at (1.90,2.1) {\small 2.1\%};
+    \node[above] at (3.10,1.1) {\small 1.1\%};
+\end{tikzpicture}
+\caption{Phân phối loại hành vi theo phân tích EDA của dự án}
+\label{fig:event_distribution}
+\end{figure}
+
+Từ Hình~\ref{fig:event_distribution}, có thể thấy \colorbox{gray!15}{\texttt{view}} chiếm gần như toàn bộ dữ liệu tương tác, trong khi \colorbox{gray!15}{\texttt{cart}} và \colorbox{gray!15}{\texttt{purchase}} chỉ chiếm tỷ lệ nhỏ. Điều này giải thích vì sao báo cáo cần trình bày riêng cơ chế gán nhãn và trọng số mẫu, bởi nếu xem mọi hành vi như nhau thì tín hiệu mua hàng sẽ bị lấn át bởi lượng lớn lượt xem sản phẩm.
+\medskip
+
+Đặc điểm thứ ba là dữ liệu có thể chứa giá trị thiếu ở các trường phân loại như \texttt{brand} hoặc \texttt{category\_code}. Đây là vấn đề thường gặp trong dữ liệu sản phẩm, đặc biệt khi danh mục hàng hóa lớn và thông tin sản phẩm không được chuẩn hóa hoàn toàn. Ngoài ra, trường \texttt{price} thường có phân phối lệch, vì một số sản phẩm có giá rất cao so với phần lớn sản phẩm còn lại.
+
+\section{Tiền xử lý dữ liệu}
+Quá trình tiền xử lý dữ liệu bắt đầu từ việc đọc dữ liệu thô từ file CSV. Trong cấu hình của dự án, đường dẫn dữ liệu thô được khai báo tại \texttt{RAW\_DATA\_PATH}, tương ứng với file \texttt{data/raw/2019-Oct.csv}. Để phù hợp với điều kiện thực nghiệm và giới hạn tài nguyên, pipeline có thể đọc một số lượng dòng nhất định thông qua tham số \texttt{PIPELINE\_NROWS}.
+\medskip
+
+Sau khi đọc dữ liệu, trường \texttt{event\_time} được chuyển sang kiểu thời gian để có thể sắp xếp và tính toán khoảng cách giữa các sự kiện. Đây là bước cần thiết vì nhiều thao tác sau đó, đặc biệt là chia phiên và tính đặc trưng point-in-time, đều phụ thuộc vào trình tự thời gian của các hành vi. Dữ liệu sau đó được sắp xếp theo \texttt{user\_id} và \texttt{event\_time} để bảo đảm các tương tác của từng người dùng được xử lý đúng thứ tự.
+\medskip
+
+Đối với trường \texttt{price}, dự án sử dụng phép biến đổi \texttt{log1p}, tức là tính $\log(1 + price)$. Cách biến đổi này giúp giảm ảnh hưởng của các giá trị ngoại lai và làm cho phân phối giá bớt lệch. Một bước quan trọng khác là chia phiên người dùng. Trong dự án, các hành vi liên tiếp của cùng một người dùng được xem là thuộc cùng một phiên nếu khoảng cách thời gian giữa chúng không vượt quá 30 phút. Nếu khoảng cách lớn hơn ngưỡng này, hệ thống coi đó là một phiên mới. Toàn bộ chuỗi xử lý chính của pipeline được tóm tắt trong Hình~\ref{fig:data_pipeline_flow}.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    node distance=0.9cm,
+    stepbox/.style={rectangle, draw, rounded corners, align=center, minimum width=2.8cm, minimum height=0.9cm},
+    arrow/.style={-{Latex[length=2mm]}, thick}
+]
+    \node[stepbox] (raw) {CSV thô\\\texttt{2019-Oct.csv}};
+    \node[stepbox, right=of raw] (price) {Biến đổi giá\\\texttt{log1p(price)}};
+    \node[stepbox, right=of price] (session) {Chia phiên\\30 phút};
+    \node[stepbox, right=of session] (feature) {Tạo đặc trưng\\point-in-time};
+    \node[stepbox, right=of feature] (label) {Gán nhãn\\và trọng số};
+    \node[stepbox, right=of label] (out) {Parquet\\đầu ra};
+
+    \draw[arrow] (raw) -- (price);
+    \draw[arrow] (price) -- (session);
+    \draw[arrow] (session) -- (feature);
+    \draw[arrow] (feature) -- (label);
+    \draw[arrow] (label) -- (out);
+\end{tikzpicture}
+}
+\caption[Pipeline tiền xử lý dữ liệu]{Pipeline tiền xử lý dữ liệu được triển khai trong \texttt{src/data\_pipeline/run\_pipeline.py}}
+\label{fig:data_pipeline_flow}
+\end{figure}
+
+Hình~\ref{fig:data_pipeline_flow} cho thấy pipeline không chỉ làm sạch dữ liệu mà còn chuẩn bị trực tiếp đầu vào cho hai giai đoạn mô hình. Kết quả cuối cùng được lưu dưới dạng Parquet để các bước huấn luyện Recall, huấn luyện Ranking và phục vụ API có thể dùng chung một nguồn dữ liệu đã chuẩn hóa.
+
+\section{Gán nhãn và trọng số mẫu}
+Dữ liệu hành vi ban đầu chưa thể đưa trực tiếp vào mô hình học máy vì mỗi dòng chỉ mô tả một loại sự kiện. Do đó, dự án cần chuyển đổi các hành vi này thành nhãn huấn luyện. Cách tiếp cận được sử dụng là xem \colorbox{gray!15}{\texttt{view}} như một tín hiệu yếu và gán nhãn 0, trong khi \colorbox{gray!15}{\texttt{cart}} và \colorbox{gray!15}{\texttt{purchase}} được xem là tín hiệu tích cực và gán nhãn 1.
+\medskip
+
+Tuy nhiên, không phải mọi hành vi đều có mức độ quan trọng như nhau. Một lượt xem sản phẩm chỉ cho biết người dùng đã tiếp xúc với sản phẩm, nhưng chưa chắc họ thực sự có ý định mua. Trong khi đó, hành vi thêm vào giỏ hàng và mua hàng thể hiện mức độ quan tâm cao hơn. Vì vậy, dự án sử dụng thêm \texttt{sample\_weight} để biểu diễn cường độ của từng hành vi. Cụ thể, \colorbox{gray!15}{\texttt{view}} có trọng số 0.1, \colorbox{gray!15}{\texttt{cart}} có trọng số 0.5 và \colorbox{gray!15}{\texttt{purchase}} có trọng số 1.0.
+\medskip
+
+Trong quá trình gán nhãn, dữ liệu được gom theo \texttt{custom\_session\_id}, \texttt{product\_id} và \texttt{user\_id}. Nếu trong cùng một phiên, cùng một người dùng tương tác nhiều lần với cùng một sản phẩm, hệ thống giữ lại hành vi mạnh nhất. Cách xử lý này giúp giảm trùng lặp và làm cho nhãn huấn luyện phản ánh tốt hơn mức độ quan tâm thực sự của người dùng.
+
+\section{Trích xuất đặc trưng và đặc trưng theo thời điểm}
+Trích xuất đặc trưng (Feature Engineering) là bước tạo ra các đặc trưng đầu vào cho mô hình Ranking và hỗ trợ quá trình phục vụ gợi ý. Trong dự án, các đặc trưng được chia thành nhiều nhóm, bao gồm đặc trưng người dùng, đặc trưng sản phẩm, đặc trưng phiên và đặc trưng nguồn Recall.
+\medskip
+
+Nhóm đặc trưng người dùng mô tả mức độ hoạt động tổng quát của mỗi người dùng, chẳng hạn tổng số tương tác trước đó và số phiên đã tham gia. Nhóm đặc trưng sản phẩm mô tả độ phổ biến, số lượng người dùng từng quan tâm, giá trung bình và độ phổ biến theo phiên. Nhóm đặc trưng phiên giúp mô hình nắm bắt ngữ cảnh ngắn hạn của người dùng tại thời điểm đang xét.
+\medskip
+
+Một vấn đề quan trọng trong xây dựng hệ thống gợi ý là rò rỉ dữ liệu tương lai. Nếu các đặc trưng được tính bằng cách tổng hợp toàn bộ dữ liệu, mô hình có thể vô tình sử dụng thông tin xảy ra sau thời điểm cần dự đoán. Để hạn chế vấn đề này, dự án xây dựng các đặc trưng theo nguyên tắc theo thời điểm (point-in-time). Điều đó có nghĩa là tại mỗi dòng dữ liệu, các đặc trưng chỉ được tính từ những sự kiện đã xảy ra trước thời điểm của dòng đó, như minh họa trong Hình~\ref{fig:point_in_time_features}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    event/.style={circle, draw, minimum size=0.75cm, align=center},
+    arrow/.style={-{Latex[length=2mm]}, thick}
+]
+    \draw[arrow] (0,0) -- (11,0) node[right] {Thời gian};
+    \node[event, fill=blue!12] (e1) at (1.2,0) {$e_1$};
+    \node[event, fill=blue!12] (e2) at (3.0,0) {$e_2$};
+    \node[event, fill=orange!18] (et) at (5.2,0) {$e_t$};
+    \node[event, fill=gray!12] (e4) at (7.4,0) {$e_{t+1}$};
+    \node[event, fill=gray!12] (e5) at (9.2,0) {$e_{t+2}$};
+    \draw[thick] (0.7,0.8) -- (4.2,0.8);
+    \draw[thick] (0.7,0.65) -- (0.7,0.95);
+    \draw[thick] (4.2,0.65) -- (4.2,0.95);
+    \node[align=center] at (2.45,1.35) {Được dùng để\\tính đặc trưng};
+    \draw[red, thick, dashed] (5.2,-1.0) -- (5.2,1.05);
+    \node[align=center, red!70!black] at (7.8,1.15) {Không dùng dữ liệu\\sau thời điểm dự đoán};
+\end{tikzpicture}
+\caption{Minh họa nguyên tắc point-in-time khi tạo đặc trưng huấn luyện}
+\label{fig:point_in_time_features}
+\end{figure}
+
+Hình~\ref{fig:point_in_time_features} nhấn mạnh ranh giới thời gian tại sự kiện cần dự đoán. Các sự kiện phía trước ranh giới được phép dùng để tạo đặc trưng, còn các sự kiện phía sau phải bị loại khỏi phép tổng hợp. Cách trình bày này giúp làm rõ vì sao đặc trưng theo thời điểm quan trọng đối với tính khách quan của đánh giá mô hình.
+\medskip
+
+Sau khi hoàn thành bước xử lý dữ liệu, pipeline lưu ba nhóm dữ liệu chính ra đĩa. Tập \texttt{labeled\_sessions.parquet} chứa dữ liệu huấn luyện đã được gán nhãn và bổ sung đặc trưng. Tập \texttt{user\_features.parquet} và \texttt{item\_features.parquet} đóng vai trò kho đặc trưng dạng snapshot (feature store snapshot), được sử dụng ở giai đoạn phục vụ API để tra cứu nhanh thông tin người dùng và sản phẩm.

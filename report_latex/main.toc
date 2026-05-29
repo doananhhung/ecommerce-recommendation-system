@@ -1,35 +1,52 @@
 \babel@toc {vietnamese}{}\relax 
-\contentsline {chapter}{Lời cảm ơn}{i}{Doc-Start}%
-\contentsline {chapter}{Lời cam đoan}{ii}{Doc-Start}%
-\contentsline {chapter}{Tóm tắt nghiên cứu}{iii}{Doc-Start}%
-\contentsline {chapter}{\numberline {1}Phần Mở đầu}{1}{chapter.1}%
-\contentsline {section}{\numberline {1.1}Bối cảnh bài toán và lý do thực hiện dự án}{1}{section.1.1}%
-\contentsline {section}{\numberline {1.2}Mục tiêu của hệ thống gợi ý}{1}{section.1.2}%
-\contentsline {section}{\numberline {1.3}Phạm vi áp dụng và giới hạn của dự án}{2}{section.1.3}%
-\contentsline {chapter}{\numberline {2}Cơ sở Lý thuyết}{3}{chapter.2}%
-\contentsline {section}{\numberline {2.1}Tổng quan về Hệ thống Gợi ý (Recommender Systems)}{3}{section.2.1}%
-\contentsline {section}{\numberline {2.2}Kiến trúc Hệ thống Gợi ý 2 giai đoạn (Two-Stage Architecture)}{3}{section.2.2}%
-\contentsline {section}{\numberline {2.3}Các phương pháp Candidate Generation (Recall Model)}{4}{section.2.3}%
-\contentsline {section}{\numberline {2.4}Các phương pháp Ranking (Ranking Model) và thuật toán LightGBM}{4}{section.2.4}%
-\contentsline {section}{\numberline {2.5}Các chỉ số đánh giá hiệu suất (Evaluation Metrics)}{5}{section.2.5}%
-\contentsline {chapter}{\numberline {3}Quy trình Xử lý và Phân tích Dữ liệu}{6}{chapter.3}%
-\contentsline {section}{\numberline {3.1}Phân tích Dữ liệu Khám phá (Exploratory Data Analysis - EDA)}{6}{section.3.1}%
-\contentsline {section}{\numberline {3.2}Xử lý luồng dữ liệu (Data Pipeline) và cơ chế Sessionizer}{6}{section.3.2}%
-\contentsline {section}{\numberline {3.3}Kỹ thuật trích xuất đặc trưng (Feature Engineering)}{7}{section.3.3}%
-\contentsline {section}{\numberline {3.4}Gán nhãn tương tác ngầm (Pseudo-Labeling)}{7}{section.3.4}%
-\contentsline {chapter}{\numberline {4}Thiết kế và Huấn luyện Mô hình}{9}{chapter.4}%
-\contentsline {section}{\numberline {4.1}Kiến trúc tổng thể của hệ thống}{9}{section.4.1}%
-\contentsline {section}{\numberline {4.2}Xây dựng và tối ưu mô hình Recall}{9}{section.4.2}%
-\contentsline {section}{\numberline {4.3}Xây dựng và huấn luyện mô hình Ranking}{10}{section.4.3}%
-\contentsline {section}{\numberline {4.4}Giải pháp Train-on-Recall và Kết quả thử nghiệm}{10}{section.4.4}%
-\contentsline {chapter}{\numberline {5}Triển khai Hệ thống Phục vụ (Serving Pipeline)}{12}{chapter.5}%
-\contentsline {section}{\numberline {5.1}Thiết kế luồng phục vụ hệ thống (System Flow)}{12}{section.5.1}%
-\contentsline {section}{\numberline {5.2}Truy xuất vector lân cận gần nhất siêu tốc bằng FAISS Index}{13}{section.5.2}%
-\contentsline {section}{\numberline {5.3}Tích hợp Pipeline và cơ chế Ranker thời gian thực kháng lỗi}{13}{section.5.3}%
-\contentsline {section}{\numberline {5.4}Kiểm thử hệ thống (Smoke Testing)}{14}{section.5.4}%
-\contentsline {chapter}{\numberline {6}Kết luận và Hướng phát triển}{15}{chapter.6}%
-\contentsline {section}{\numberline {6.1}Tổng kết các kết quả đạt được}{15}{section.6.1}%
-\contentsline {section}{\numberline {6.2}Phân tích các vấn đề dữ liệu còn tồn đọng (Data Issues)}{15}{section.6.2}%
-\contentsline {section}{\numberline {6.3}Kế hoạch cải thiện dữ liệu và hệ thống (Data Improvement Plan)}{16}{section.6.3}%
-\contentsline {subsection}{\numberline {6.3.1}Kế hoạch cải thiện Dữ liệu (Data Improvement Plan)}{16}{subsection.6.3.1}%
-\contentsline {subsection}{\numberline {6.3.2}Kế hoạch nâng cấp Hệ thống (System Improvement Plan)}{16}{subsection.6.3.2}%
+\contentsline {chapter}{Tóm tắt nghiên cứu}{i}{Doc-Start}%
+\contentsline {chapter}{\numberline {1}Mở đầu}{1}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Lý do chọn đề tài}{1}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Mục tiêu của dự án}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Phạm vi thực hiện}{2}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Công nghệ sử dụng}{2}{section.1.4}%
+\contentsline {chapter}{\numberline {2}Cơ sở lý thuyết}{4}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Bài toán gợi ý sản phẩm trong thương mại điện tử}{4}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Phản hồi ẩn}{5}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Kiến trúc hệ gợi ý hai giai đoạn}{5}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Các kỹ thuật chính}{6}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Các chỉ số đánh giá}{6}{section.2.5}%
+\contentsline {chapter}{\numberline {3}Phân tích dữ liệu và tiền xử lý}{8}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Mô tả dữ liệu đầu vào}{8}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Phân tích đặc điểm dữ liệu}{9}{section.3.2}%
+\contentsline {section}{\numberline {3.3}Tiền xử lý dữ liệu}{10}{section.3.3}%
+\contentsline {section}{\numberline {3.4}Gán nhãn và trọng số mẫu}{10}{section.3.4}%
+\contentsline {section}{\numberline {3.5}Trích xuất đặc trưng và đặc trưng theo thời điểm}{11}{section.3.5}%
+\contentsline {chapter}{\numberline {4}Thiết kế hệ thống}{13}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Tổng quan kiến trúc}{13}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Luồng xử lý đầu cuối}{14}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Cấu trúc mã nguồn}{15}{section.4.3}%
+\contentsline {section}{\numberline {4.4}Các artifact đầu ra}{16}{section.4.4}%
+\contentsline {chapter}{\numberline {5}Xây dựng mô hình gợi ý}{17}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Mô hình Recall}{17}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Matrix Factorization bằng PyTorch}{18}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Huấn luyện Recall và tìm kiếm vector bằng FAISS}{18}{section.5.3}%
+\contentsline {section}{\numberline {5.4}Dual-channel Recall}{19}{section.5.4}%
+\contentsline {section}{\numberline {5.5}Mô hình Ranking}{20}{section.5.5}%
+\contentsline {section}{\numberline {5.6}Huấn luyện Ranking và Train-on-Recall}{20}{section.5.6}%
+\contentsline {chapter}{\numberline {6}Triển khai API và phục vụ gợi ý}{22}{chapter.6}%
+\contentsline {section}{\numberline {6.1}FastAPI server}{22}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Endpoint chính}{22}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Quy trình xử lý yêu cầu}{23}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Xử lý cold-start}{24}{section.6.4}%
+\contentsline {section}{\numberline {6.5}Xử lý thiếu đặc trưng khi phục vụ}{24}{section.6.5}%
+\contentsline {section}{\numberline {6.6}Đo độ trễ}{25}{section.6.6}%
+\contentsline {chapter}{\numberline {7}Kết quả thực nghiệm và đánh giá}{26}{chapter.7}%
+\contentsline {section}{\numberline {7.1}Kết quả pipeline dữ liệu}{26}{section.7.1}%
+\contentsline {section}{\numberline {7.2}Kết quả Recall}{27}{section.7.2}%
+\contentsline {section}{\numberline {7.3}Kết quả Ranking}{28}{section.7.3}%
+\contentsline {section}{\numberline {7.4}Kết quả phục vụ suy luận}{29}{section.7.4}%
+\contentsline {section}{\numberline {7.5}Nhận xét và hạn chế}{30}{section.7.5}%
+\contentsline {chapter}{\numberline {8}Kết luận và hướng phát triển}{32}{chapter.8}%
+\contentsline {section}{\numberline {8.1}Kết luận}{32}{section.8.1}%
+\contentsline {section}{\numberline {8.2}Hướng phát triển}{33}{section.8.2}%
+\contentsline {chapter}{\numberline {A}Phụ lục}{37}{appendix.A}%
+\contentsline {section}{\numberline {A.1}Lệnh chạy chương trình}{37}{section.A.1}%
+\contentsline {section}{\numberline {A.2}Ví dụ yêu cầu API}{37}{section.A.2}%
+\contentsline {section}{\numberline {A.3}Ví dụ phản hồi JSON}{37}{section.A.3}%
+\contentsline {section}{\numberline {A.4}Bảng siêu tham số}{39}{section.A.4}%

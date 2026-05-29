@@ -1,60 +1,84 @@
-\chapter{Triển khai Hệ thống Phục vụ (Serving Pipeline)}
+﻿\chapter{Triển khai API và phục vụ gợi ý}
 
-\section{Thiết kế luồng phục vụ hệ thống (System Flow)}
-Serving Pipeline là cầu nối trực tiếp tiếp nhận các yêu cầu truy vấn của người dùng thời gian thực thông qua API và trả về kết quả khuyến nghị cá nhân hóa. Chúng em xây dựng máy chủ FastAPI và Uvicorn hiệu năng cao:
-\begin{itemize}
-    \item \textbf{In-Memory Feature Tables:} Tải toàn bộ thuộc tính tĩnh Parquet (\texttt{user\_features.parquet}, \texttt{item\_features.parquet}) và FAISS Index lên bộ nhớ RAM ngay khi API khởi động, triệt tiêu hoàn toàn nghẽn Disk I/O.
-    \item \textbf{Luồng vận hành Serving:} 
-        \begin{enumerate}
-            \item Tiếp nhận yêu cầu \texttt{GET /recommend/\{user\_id\}?session\_items=A,B,C} chứa ID người dùng và lịch sử các sản phẩm vừa click tương tác trong phiên.
-            \item Phân phối song song hai kênh triệu hồi FAISS (Sở thích lâu dài \& Phiên tức thì).
-            \item Gộp ứng viên và loại trùng lặp (loại bỏ các mặt hàng trùng nhau).
-            \item Trích xuất thuộc tính tĩnh từ RAM Feature Store, ghép nối với đặc trưng phiên tính động tại thời điểm API chạy.
-            \item Đưa dữ liệu bảng vào LightGBM Ranker để chấm điểm xác suất chuyển đổi CTR kháng lỗi.
-            \item Sắp xếp điểm số giảm dần và trả về Top 20 sản phẩm khuyến nghị tốt nhất định dạng JSON.
-        \end{enumerate}
-\end{itemize}
+Chương này trình bày cách các mô hình và artifact đã huấn luyện được đưa vào luồng phục vụ trực tuyến. Nội dung bao gồm cách khởi động FastAPI server, các endpoint chính, quy trình xử lý request, cơ chế cold-start, xử lý thiếu đặc trưng và cách hệ thống ghi nhận độ trễ.
 
-\section{Truy xuất vector lân cận gần nhất siêu tốc bằng FAISS Index}
-Để đảm bảo khâu triệu hồi thô diễn ra trong chưa đầy 3ms, chúng em sử dụng thư viện \textbf{FAISS (Facebook AI Similarity Search)} viết bằng C++:
-\begin{itemize}
-    \item Dựng chỉ mục tìm kiếm vector xấp xỉ Flat Inner Product (\texttt{faiss.IndexFlatIP}) dựa trên tích vô hướng Dot Product của embeddings ẩn 64 chiều.
-    \item Tìm kiếm song song: Truy vấn cùng lúc 100 sản phẩm lân cận cho kênh lâu dài và 100 sản phẩm lân cận cho kênh phiên tức thì (thông qua Average Session Embedding).
-    \item FAISS cho phép thực hiện tìm kiếm vector trên RAM chỉ tốn \textbf{0.013 giây} cho cơ sở dữ liệu \textbf{24,428 sản phẩm} lúc khởi động, đảm bảo thời gian quét vector phục vụ API chỉ mất dưới \textbf{2.24ms}.
-\end{itemize}
+\section{FastAPI server}
+Dự án sử dụng FastAPI để triển khai API phục vụ gợi ý sản phẩm \cite{fastapi2026docs}. FastAPI là một framework phù hợp cho các hệ thống suy luận mô hình vì có tốc độ tốt, cú pháp rõ ràng và hỗ trợ xây dựng REST endpoint một cách đơn giản. Trong dự án, file \texttt{main\_serve.py} đóng vai trò là entrypoint cho phần phục vụ suy luận.
+\medskip
 
-\section{Tích hợp Pipeline và cơ chế Ranker thời gian thực kháng lỗi}
-Khâu xếp hạng lại trực tuyến LightGBM GBDT được thiết lập cơ chế \textbf{kháng lỗi suy luận động (Fault-Tolerant Serving)} vô cùng mạnh mẽ tại \texttt{src/serving/ranker.py}:
-\begin{itemize}
-    \item \textbf{Dynamic Feature Alignment (Tự động so khớp đặc trưng):} Trong môi trường thực tế, nếu mô hình LightGBM được huấn luyện với các cột đặc trưng bổ sung nhưng Feature Store Serving bị thiếu cột, LightGBM sẽ crash. Hệ thống tự động gọi \texttt{self.model.feature\_name()} lúc khởi động để trích xuất danh sách cột mô hình mong đợi. Sau đó, nó tự động đối chiếu, bù đắp các cột thiếu bằng giá trị mặc định (\texttt{\textless UNKNOWN\textgreater} cho phân loại, \texttt{0.0} cho số học) và sắp xếp lại các cột theo đúng thứ tự mô hình yêu cầu trước khi chấm điểm. Điều này đảm bảo API không bao giờ bị gián đoạn hay crash.
-    \item \textbf{Cold-Start Fallback:} Nếu gặp một \texttt{user\_id} mới hoàn toàn (chưa có trong Feature Store), hệ thống tự động chuyển hướng gợi ý danh sách sản phẩm thịnh hành nhất (\texttt{\_popular\_fallback\_recommendations}) dựa trên tương tác lịch sử thực tế mà không gây lỗi runtime.
-\end{itemize}
+Khi server khởi động, ứng dụng tạo một đối tượng \texttt{RecommendationPipeline} và gọi phương thức \texttt{initialize()}. Quá trình này nạp các bảng kho đặc trưng, encoder, FAISS index, mô hình Recall PyTorch và mô hình Ranking LightGBM vào bộ nhớ. Việc nạp sẵn các thành phần này giúp API không phải đọc lại mô hình hoặc dữ liệu từ đĩa cho từng request, từ đó giảm đáng kể thời gian phản hồi.
+\medskip
 
-\section{Kiểm thử hệ thống (Smoke Testing)}
-Để xác thực tính đúng đắn và hiệu năng thực tế của luồng phục vụ, chúng em phát triển kịch bản kiểm thử tích hợp tự động \textbf{Smoke Testing} (\texttt{tests/smoke\_test.py}):
-\begin{enumerate}
-    \item Khởi chạy tự động Pipeline, nạp encoders, nạp PyTorch MF model và LightGBM ranker.
-    \item Kiểm tra luồng khởi động: Pipeline sẵn sàng phục vụ chỉ sau \textbf{0.85 giây}.
-    \item Mô phỏng truy vấn Serving cho User ID $244951053$. Kết quả suy luận thành công mượt mà, trả về đúng định dạng cấu trúc JSON chứa Top 5 sản phẩm đề xuất tốt nhất.
-    \item Tổng độ trễ Serving được đo lường thực tế đạt mức rất thấp: \textbf{16.89 ms} (nằm sâu dưới giới hạn tiêu chuẩn công nghiệp 50ms).
-\end{enumerate}
+Sau khi khởi động, API chạy tại địa chỉ mặc định \texttt{http://127.0.0.1:8000}. Người dùng hoặc ứng dụng client có thể gửi request đến các endpoint của hệ thống để lấy danh sách sản phẩm gợi ý.
 
-\begin{table}[H]
+\section{Endpoint chính}
+Hệ thống cung cấp các endpoint chính phục vụ việc kiểm tra trạng thái và lấy danh sách gợi ý. Endpoint gốc \texttt{/} trả về thông báo đơn giản cho biết API đã sẵn sàng. Endpoint quan trọng nhất là \texttt{/recommend/\{user\_id\}}, nhận vào định danh người dùng và trả về danh sách sản phẩm gợi ý. Ngoài ra, hệ thống hỗ trợ tham số \texttt{session\_items} để truyền thêm danh sách sản phẩm người dùng đang tương tác trong phiên hiện tại.
+\medskip
+
+Với request \texttt{GET /recommend/\{user\_id\}}, hệ thống chỉ sử dụng thông tin lịch sử dài hạn của người dùng để truy hồi ứng viên. Với request có thêm \texttt{session\_items}, hệ thống kích hoạt thêm kênh Recall dựa trên phiên hiện tại. Endpoint \texttt{/recommend-by-index/}\allowbreak\texttt{\{user\_idx\}} chủ yếu phục vụ kiểm thử nội bộ, trong đó người dùng được truy cập thông qua chỉ số đã mã hóa thay vì \texttt{user\_id} gốc.
+
+\section{Quy trình xử lý yêu cầu}
+Khi nhận một request gợi ý, hệ thống trước tiên đọc \texttt{user\_id}, tham số \texttt{top\_n} và tùy chọn \texttt{session\_items}. Nếu \texttt{session\_items} được truyền qua tham số truy vấn (query parameter), chuỗi này sẽ được tách theo dấu phẩy và chuyển thành danh sách mã sản phẩm dạng số nguyên. Nếu định dạng không hợp lệ, API trả về lỗi để tránh đưa dữ liệu sai vào pipeline.
+\medskip
+
+Sau khi nhận request hợp lệ, pipeline kiểm tra xem \texttt{user\_id} có tồn tại trong encoder hay không. Nếu người dùng đã có trong dữ liệu huấn luyện, hệ thống ánh xạ \texttt{user\_id} sang \texttt{user\_idx} và lấy user embedding từ mô hình Recall. Vector này được sử dụng để truy vấn FAISS theo kênh dài hạn (long-term), tức là kênh biểu diễn sở thích dài hạn của người dùng.
+\medskip
+
+Nếu request có truyền \texttt{session\_items}, hệ thống tiếp tục xử lý kênh Recall dựa trên phiên hiện tại (session-based recall). Các \texttt{product\_id} trong phiên được ánh xạ sang item index. Với những sản phẩm hợp lệ, pipeline lấy item embedding tương ứng từ mô hình Recall và tính vector trung bình. Vector này đại diện cho nhu cầu hiện tại của người dùng trong phiên. Sau đó, hệ thống truy vấn FAISS lần thứ hai để lấy các sản phẩm tương đồng với vector phiên.
+\medskip
+
+Kết quả từ hai kênh Recall được gộp lại và loại bỏ trùng lặp. Với mỗi ứng viên, pipeline ghi nhận sản phẩm đó đến từ kênh long-term, kênh session-based hoặc cả hai. Thông tin này được chuyển thành hai đặc trưng \texttt{recalled\_by\_long\_term} và \texttt{recalled\_by\_session}, giúp mô hình Ranking biết được nguồn gốc của từng ứng viên.
+\medskip
+
+Sau khi có danh sách ứng viên, hệ thống tiến hành tra cứu đặc trưng. Đặc trưng sản phẩm được lấy từ \texttt{item\_features}, còn đặc trưng người dùng được lấy từ \texttt{user\_features}. Các đặc trưng động của phiên, chẳng hạn \texttt{user\_session\_interaction\_count}, được tính trực tiếp tại thời điểm xử lý request dựa trên độ dài của danh sách \texttt{session\_items}. Tập đặc trưng hoàn chỉnh sau đó được đưa vào LightGBM để dự đoán điểm phù hợp cho từng sản phẩm. Toàn bộ trao đổi giữa client, API, pipeline, FAISS và LightGBM được thể hiện trong Hình~\ref{fig:api_request_sequence}.
+
+\begin{figure}[H]
 \centering
-\caption{Bảng đo lường độ trễ chi tiết các bước trong API Serving trực tuyến}
-\label{tab:serving_latency}
-\renewcommand{\arraystretch}{1.3}
-\setlength{\tabcolsep}{15pt}
-\begin{tabular}{lcc}
-\toprule
-\textbf{Bước phục vụ (Steps)} & \textbf{Độ trễ đo được (ms)} & \textbf{Tỷ trọng (\%)} \\
-\midrule
-1. Tra cứu Feature Store RAM & 2.8 ms & 12.4\% \\
-2. Triệu hồi vector FAISS (Dual-Channel) & 4.5 ms & 20.0\% \\
-3. Chấm điểm xếp hạng LightGBM GBDT & 12.2 ms & 54.2\% \\
-4. Gom nhóm và trả về JSON API & 3.0 ms & 13.4\% \\
-\midrule
-\textbf{Tổng độ trễ toàn chu trình (Total)} & \textbf{22.5 ms} & \textbf{100\%} \\
-\bottomrule
-\end{tabular}
-\end{table}
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    lifeline/.style={rectangle, draw, rounded corners, align=center, minimum width=2.4cm, minimum height=0.8cm},
+    msg/.style={-{Latex[length=2mm]}, thick}
+]
+    \node[lifeline] (client) at (0,0) {Client};
+    \node[lifeline] (api) at (2.8,0) {FastAPI};
+    \node[lifeline] (pipe) at (5.6,0) {Pipeline};
+    \node[lifeline] (faiss) at (8.4,0) {FAISS};
+    \node[lifeline] (ranker) at (11.2,0) {LightGBM};
+
+    \foreach \x in {0,2.8,5.6,8.4,11.2} {
+        \draw[gray!45, dashed] (\x,-0.55) -- (\x,-5.0);
+    }
+
+    \draw[msg] (0,-1.0) -- node[above, sloped] {\small \texttt{/recommend}} (2.8,-1.0);
+    \draw[msg] (2.8,-1.8) -- node[above, sloped] {\small gọi \texttt{recommend()}} (5.6,-1.8);
+    \draw[msg] (5.6,-2.6) -- node[above, sloped] {\small truy hồi ứng viên} (8.4,-2.6);
+    \draw[msg] (8.4,-3.1) -- node[above, sloped] {\small chỉ số ứng viên} (5.6,-3.1);
+    \draw[msg] (5.6,-3.8) -- node[above, sloped] {\small đặc trưng ứng viên} (11.2,-3.8);
+    \draw[msg] (11.2,-4.3) -- node[above, sloped] {\small điểm ranking} (5.6,-4.3);
+    \draw[msg] (5.6,-4.8) -- node[above, sloped] {\small JSON Top-N} (2.8,-4.8);
+    \draw[msg] (2.8,-5.3) -- node[above, sloped] {\small phản hồi} (0,-5.3);
+\end{tikzpicture}
+}
+\caption{Luồng xử lý một yêu cầu gợi ý trong API FastAPI}
+\label{fig:api_request_sequence}
+\end{figure}
+
+Hình~\ref{fig:api_request_sequence} cho thấy API chỉ đóng vai trò tiếp nhận và trả response, còn phần lớn logic gợi ý nằm trong \texttt{RecommendationPipeline}. Cách tổ chức này giúp tách lớp giao tiếp HTTP khỏi lớp suy luận mô hình, nhờ đó việc kiểm thử pipeline có thể thực hiện độc lập với FastAPI server.
+
+\section{Xử lý cold-start}
+Khởi đầu lạnh (cold-start) là vấn đề phổ biến trong hệ thống gợi ý. Trường hợp này xảy ra khi hệ thống gặp một người dùng mới chưa từng xuất hiện trong dữ liệu huấn luyện. Vì mô hình Matrix Factorization chỉ học embedding cho những người dùng đã có trong tập huấn luyện, hệ thống không thể lấy user embedding cho một \texttt{user\_id} hoàn toàn mới.
+\medskip
+
+Để tránh API bị lỗi trong tình huống này, pipeline triển khai cơ chế dự phòng (fallback) dựa trên sản phẩm phổ biến. Nếu \texttt{user\_id} không tồn tại trong mapping, hệ thống bỏ qua giai đoạn Recall bằng user embedding và trả về danh sách các sản phẩm có \texttt{item\_total\_interactions} cao nhất. Đây là cách xử lý đơn giản nhưng hiệu quả trong phạm vi dự án, vì các sản phẩm phổ biến thường có xác suất được quan tâm cao hơn so với sản phẩm ít tương tác.
+
+\section{Xử lý thiếu đặc trưng khi phục vụ}
+Một rủi ro thường gặp khi triển khai mô hình học máy là sự không đồng bộ giữa đặc trưng lúc huấn luyện và đặc trưng lúc phục vụ. Nếu mô hình LightGBM được huấn luyện với một danh sách cột nhất định nhưng dữ liệu phục vụ suy luận thiếu cột hoặc sai thứ tự cột, quá trình dự đoán có thể bị lỗi hoặc cho kết quả không chính xác.
+\medskip
+
+Để giảm rủi ro này, lớp \texttt{LightGBMRanker} trong dự án tự động đọc danh sách đặc trưng mà mô hình yêu cầu thông qua \texttt{model.feature\_name()}. Khi nhận dữ liệu ứng viên từ pipeline, lớp này kiểm tra xem tất cả các cột cần thiết đã tồn tại hay chưa. Nếu thiếu cột số, hệ thống bổ sung giá trị mặc định là 0.0. Nếu thiếu cột phân loại như \texttt{category\_code} hoặc \texttt{brand}, hệ thống bổ sung giá trị \texttt{<UNKNOWN>}. Sau đó, dữ liệu đầu vào được sắp xếp lại đúng thứ tự đặc trưng mà mô hình LightGBM đã học.
+
+\section{Đo độ trễ}
+Đối với hệ thống gợi ý trực tuyến, độ trễ (latency) là một chỉ số quan trọng bên cạnh chất lượng mô hình. Người dùng thường kỳ vọng danh sách gợi ý được hiển thị gần như ngay lập tức, vì vậy pipeline phục vụ suy luận cần được thiết kế để hạn chế các thao tác tốn thời gian trong mỗi yêu cầu.
+\medskip
+
+Trong dự án, phương thức \texttt{recommend\_by\_index()} ghi nhận thời gian xử lý của từng thành phần. Thời gian lấy user embedding phản ánh chi phí truy cập mô hình PyTorch để lấy vector người dùng. Thời gian tìm kiếm FAISS đo chi phí truy hồi ứng viên từ một hoặc hai kênh Recall. Thời gian tra cứu đặc trưng đo chi phí lấy đặc trưng từ các bảng kho đặc trưng đã nạp trong bộ nhớ. Thời gian xếp hạng phản ánh chi phí LightGBM dự đoán điểm cho toàn bộ ứng viên. Ngoài ra, hệ thống cũng đo thời gian sắp xếp kết quả và tổng độ trễ của request.
