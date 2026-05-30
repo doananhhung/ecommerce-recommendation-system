@@ -535,37 +535,35 @@
     </div>
 
     <!-- --- APP FOOTER (CONTROLS & PROGRESS) --- -->
-    <div class="presentation-footer">
-        <div class="footer-left">
-            <div class="speaker-notes-btn" id="notes-btn" onclick="toggleSpeakerNotes()" title="Speaker Notes (S)">
-                <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 14H6v-2h2v2zm0-3H6V9h2v2zm0-3H6V6h2v2zm7 6h-5v-2h5v2zm3-3h-8V9h8v2zm0-3h-8V6h8v2z"/></svg>
-                <span>Notes</span>
-            </div>
-        </div>
-
-        <div class="footer-center">
+    <footer>
+        <div class="controls-left">
+            <button class="btn-nav" id="btn-prev" onclick="changeSlide(-1)" title="Previous Slide (Left Arrow)">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+            </button>
             <div class="slide-counter">
                 <span id="current-slide-num">1</span> / <span id="total-slides-num">22</span>
             </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="slide-progress-bar"></div>
-                </div>
-            </div>
+            <button class="btn-nav" id="btn-next" onclick="changeSlide(1)" title="Next Slide (Right Arrow)">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </button>
+            <button class="btn-nav" id="notes-btn" onclick="toggleSpeakerNotes()" title="Speaker Notes (S)">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 14H6v-2h2v2zm0-3H6V9h2v2zm0-3H6V6h2v2zm7 6h-5v-2h5v2zm3-3h-8V9h8v2zm0-3h-8V6h8v2z"/></svg>
+            </button>
         </div>
 
-        <div class="footer-right">
-            <button class="nav-btn" id="btn-prev" onclick="changeSlide(-1)" title="Previous Slide (Left Arrow)">
-                <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
-            </button>
-            <button class="nav-btn" id="btn-next" onclick="changeSlide(1)" title="Next Slide (Right Arrow / Space)">
-                <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
-            </button>
-            <div class="fs-btn" onclick="toggleFullscreen()" title="Fullscreen (P)">
-                <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
-            </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="slide-progress-bar"></div>
         </div>
-    </div>
+
+        <div class="shortcuts-help">
+            <button class="btn-nav" onclick="toggleFullscreen()" title="Fullscreen (P)">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+            </button>
+            <span><span class="shortcut-badge">Space</span> Next</span>
+            <span><span class="shortcut-badge">P</span> Fullscreen</span>
+            <span><span class="shortcut-badge">S</span> Notes</span>
+        </div>
+    </footer>
 
     <div class="notes-modal" id="notes-modal">
         <div class="notes-modal-content">
