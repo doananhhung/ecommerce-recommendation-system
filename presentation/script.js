@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     let currentSlide = 1;
-    const totalSlides = 18;
+    const totalSlides = 22; // Updated to 22 slides
     const slides = [];
 
     // Cache slides elements
