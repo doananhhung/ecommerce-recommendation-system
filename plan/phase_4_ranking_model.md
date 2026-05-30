@@ -18,8 +18,8 @@ Mục tiêu: Sử dụng cây quyết định Gradient Boosting (LightGBM) để
   - [x] Thống nhất danh sách đặc trưng số và phân loại tại `config.py` để tránh phân tán.
   - [x] Cập nhật `run_ranking.py` để nạp động đặc trưng từ `config.py` thay vì hardcode cứng danh sách cũ, giúp mô hình tự học các đặc trưng phiên mới (`user_session_interaction_count`, `item_session_popularity`, `recalled_by_long_term`, `recalled_by_session`).
 
-- [ ] **6. Triển khai Giải pháp 1: Huấn luyện trên Danh sách Ứng viên Recall thực tế (Train-on-Recall)**
-  - [ ] **6.1. Xây dựng Script Sinh dữ liệu huấn luyện Ranking từ Recall Candidates:**
+- [x] **6. Triển khai Giải pháp 1: Huấn luyện trên Danh sách Ứng viên Recall thực tế (Train-on-Recall)**
+  - [x] **6.1. Xây dựng Script Sinh dữ liệu huấn luyện Ranking từ Recall Candidates:**
     - Tạo script `src/ranking_model/train_on_recall.py`.
     - Tải sẵn `RecommendationPipeline` từ khâu Serving để tái sử dụng toàn bộ logic triệu hồi 2 kênh song song kết hợp FAISS.
     - Với mỗi nhóm phiên tương tác thực tế của người dùng `(user_id, custom_session_id)` trong `labeled_sessions.parquet`:
@@ -28,11 +28,11 @@ Mục tiêu: Sử dụng cây quyết định Gradient Boosting (LightGBM) để
       - Tạo các bản ghi mẫu âm (Negative Samples) từ các ứng viên được recall nhưng người dùng KHÔNG tương tác trong phiên. Gán nhãn `0` và `sample_weight = 0.1`.
       - Các ứng viên trùng với tương tác thực tế sẽ được gán nhãn thực tế (`view` = 0, `cart/purchase` = 1) và `sample_weight` tương ứng.
       - Ghép nối các đặc trưng User/Item tĩnh và động.
-  - [ ] **6.2. Chia dữ liệu Train/Test và Huấn luyện LightGBM:**
+  - [x] **6.2. Chia dữ liệu Train/Test và Huấn luyện LightGBM:**
     - Áp dụng Time-based Splitting 80/20 nghiêm ngặt để chia tập dữ liệu Ranking mới.
     - Huấn luyện LightGBM Binary Classifier với `sample_weight` và cấu hình mất cân bằng.
-  - [ ] **6.3. Đánh giá chất lượng xếp hạng sau cải tiến:**
+  - [x] **6.3. Đánh giá chất lượng xếp hạng sau cải tiến:**
     - Tính toán Validation AUC, NDCG@10 và MRR trên tập kiểm thử thực tế.
     - Kiểm nghiệm sự cải thiện vượt bậc của các chỉ số xếp hạng so với phiên bản baseline.
-  - [ ] **6.4. Đồng bộ hóa và cập nhật mô hình:**
+  - [x] **6.4. Đồng bộ hóa và cập nhật mô hình:**
     - Lưu mô hình xếp hạng mới cải tiến vào `models_store/ranker_model.txt`.
