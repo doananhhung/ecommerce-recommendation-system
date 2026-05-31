@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader
 import numpy as np
 import os
+from src.config import config
 
 class FocalLoss(nn.Module):
     """
@@ -22,7 +23,10 @@ class FocalLoss(nn.Module):
         inputs = torch.clamp(inputs, min=1e-7, max=1.0 - 1e-7)
         bce_loss = F.binary_cross_entropy(inputs, targets, reduction='none')
         pt = torch.exp(-bce_loss)
-        focal_loss = self.alpha * (1 - pt) ** self.gamma * bce_loss
+        
+        alpha = torch.as_tensor(self.alpha, device=targets.device, dtype=targets.dtype)
+        alpha_t = torch.where(targets == 1, alpha, 1 - alpha)
+        focal_loss = alpha_t * (1 - pt) ** self.gamma * bce_loss
 
         if self.reduction == 'mean':
             return focal_loss.mean()
@@ -40,7 +44,7 @@ class RecallTrainer:
         self.model = model.to(self.device)
         
         # Sử dụng Focal Loss thay vì BCELoss cơ bản
-        self.criterion = FocalLoss(alpha=0.25, gamma=2.0)
+        self.criterion = FocalLoss(alpha=config.RECALL_POS_ALPHA, gamma=2.0)
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
         
     def train(self, dataloader: DataLoader, epochs: int = 5):

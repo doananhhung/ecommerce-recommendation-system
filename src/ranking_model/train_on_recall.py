@@ -12,9 +12,16 @@ from src.ranking_model.lgbm_train import RankingTrainer
 def generate_train_on_recall_dataset(pipeline: RecommendationPipeline, df_interactions: pd.DataFrame):
     print("Generating Train-on-Recall dataset...")
     
-    # Load feature snapshots
-    user_feats_df = pipeline.user_features.copy()
-    item_feats_df = pipeline.item_features.copy()
+    # 1. Trích xuất Point-in-time features từ df_interactions thay vì dùng snapshot
+    print("Extracting Point-in-time User and Item States...")
+    user_state_df = df_interactions[["user_id", "event_time", "user_total_interactions", "user_total_sessions"]].copy()
+    user_state_df = user_state_df.sort_values("event_time").drop_duplicates(["user_id", "event_time"], keep="last")
+    
+    item_cols = ["product_id", "event_time", "item_total_interactions", "item_unique_users", 
+                 "item_avg_price", "category_code", "brand", "item_session_popularity"]
+    item_cols = [c for c in item_cols if c in df_interactions.columns]
+    item_state_df = df_interactions[item_cols].copy()
+    item_state_df = item_state_df.sort_values("event_time").drop_duplicates(["product_id", "event_time"], keep="last")
     
     # Group interactions by user_id and custom_session_id to process session by session
     # Sort event_time to keep strict chronological order for session-level times
@@ -131,13 +138,27 @@ def generate_train_on_recall_dataset(pipeline: RecommendationPipeline, df_intera
             
     df_result = pd.DataFrame(records)
     
-    # 5. High-performance Vectorized Merge for static features
-    print("Performing vectorized feature store join...")
-    user_feats_clean = user_feats_df.reset_index(drop=True) if "user_id" in user_feats_df.columns else user_feats_df.reset_index()
-    item_feats_clean = item_feats_df.reset_index(drop=True) if "product_id" in item_feats_df.columns else item_feats_df.reset_index()
+    # 5. High-performance Vectorized Merge for Point-in-time features
+    print("Performing vectorized point-in-time feature join (merge_asof)...")
     
-    df_result = df_result.merge(user_feats_clean, on="user_id", how="left")
-    df_result = df_result.merge(item_feats_clean, on="product_id", how="left")
+    # Đảm bảo dataset được sort trước khi dùng merge_asof
+    df_result = df_result.sort_values("event_time").reset_index(drop=True)
+    
+    df_result = pd.merge_asof(
+        df_result, 
+        user_state_df,
+        on="event_time",
+        by="user_id",
+        direction="backward"
+    )
+    
+    df_result = pd.merge_asof(
+        df_result, 
+        item_state_df,
+        on="event_time",
+        by="product_id",
+        direction="backward"
+    )
     
     print(f"Generated dataset with {len(df_result)} rows.")
     return df_result

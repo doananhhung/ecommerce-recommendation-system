@@ -7,13 +7,10 @@ from src.ranking_model.lgbm_train import RankingTrainer
 
 def run_ranking_training():
     print("1. Loading Data...")
-    df_interactions = pd.read_parquet(config.LABELED_SESSIONS_PATH)
-    user_features = pd.read_parquet(config.USER_FEATURES_PATH)
-    item_features = pd.read_parquet(config.ITEM_FEATURES_PATH)
-    
-    print("2. Joining Features...")
-    df = df_interactions.merge(user_features, on='user_id', how='left')
-    df = df.merge(item_features, on='product_id', how='left')
+    df = pd.read_parquet(config.LABELED_SESSIONS_PATH)
+    # user_features và item_features là snapshot phục vụ serving.
+    # Trong lúc training, df_interactions đã chứa point-in-time features.
+    # Việc merge ở đây không những làm mất feature (sinh ra _x, _y) mà còn gây rò rỉ dữ liệu (data leakage).
     
     # Xử lý missing values đúng chuẩn thay vì fillna(0) toàn bộ
     if 'category_code' in df.columns:

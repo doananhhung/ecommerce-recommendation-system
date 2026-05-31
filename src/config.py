@@ -34,6 +34,9 @@ class ProjectConfig:
     RECALL_LEARNING_RATE: float = 0.01
     RECALL_EPOCHS: int = 5
     RECALL_NEG_SAMPLE_RATIO: int = 4 # 1 positive : X negatives
+    RECALL_POS_ALPHA: float = 0.75
+    HARD_NEG_RATIO: int = 2
+    EASY_NEG_RATIO: int = 2
 
     # Ranking Model Hyperparameters
     RANKING_LEARNING_RATE: float = 0.05

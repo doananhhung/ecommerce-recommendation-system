@@ -124,6 +124,21 @@ class RecommendationPipeline:
         total_start = time.time()
         user_idx = self._user_id_to_idx(user_id)
         if user_idx is None:
+            # Cold-start user fallback path
+            if session_items and len(session_items) > 0:
+                valid_session_item_idxs = []
+                for pid in session_items:
+                    if int(pid) in self.product_id_to_idx:
+                        valid_session_item_idxs.append(self.product_id_to_idx[int(pid)])
+                
+                if len(valid_session_item_idxs) > 0:
+                    return self._recommend_cold_session(
+                        user_id=user_id,
+                        valid_session_item_idxs=valid_session_item_idxs,
+                        top_n=top_n,
+                        total_start=total_start,
+                        session_items=session_items
+                    )
             return self._popular_fallback_recommendations(
                 user_id=user_id,
                 user_idx=-1,
@@ -132,6 +147,97 @@ class RecommendationPipeline:
             )
 
         return self.recommend_by_index(user_idx=user_idx, top_n=top_n, user_id=user_id, session_items=session_items)
+
+    def _recommend_cold_session(
+        self,
+        user_id: int,
+        valid_session_item_idxs: list,
+        top_n: int = 20,
+        total_start: Optional[float] = None,
+        session_items: Optional[list] = None,
+    ) -> Dict[str, Any]:
+        if total_start is None:
+            total_start = time.time()
+            
+        metrics = {}
+        metrics["user_emb_time_ms"] = 0.0
+        
+        # Calculate dynamic session interest vector (mean embedding)
+        with torch.no_grad():
+            item_idxs_tensor = torch.tensor(valid_session_item_idxs, dtype=torch.long)
+            item_embs = self.recall_model.item_embedding(item_idxs_tensor) # shape: [len, dim]
+            session_vector = item_embs.mean(dim=0).cpu().numpy()
+            
+        top_k_session = min(100, self.faiss_searcher.num_items)
+        session_scores, session_indices, faiss_time_session = self.faiss_searcher.search(session_vector, top_k=top_k_session)
+        metrics["faiss_search_time_ms"] = faiss_time_session * 1000
+        
+        if len(session_indices) == 0:
+            return self._popular_fallback_recommendations(
+                user_id=user_id,
+                user_idx=-1,
+                top_n=top_n,
+                total_start=total_start,
+            )
+            
+        # Build candidate features
+        candidate_indices = np.array(session_indices)
+        product_ids = self.item_idx_to_product_id[candidate_indices]
+        
+        lookup_start = time.time()
+        candidates_df = self.item_features.reindex(product_ids).copy()
+        candidates_df["product_id"] = product_ids
+        candidates_df["item_idx"] = candidate_indices
+        
+        # User features = 0 for cold user
+        candidates_df["user_total_interactions"] = 0.0
+        candidates_df["user_total_sessions"] = 0.0
+        
+        # Dynamic session count
+        session_length = len(session_items) if session_items else 0
+        candidates_df["user_session_interaction_count"] = float(session_length)
+        
+        # Recall channel indicators
+        candidates_df["recalled_by_long_term"] = 0.0
+        candidates_df["recalled_by_session"] = 1.0
+        
+        if "item_session_popularity" not in candidates_df.columns:
+            candidates_df["item_session_popularity"] = 0.0
+            
+        metrics["feature_lookup_time_ms"] = (time.time() - lookup_start) * 1000
+        
+        # Predict using LightGBM ranker
+        preds, rank_time = self.ranker.predict(candidates_df)
+        metrics["ranking_time_ms"] = rank_time * 1000
+        
+        sort_start = time.time()
+        top_n_local_indices = np.argsort(preds)[::-1][:top_n]
+        top_n_global_indices = candidate_indices[top_n_local_indices]
+        top_n_product_ids = product_ids[top_n_local_indices]
+        top_n_scores = preds[top_n_local_indices]
+        
+        metrics["sort_time_ms"] = (time.time() - sort_start) * 1000
+        metrics["total_latency_ms"] = (time.time() - total_start) * 1000
+        
+        recommendations = [
+            {
+                "product_id": int(product_id),
+                "item_idx": int(item_idx),
+                "score": float(score),
+            }
+            for product_id, item_idx, score in zip(
+                top_n_product_ids,
+                top_n_global_indices,
+                top_n_scores,
+            )
+        ]
+        
+        return {
+            "user_id": int(user_id),
+            "user_idx": -1,
+            "recommendations": recommendations,
+            "latency_metrics": metrics,
+        }
 
     def recommend_by_index(
         self,
