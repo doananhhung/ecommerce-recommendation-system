@@ -1,13 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     let currentSlide = 1;
-    const totalSlides = 22; // Updated to 22 slides
-    const slides = [];
-
-    // Cache slides elements
-    for (let i = 1; i <= totalSlides; i++) {
-        const slideEl = document.getElementById(`slide-${i}`);
-        if (slideEl) slides.push(slideEl);
-    }
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const totalSlides = slides.length;
 
     const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
